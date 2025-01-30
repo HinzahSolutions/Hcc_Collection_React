@@ -14,8 +14,11 @@ import {
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format,parse  } from "date-fns";
 import { MdDelete } from "react-icons/md";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 
 function Client() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -68,6 +71,7 @@ function Client() {
         return response.json();
       })
         .then((data) => dispatch(setUsers(data)))
+        .then((data) => console.log(data))
         .catch((error) => console.error("Fetch error:", error));
     } else {
       console.error("No authorization token found in localStorage");
@@ -96,6 +100,7 @@ function Client() {
           return response.json();
         })
         .then((data) => dispatch(setEmployees(data)))
+          
         .catch((error) => console.error("Fetch error:", error));
     } else {
       console.error("No authorization token found in localStorage");
@@ -108,25 +113,6 @@ function Client() {
     localStorage.removeItem("userName");
     navigate("/login");
   };
-  
-  // useEffect(() => {
-  //   const Authorization = localStorage.getItem("authToken");
-  //   if (Authorization) {
-  //     fetch(`${API_URL}/acc_list`, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: Authorization,
-  //       },
-  //     })
-
-  //       .then((response) => response.json())
-  //       .then((data) => dispatch(setUsers(data)))
-  //       .catch((error) => console.error("Fetch error:", error));
-  //   } else {
-  //     console.error("No authorization token found in localStorage");
-  //   }
-  // }, [dispatch, users]); 
   
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -163,48 +149,67 @@ function Client() {
   const DashboardPaid = () => setDashboardNav("paid");
   const DashboardUnpaid = () => setDashboardNav("unpaid");
 
-  // const filteredData = useMemo(() => {
-  //   return users.filter((row) => {
-  //     const clientName = row.client_name || "";
-  //     const clientContact = row.client_contact || "";
-  //     const query = searchQuery || "";
-  //     const paid_and_unpaid = row.paid_and_unpaid;
 
-  //     return (
-  //       (clientName.toLowerCase().includes(query.toLowerCase()) ||
-  //         clientContact.includes(query)) &&
-  //       (dashboardNav === "client" ||
-  //         (dashboardNav === "paid" && paid_and_unpaid == 1) ||
-  //         (dashboardNav === "unpaid" && paid_and_unpaid == 0))
-  //     );
-  //   });
-  // }, [users, searchQuery, dashboardNav]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
 
+
+const handleDateChange = (date) => {
+  setSelectedDate(date ? format(date, "dd-MM-yyyy") : null);
+};
 
   const filteredData = useMemo(() => {
-    if (!Array.isArray(users)) return []; // Ensure users is an array
-    
+    if (!Array.isArray(users)) return [];
+  
     return users.filter((row) => {
-      const clientName = row.client_name || "";
-      const clientContact = row.client_contact || "";
-      const query = searchQuery || "";
-      const paid_and_unpaid = row.paid_and_unpaid;
+      const clientName = row.client_name?.toLowerCase().trim() || "";
+      const clientContact = row.client_contact?.toLowerCase().trim() || "";
+      const employeeName = row.employee_name?.toLowerCase().trim() || "";
+      
+      // Ensure account number is a string and convert it to uppercase
+      const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : ""; 
   
-      return (
-        (clientName.toLowerCase().includes(query.toLowerCase()) ||
-          clientContact.includes(query)) &&
-        (dashboardNav === "client" ||
-          (dashboardNav === "paid" && paid_and_unpaid == 1) ||
-          (dashboardNav === "unpaid" && paid_and_unpaid == 0))
-      );
+      const clientStatus = row.status?.toLowerCase().trim() || "";
+      
+      // Extract `YYYY-MM-DD` from `created_at`
+      const createdAt = row.created_at ? row.created_at.split("T")[0].trim() : ""; 
+      
+      const query = searchQuery?.toLowerCase().trim() || "";
+      const paidAndUnpaid = row.paid_and_unpaid;
+  
+      // 🔹 Convert `query` to uppercase if checking against `accountNumbers`
+      const queryUpper = searchQuery?.toUpperCase().trim() || "";
+  
+      // ✅ Search filter (Case-insensitive for text, uppercase for account number)
+      const matchesQuery =
+        clientName.includes(query) ||
+        clientContact.includes(query) ||
+        employeeName.includes(query) ||
+        accountNumbers.includes(queryUpper); 
+  
+      // ✅ Filter by dashboard navigation state
+      const matchesDashboardFilter =
+        dashboardNav === "client" ||
+        (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+        (dashboardNav === "unpaid" && paidAndUnpaid === 0);
+  
+      // ✅ Filter by status (Case-insensitive)
+      const matchesStatusFilter = selectedStatus
+        ? clientStatus === selectedStatus.toLowerCase()
+        : true;
+  
+      // ✅ Filter by exact date match (Ensure correct format)
+      const matchesDateFilter = selectedDate
+        ? createdAt === selectedDate.trim()
+        : true;
+  
+      return matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter;
     });
-  }, [users, searchQuery, dashboardNav]);
+  }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus]);
   
-
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    const currentDate = format(new Date(), "dd-MM-yyyy");
+    const currentDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
   
     const clientData = {
       client_name: clientName,
@@ -277,19 +282,50 @@ function Client() {
     setSenderinfo("");
   };
 
-  const sortedData = useMemo(() => {
-    return [...filteredData].sort((a, b) => {
-      return a.sent === b.sent ? 0 : a.sent ? 1 : -1;
-    });
-  }, [filteredData]);
+ 
 
+// const sortedData = useMemo(() => {
+//   return [...filteredData].sort((a, b) => {
+//     // Convert date strings to Date objects using the "yyyy-MM-dd HH:mm:ss" format
+//     const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
+//     const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
+
+//     // First, sort by sent status, then by date in descending order (LIFO)
+//     if (a.sent === b.sent) {
+//       return dateB - dateA;  // LIFO: Most recent date comes first
+//     }
+//     return a.sent ? 1 : -1; // Sort by 'sent' status if 'sent' is different
+//   });
+// }, [filteredData]);
+
+
+const sortedData = useMemo(() => {
+  return [...filteredData].sort((a, b) => {
+    // Sort by client_id in descending order first
+    if (b.client_id !== a.client_id) {
+      return b.client_id - a.client_id;
+    }
+
+    // Convert date strings to Date objects
+    const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
+    const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
+
+    // Sort by sent status, then by date in descending order
+    if (a.sent === b.sent) {
+      return dateB - dateA;
+    }
+    return a.sent ? 1 : -1;
+  });
+}, [filteredData]);
 
   const handleDelete = (clientId) => {
-    
+    const Authorization = localStorage.getItem("authToken");
+      
     fetch(`${API_URL}/acc_delete/${clientId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization: Authorization, 
         
       },
     })
@@ -304,7 +340,7 @@ function Client() {
         setShowConfirmModal(false); // Close the modal
         setToastMessage(`Client ${clientNameToDelete} deleted successfully!`);
         setShowToast(true); // Show the success notification
-        dispatch(setUsers(updatedData));
+        // dispatch(setUsers(updatedData));
         fetch(`${API_URL}/acc_list`, {
           method: "GET",
           headers: {
@@ -372,7 +408,59 @@ function Client() {
         console.error("Fetch error:", error);
       }
     };
-  
+
+
+    const [selectedRows, setSelectedRows] = useState([]);
+
+    const handleCheckboxChange = (client) => {
+      setSelectedRows((prevSelected) => {
+        if (prevSelected.some((item) => item.client_id === client.client_id)) {
+          return prevSelected.filter((item) => item.client_id !== client.client_id);
+        } else {
+          return [...prevSelected, client];
+        }
+      });
+    };
+    
+    const exportToCSV = () => {
+      if (selectedRows.length === 0) {
+        alert("No rows selected to export.");
+        return;
+      }
+    
+      const csvData = selectedRows.map((client, index) => {
+        const employee = employees.find((e) => e.user_id === client.user_id);
+        return {
+          "#": 1,
+          "Client Name": client.client_name || 'Unknown Client',
+          "Client Number": client.client_contact || 'Unknown Client',
+          "Amount": client.amount || 0,
+          "Date":client.amount || 0,
+          "Bank Name": client.bank_name || 'Unknown Bank',
+          "IFSC Code": client.ifsc_code || 'Unknown IFSC',
+          "Account Number": client.accno || 'Unknown Account',
+          "Beneficiary Name": client.name_of_the_beneficiary || 'Unknown Beneficiary',
+          "Beneficiary Address":client.address_of_the_beneficiary || 'Unknown Address',
+          "Sender Information":client.sender_information || 'Unknown Sender',
+
+        };
+      });
+    
+      const csvContent = [
+        ["#", "Client Name","Client Number","Amount","Date","Bank Name", "IFSC Code","Account Number","Beneficiary Name","Beneficiary Address","Sender Information"],
+        ...csvData.map((row) => Object.values(row)),
+      ]
+        .map((e) => e.join(","))
+        .join("\n");
+
+        
+    
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `selected_clients_${format(new Date(), "dd-MM-yyyy")}.csv`;
+      link.click();
+    };
   
   return (
     <div style={{ marginTop: "50px",width:'100%' }}>
@@ -430,19 +518,21 @@ function Client() {
         </div>
       </div>
 
-      <div className="records table-responsive">
+      <div className="records table-responsive  table-responsive-md table-responsive-sm">
         <div className="record-header">
           <div className="add">
             <Button   className="w-auto"  onClick={handleShow}>
               Add New
             </Button>
+           
           </div>
 
          
 
           <div className="browse">
-            <div style={{ paddingTop: "15px" }}>
-              <InputGroup className="mb-3">
+          <Button onClick={exportToCSV} className='w-auto mb-1'>Export to CSV</Button>
+            <div style={{ paddingTop: "10px" }}>
+              {/* <InputGroup className="">
                 <FormControl
                   placeholder="Name OR phoneNumber"
                   aria-label="Search"
@@ -450,326 +540,188 @@ function Client() {
                   value={searchQuery}
                   onChange={handleSearchChange}
                 />
-              </InputGroup>
+              </InputGroup> */}
+
+<InputGroup className="d-flex gap-2 align-items-center">
+
+<DatePicker
+    selected={selectedDate}
+    onChange={handleDateChange}
+    placeholderText="Select Date"
+    dateFormat="dd-MM-yyyy"
+    className="form-control"
+    isClearable
+  />
+  <FormControl
+    placeholder="Name,phoneNumber,Acc_number"
+    aria-label="Search"
+    className="record-search"
+    value={searchQuery}
+    onChange={handleSearchChange}
+  />
+
+  
+</InputGroup>
             </div>
           </div>
         </div>
 
-        {/* <div>
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Client</th>
-                <th>City</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Last Paid Date</th>
-                <th>Totally Paid Amount </th>
-                <th>Balance Amount</th>
-                <th>Collection Agent</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedData.map((row, index) => (
-                <tr key={index}>
-                  <td>{row.client_id}</td>
-                  <td>
-                    <div className="client">
-                      <div
-                        className="client-img bg-img"
-                        style={{
-                          backgroundImage:
-                            "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-                        }}
-                      ></div>
-                      <div className="client-info">
-                        <h4>
-                          {row.client_name
-                            ? row.client_name.replace(/"/g, "")
-                            : ""}
-                        </h4>
-                        <small>{row.client_contact}</small>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    {row.client_city ? row.client_city.replace(/"/g, "") : ""}
-                  </td>
-                  <td>
-                    {row.amount ? row.amount : 0}{" "}
-                    <span style={{ fontWeight: "bolder", color: "black" }}>
-                      KWD
-                    </span>
-                  </td>
-                  <td>
-  <p
-    className={`badge ${
-      row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"
-    }`}
-  >
-    {row.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
-  </p>
-</td>
-                  <td  className="">
-                    {Array.isArray(row.paid_amount_date) &&
-                      row.paid_amount_date.length > 0 ? (
-                      <div>
-                        <div>
-                          {
-                            row.paid_amount_date[
-                              row.paid_amount_date.length - 1
-                            ].date
-                          }
-                        </div>
-                      </div>
-                    ) : (
-                      <span  className="text-">-</span>
-                    )}
-                  </td>
-
-                  <td>
-                    {Array.isArray(row.paid_amount_date) &&
-                      row.paid_amount_date.length > 0 ? (
-                      <>
-                        {row.paid_amount_date.map((entry, idx) => (
-                          <div key={idx}></div>
-                        ))}
-                        <div>
-                          {" "}
-                          {row.paid_amount_date
-                            .reduce(
-                              (total, entry) =>
-                                total + parseFloat(entry.amount || 0),
-                              0
-                            )
-                            .toFixed(2)}{" "}
-                          <span
-                            style={{ fontWeight: "bolder", color: "black" }}
-                          >
-                            KWD
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <span>No payments yet</span>
-                    )}
-                  </td>
-                  <td>
-                    {Array.isArray(row.paid_amount_date) &&
-                      row.paid_amount_date.length > 0 ? (
-                      <>
-                        <div>
-                          {" "}
-                          {(
-                            (row.amount ? parseFloat(row.amount) : 0) -
-                            row.paid_amount_date.reduce(
-                              (total, entry) =>
-                                total + parseFloat(entry.amount || 0),
-                              0
-                            )
-                          ).toFixed(2)}
-                          <span
-                            style={{ fontWeight: "bolder", color: "black" }}
-                          >
-                            KWD
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <span>No payments yet</span>
-                    )}
-                  </td>
-                 
-                  <td>
-  {employees.length > 0 && row.user_id ? (
-    employees.some((eid) => eid.user_id === row.user_id) ? (
-      employees
-        .filter((eid) => eid.user_id === row.user_id)
-        .map((eid, idx) => (
-          <span key={idx} onClick={() => handlenav1(eid)}>
-            {eid.username}
-          </span>
-        ))
-    ) : (
-      <span>No agent assigned</span>
-    )
-  ) : (
-    <span>No agent</span>
-  )}
-</td>
-                  <td>
-                    <div className="actions">
-                      {row.sent == false ? (
-                        <span
-                          className="lab la-telegram-plane"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleClientClick(row)}
-                        >
-                          <FaTelegramPlane />
-                        </span>
-                      ) : (
-                        <span></span>
-                      )}
-
-                      <span
-                        className="las la-eye"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handlenav(row)}
-                      >
-                        <IoEyeSharp />
-                      </span>
-                      <span
-                        className="bi bi-trash3"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => showConfirm(row.client_id,row.client_name)}
-                      >
-                       <MdDelete />
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div> */}
-
         <div className="table-responsive-md table-responsive-sm">
   <table className="table table-striped">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Client</th>
-        <th>City</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th>Last Paid Date</th>
-        <th>Totally Paid Amount</th>
-        <th>Balance Amount</th>
-        <th>Collection Agent</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {sortedData.map((row, index) => (
-        <tr key={index}>
-          <td>{row.client_id}</td>
-          <td>
-            <div className="client">
-              <div
-                className="client-img bg-img"
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>CLIENT</th>
+      <th>CITY</th>
+      <th>TOTAL</th>
+      <th>STATUS</th>
+      <th>LAST PAID DATE</th>
+      <th>TOTALLY PAID AMOUNT</th>
+      <th>BALANCE AMOUNT</th>
+      <th>COLLECTION AGENT</th>
+      <th>ACTIONS</th>
+    </tr>
+  </thead>
+  <tbody>
+    {sortedData.map((row, index) => (
+      <tr key={index}>
+        <td>
+          <input
+            type="checkbox"
+            style={{ width: "20px", height: "15px",paddingRight:'10px' }}
+            onChange={() => handleCheckboxChange(row)}
+            checked={selectedRows.some((item) => item.client_id === row.client_id)}
+          />
+          {row.client_id}
+        </td>
+        <td>
+          <div className="client">
+            <div
+              className="client-img bg-img"
+              style={{
+                backgroundImage:
+                  "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
+              }}
+            ></div>
+            <div className="client-info">
+              <h4>{row.client_name ? row.client_name.replace(/"/g, "").toUpperCase() : ""}</h4>
+              <small>{row.client_contact.toUpperCase()}</small>
+            </div>
+          </div>
+        </td>
+        <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : ""}</td>
+        <td>
+          {row.amount ? row.amount : 0}{" "}
+          <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
+        </td>
+        <td>
+          <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
+            {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
+          </p>
+        </td>
+        <td>
+          {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+            <div>{row.paid_amount_date[row.paid_amount_date.length - 1].date.toUpperCase()}</div>
+          ) : (
+            <span>-</span>
+          )}
+        </td>
+        <td>
+          {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+            <div>
+              {row.paid_amount_date
+                .reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
+                .toFixed(2)}{" "}
+              <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
+            </div>
+          ) : (
+            <span>NO PAYMENTS YET</span>
+          )}
+        </td>
+        <td>
+          {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+            <div>
+              {(
+                (row.amount ? parseFloat(row.amount) : 0) -
+                row.paid_amount_date.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
+              ).toFixed(2)}
+              <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
+            </div>
+          ) : (
+            <span>NO PAYMENTS YET</span>
+          )}
+        </td>
+        <td>
+          {employees.length > 0 && row.user_id ? (
+            employees.some((eid) => eid.user_id === row.user_id) ? (
+              employees
+                .filter((eid) => eid.user_id === row.user_id)
+                .map((eid, idx) => (
+                  <span key={idx} onClick={() => handlenav1(eid)}>
+                    {eid.username.toUpperCase()}
+                  </span>
+                ))
+            ) : (
+              <span>NO AGENT ASSIGNED</span>
+            )
+          ) : (
+            <span>NO AGENT</span>
+          )}
+        </td>
+        <td>
+          <div className="actions d-flex justify-content-start align-items-center pt-3">
+            {row.sent == false ? (
+              <span
+                className=""
                 style={{
-                  backgroundImage:
-                    "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  backgroundColor: "#00bbf0",
+                  padding: "5px 10px 5px 10px",
+                  color: "white",
+                  borderRadius: "10px",
                 }}
-              ></div>
-              <div className="client-info">
-                <h4>{row.client_name ? row.client_name.replace(/"/g, "") : ""}</h4>
-                <small>{row.client_contact}</small>
-              </div>
-            </div>
-          </td>
-          <td>{row.client_city ? row.client_city.replace(/"/g, "") : ""}</td>
-          <td>
-            {row.amount ? row.amount : 0}{" "}
-            <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
-          </td>
-          <td>
-            <p
-              className={`badge ${
-                row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"
-              }`}
+                onClick={() => handleClientClick(row)}
+              >
+                SEND
+              </span>
+            ) : (
+              <span></span>
+            )}
+            <span
+              className=""
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#42b883",
+                padding: "5px 10px 5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              onClick={() => handlenav(row)}
             >
-              {row.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
-            </p>
-          </td>
-          <td>
-            {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
-              <div>{row.paid_amount_date[row.paid_amount_date.length - 1].date}</div>
-            ) : (
-              <span>-</span>
-            )}
-          </td>
-          <td>
-            {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
-              <>
-                <div>
-                  {row.paid_amount_date
-                    .reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
-                    .toFixed(2)}{" "}
-                  <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
-                </div>
-              </>
-            ) : (
-              <span>No payments yet</span>
-            )}
-          </td>
-          <td>
-            {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
-              <>
-                <div>
-                  {(
-                    (row.amount ? parseFloat(row.amount) : 0) -
-                    row.paid_amount_date.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
-                  ).toFixed(2)}
-                  <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
-                </div>
-              </>
-            ) : (
-              <span>No payments yet</span>
-            )}
-          </td>
-          <td>
-            {employees.length > 0 && row.user_id ? (
-              employees.some((eid) => eid.user_id === row.user_id) ? (
-                employees
-                  .filter((eid) => eid.user_id === row.user_id)
-                  .map((eid, idx) => (
-                    <span key={idx} onClick={() => handlenav1(eid)}>
-                      {eid.username}
-                    </span>
-                  ))
-              ) : (
-                <span>No agent assigned</span>
-              )
-            ) : (
-              <span>No agent</span>
-            )}
-          </td>
-          <td>
-            <div className="actions">
-              {row.sent == false ? (
-                <span
-                  className="lab la-telegram-plane"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleClientClick(row)}
-                >
-                  <FaTelegramPlane />
-                </span>
-              ) : (
-                <span></span>
-              )}
-              <span
-                className="las la-eye"
-                style={{ cursor: "pointer" }}
-                onClick={() => handlenav(row)}
-              >
-                <IoEyeSharp />
-              </span>
-              <span
-                className="bi bi-trash3"
-                style={{ cursor: "pointer" }}
-                onClick={() => showConfirm(row.client_id, row.client_name)}
-              >
-                <MdDelete />
-              </span>
-            </div>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+              VIEW
+            </span>
+            <span
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#dc2f2f",
+                padding: "5px 10px 5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              onClick={() => showConfirm(row.client_id, row.client_name)}
+            >
+              DELETE
+            </span>
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
 </div>
 
       </div>

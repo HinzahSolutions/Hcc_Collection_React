@@ -388,14 +388,14 @@ function Alldata() {
     <div className="records table-responsive">
       <div className="d-flex justify-content-between">
         <div className="m-4">
-          <h4 className="text-black fs-5  md-fs-6">
+          <h4 className="text-black fs-5  md-fs-6  alldata_h4">
             Collection List from{" "}
-            <span className="text-primary fs-5  md-fs-7">{startDate} </span>to{" "}
+            <span className="text-primary fs-5  md-fs-7  ms-fs-7">{startDate} </span>to{" "}
             <span className="text-primary  fs-5  md-fs-7">{endDate}</span>
           </h4>
         </div>
        
-        <div className="d-flex m-3 gap-1 flex-wrap  justify-content-center  align-items-center">
+        <div className="d-flex gap-1 flex-wrap  justify-content-center  ">
         <div>  <button onClick={exportToExcel} className="btn btn-primary w-auto">
           Export to Excel
         </button></div>

@@ -59,9 +59,16 @@ function Employee() {
             "Content-Type": "application/json",
             Authorization: Authorization, // Include token in the Authorization header
           },
+          
         });
+
+        if (response.status === 401) {
+          console.error("Unauthorized access - redirecting to login");
+          handleUnauthorizedAccess();
+          return;
+        }
         const data = await response.json();
-        
+
         dispatch(setEmployees(data)); // Dispatch to update the employees list in Redux
       } catch (error) {
         console.error("Fetch error:", error);
@@ -190,6 +197,7 @@ function Employee() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          Authorization: Authorization, 
         },
       });
   
@@ -458,63 +466,79 @@ function Employee() {
          </div>
 
          <div>
-           <table className="table table-striped">
-             <thead>
-               <tr>
-                 <th>#</th>
-                 <th>Employee Name</th>
-                 <th>Role</th>
-                 <th>City</th>
-                <th>Email</th>
-                 <th>Actions</th>
-               </tr>
-             </thead>
-             <tbody>
-               {filteredData.map((row, index) => (
-                 <tr key={index}>
-                   <td>{row.user_id}</td>
-                   <td>
-                     <div className="client">
-                      <div
-                        className="client-img bg-img"
-                       style={{
-                          backgroundImage: `url(${imageExists(
-                            "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
-                           )})`,
-                         }}
-                       ></div>
-                       <div className="client-info">
-                         <h4>{row.username}</h4>
-                         <small>{row.phone_number}</small>
-                       </div>
-                     </div>
-                   </td>
-                   <td>{row.role}</td>
-                   <td>{row.city}</td>
-                   <td>{row.email}</td>
-                   <td>
-                     <div className="actions">
-                     
-                       <span
-                        className="las la-eye"
-                         style={{ cursor: "pointer" }}
-                         onClick={() => handlenav(row)}
-                       >
-                         <IoEyeSharp />
-                       </span>
-                       <span
-                        className="bi bi-trash3"
-                         style={{ cursor: "pointer" }}
-                         onClick={() => showConfirm(row.user_id,row.username)}
-                       >
-                         <MdDelete />
-                       </span>
-                     </div>
-                   </td>
-                 </tr>
-               ))}
-             </tbody>
-           </table>
+         <div className="table-responsive-md table-responsive-sm">
+         <table className="table table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>EMPLOYEE NAME</th>
+      <th>ROLE</th>
+      <th>CITY</th>
+      <th>EMAIL</th>
+      <th>ACTIONS</th>
+    </tr>
+  </thead>
+  <tbody>
+    {filteredData.map((row, index) => (
+      <tr key={index}>
+        <td>{row.user_id ? row.user_id.toString().toUpperCase() : "N/A"}</td>
+        <td>
+          <div className="client">
+            <div
+              className="client-img bg-img"
+              style={{
+                backgroundImage: `url(${imageExists(
+                  "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
+                )})`,
+              }}
+            ></div>
+            <div className="client-info">
+              <h4>{row.username ? row.username.toUpperCase() : "UNKNOWN"}</h4>
+              <small>{row.phone_number ? row.phone_number.toUpperCase() : "NO PHONE NUMBER"}</small>
+            </div>
+          </div>
+        </td>
+        <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
+        <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
+        <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
+        <td>
+          <div className="actions d-flex justify-content-start align-items-center pt-2">
+            <span
+              className=""
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#42b883",
+                padding: "5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              onClick={() => handlenav(row)}
+            >
+              VIEW
+            </span>
+            <span
+              className=""
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#dc2f2f",
+                padding: "5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              onClick={() => showConfirm(row.user_id, row.username)}
+            >
+              DELETE
+            </span>
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+           </div>
          </div>
        </div>
      

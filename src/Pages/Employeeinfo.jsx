@@ -107,42 +107,42 @@ function Employeeinfo() {
       };
     });
 
-   
-           const ws = XLSX.utils.json_to_sheet(tableData);
-   
-           const headerStyle = {
-               font: { bold: true, sz: 10 }, 
-               alignment: { horizontal: "center" },
-               fill: { fgColor: { rgb: "F2F2F2" } }, 
-           };
-       
-           const cellStyle = {
-               font: { sz: 8 }, 
-               alignment: { wrapText: true },
-           };
-       
-           Object.keys(ws).forEach(cell => {
-               if (cell.match(/^[A-Z]+\d+$/)) { 
-                   if (cell.endsWith('1')) {
-                       ws[cell].s = headerStyle; 
-                   } else {
-                       ws[cell].s = cellStyle; 
-                   }
-               }
-           });
-       
-           ws['!cols'] = [
-               { wch: 5 }, 
-               { wch: 20 }, 
-               { wch: 20 },
-               { wch: 25 },
-               { wch: 20 }, 
-               { wch: 20 },
-               { wch: 20 },
-           ];
-       
-           XLSX.utils.book_append_sheet(wb, ws, "Employee_details");
-           XLSX.writeFile(wb, `Employee_details_${new Date().toISOString()}.xlsx`);
+
+    const ws = XLSX.utils.json_to_sheet(tableData);
+
+    const headerStyle = {
+      font: { bold: true, sz: 10 },
+      alignment: { horizontal: "center" },
+      fill: { fgColor: { rgb: "F2F2F2" } },
+    };
+
+    const cellStyle = {
+      font: { sz: 8 },
+      alignment: { wrapText: true },
+    };
+
+    Object.keys(ws).forEach(cell => {
+      if (cell.match(/^[A-Z]+\d+$/)) {
+        if (cell.endsWith('1')) {
+          ws[cell].s = headerStyle;
+        } else {
+          ws[cell].s = cellStyle;
+        }
+      }
+    });
+
+    ws['!cols'] = [
+      { wch: 5 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 25 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, "Employee_details");
+    XLSX.writeFile(wb, `Employee_details_${new Date().toISOString()}.xlsx`);
   };
 
   return (
@@ -229,29 +229,20 @@ function Employeeinfo() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* {employeeClients.map((client, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{client.client_name || 'Unknown Client'}</td>
-                      <td>{parseFloat(client.amount || 0)} KWD</td>
-                      <td>{client.paid_amount_date?.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)} KWD</td>
-                      <td>{parseFloat(client.amount || 0) - overallCollection} KWD</td>
-                    </tr>
-                  ))} */}
                   {employeeClients.map((client, index) => {
-  const collectionAmount = client.paid_amount_date?.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0) || 0;
-  const balanceAmount = parseFloat(client.amount || 0) - collectionAmount;
+                    const collectionAmount = client.paid_amount_date?.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0) || 0;
+                    const balanceAmount = parseFloat(client.amount || 0) - collectionAmount;
 
-  return (
-    <tr key={index}>
-      <td>{index + 1}</td>
-      <td>{client.client_name || 'Unknown Client'}</td>
-      <td>{parseFloat(client.amount || 0)} KWD</td>
-      <td>{collectionAmount} KWD</td>
-      <td>{balanceAmount >= 0 ? balanceAmount : 0} KWD</td>
-    </tr>
-  );
-})}
+                    return (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{client.client_name || 'Unknown Client'}</td>
+                        <td>{parseFloat(client.amount || 0)} KWD</td>
+                        <td>{collectionAmount} KWD</td>
+                        <td>{balanceAmount >= 0 ? balanceAmount : 0} KWD</td>
+                      </tr>
+                    );
+                  })}
 
                 </tbody>
               </table>

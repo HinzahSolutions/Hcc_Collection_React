@@ -1,11 +1,10 @@
-import React,{useEffect,useState} from 'react'
+import React,{useEffect,useState,useMemo} from 'react'
 import { setUsers, setSelectedClient } from "../Slicers/clientSlice";
-import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
+
 import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { FaTelegramPlane } from "react-icons/fa";
-import { MdEdit } from "react-icons/md";
+import { parse } from "date-fns";
 
 function Assignemploye() {
     const API_URL = import.meta.env.VITE_API_URL;
@@ -110,10 +109,31 @@ const handlesend = async (client_id) => {
       console.error("Fetch error:", error);
     }
   };
+
+
+  const sortedData = useMemo(() => {
+    return [...assign].sort((a, b) => {
+      // Sort by client_id in descending order first
+      if (b.client_id !== a.client_id) {
+        return b.client_id - a.client_id;
+      }
+  
+      // Convert date strings to Date objects
+      const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
+      const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
+  
+      // Sort by sent status, then by date in descending order
+      if (a.sent === b.sent) {
+        return dateB - dateA;
+      }
+      return a.sent ? 1 : -1;
+    });
+  }, [assign]);
+
   
 
   return (
-    <div> {assign.length > 0 ? (
+    <div> {sortedData.length > 0 ? (
         <div className="records table-responsive">
         <div className="record-header">
         <div className="add">
@@ -121,69 +141,67 @@ const handlesend = async (client_id) => {
         </div>
         </div>
         <table className="table table-striped">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Client</th>
-              <th>City</th>
-              <th>Amount</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          {assign.map((row, index) => (
-            <tbody>
-              <tr key={index}>
-                <td>{row.client_id || "N/A"}</td>
-                <td>
-                  <div className="client">
-                    <div
-                      className="client-img bg-img"
-                      style={{
-                        backgroundImage: row.client_image
-                          ? `url(${row.client_image})`
-                          : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-                      }}
-                    ></div>
-                    <div className="client-info">
-                      <h4>{row.client_name || "Unknown Client"}</h4>
-                      <small>
-                        {row.client_contact || "No contact available"}
-                      </small>
-                    </div>
-                  </div>
-                </td>
-                <td>{row.client_city || "Unknown City"}</td>
-                <td>
-                  {row.amount && row.amount !== "null"
-                    ? `${row.amount}  KWD `
-                    : "0  KWD"}
-                </td>
-                <td>{row.date}</td>
-                <td>
-                  <div className="actions">
-                    <span
-                      className="lab la-telegram-plane"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleClientClick(row)}
-                    >
-                      {" "}
-                      <FaTelegramPlane />{" "}
-                    </span>
-                    <span
-                      className="bi bi-trash3"
-                      style={{ cursor: "pointer" }}
-                    >
-                      {" "}
-                      <MdEdit />{" "}
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          ))}
-         
-        </table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>CLIENT</th>
+      <th>CITY</th>
+      <th>AMOUNT</th>
+      <th>DATE</th>
+      <th>ACTIONS</th>
+    </tr>
+  </thead>
+  { sortedData.map((row, index) => (
+    <tbody key={index}>
+      <tr>
+        <td>{row.client_id ? row.client_id.toString().toUpperCase() : "N/A"}</td>
+        <td>
+          <div className="client">
+            <div
+              className="client-img bg-img"
+              style={{
+                backgroundImage: row.client_image
+                  ? `url(${row.client_image})`
+                  : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
+              }}
+            ></div>
+            <div className="client-info">
+              <h4>{row.client_name ? row.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
+              <small>{row.client_contact ? row.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
+            </div>
+          </div>
+        </td>
+        <td>{row.client_city ? row.client_city.toUpperCase() : "UNKNOWN CITY"}</td>
+        <td>
+          {row.amount && row.amount !== "null"
+            ? `${row.amount.toString().toUpperCase()} KWD`
+            : "0 KWD"}
+        </td>
+        <td>{row.date ? row.date.toUpperCase() : "UNKNOWN DATE"}</td>
+        <td>
+          <div className="actions">
+            <span
+                className=""
+                style={{
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  backgroundColor: "#00bbf0",
+                  padding: "5px 10px 5px 10px",
+                  color: "white",
+                  borderRadius: "10px",
+                }}
+                onClick={() => handleClientClick(row)}
+              >
+                SEND
+              </span>
+           
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  ))}
+</table>
+
         </div>
       ) : (
         <span></span>

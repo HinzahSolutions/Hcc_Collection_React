@@ -74,7 +74,7 @@ const Sidebar = () => {
       
       {conformrole === "Admin" ? (
         <div>
-      <Navbar variant="dark" className={`sidebar ${isOpen ? 'open' : 'collapsed'}`} style={{ height: '100%', position: 'fixed' }}>
+      <Navbar variant="dark" className={`sidebar ${isOpen ? 'open' : 'collapsed'}`} style={{ position: 'fixed' }}>
         <div className="sidebar-content">
          
             <>

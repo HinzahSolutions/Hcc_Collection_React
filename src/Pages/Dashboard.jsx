@@ -249,7 +249,7 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
         </div>
 
 
-        <div className="card" onClick={() => navigate("/client")}> 
+        <div className="card" onClick={() => navigate("/employee")}> 
           <div className="card-head d-flex justify-content-between align-items-center">
             <h2>{collectionManagerCount}</h2>
             <span className="las la-user-friends">
@@ -262,7 +262,7 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
         </div>
 
 
-        <div className="card" onClick={() => navigate("/client")}> 
+        <div className="card" onClick={() => navigate("/employee")}> 
           <div className="card-head d-flex justify-content-between align-items-center">
             <h2>{collectionAgentCount}</h2>
             <span className="las la-user-friends">
@@ -300,7 +300,10 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
             </select>
           </div>
         </div>
-        <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} />
+        <div  className="" style={{height:'100vh'}}>
+          <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} />
+        </div>
+       
       </div>
     </div>
   )}

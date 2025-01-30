@@ -46,7 +46,7 @@
 .side-header h3, side-head span {
     color: #fff;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 td{
     cursor: pointer;
@@ -60,7 +60,7 @@ td{
 }
 .totalbox{
     background-color: white;
-    padding: 9px 20px 0px 20px;
+    padding: 9px 10px 0px 10px;
     border: black 1px solid;
    margin-top: 0px;
   
@@ -78,10 +78,19 @@ td{
 
 
 
+table thead th {
+    padding: 1rem 0rem;
+    text-align: left;
+    color: #444;
+    font-size: .6rem;
+}
 
 
 
-
+.modal-content{
+    width: 90vw;
+    background-color: #1246ac;
+}
 
 
 
@@ -147,12 +156,12 @@ td{
 
 .card-head h2 {
     color: #333;
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 500;
 }
 
 .card-head span {
-    font-size: 3.2rem;
+    font-size: 2.6rem;
     color:black;
 }
 
@@ -296,6 +305,7 @@ table thead th:first-child {
 table tbody td {
     padding: 1rem 0rem;
     color: #444;
+    font-size: .8rem;
 }
 
 table tbody td:first-child {
@@ -323,7 +333,7 @@ table tbody tr {
 
 .client-info h4 {
     color: #555;
-    font-size: .95rem;
+    font-size: .8rem;
 }
 
 .client-info small {
@@ -526,6 +536,9 @@ form .txt_field{
     .page-header{
         width: 100%;
     }
+    .alldata_h4{
+        display: none;
+    }
 }
 
 
@@ -536,7 +549,7 @@ form .txt_field{
         grid-template-columns: repeat(3, 1fr);
     }
     .h2{
-        font-size: 10px;
+        font-size: 8px;
     }
 
     table {
@@ -624,11 +637,11 @@ form .txt_field{
     }  
 .card-head h2 {
     color:black;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 500;
 }
 .card-head span {
-    font-size: 2.5rem;
+    font-size: 2rem;
     color:black;
     font-weight: 500;
 }
@@ -636,6 +649,23 @@ form .txt_field{
 .actions span {
     display: inline-block;
     font-size: .9rem;
+   
+}
+
+
+.totalamount{
+    color:  #1246ac;
+    font-weight:bolder;
+    padding-right:20px;
+   
+
+}
+.totalbox{
+    background-color: white;
+    padding: 9px 20px 0px 20px;
+    border: black 1px solid;
+   margin-top: 0px;
+  
    
 }
 
@@ -677,7 +707,7 @@ form .txt_field{
         z-index: 90;
     }
     h2{
-        font-size: 10px;
+      font-style: 20px;
     }
     
     header {
@@ -729,8 +759,11 @@ form .txt_field{
 
     .table-responsive {
        /* width: 100%; */
-       width: 700px;
-       overflow-y:scroll;
+       width: 100vw;
+       overflow-x:scroll;
+    }
+    .chartup{
+        height: 500px;
     }
 
 }

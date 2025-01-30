@@ -27,84 +27,6 @@ const [editableClient, setEditableClient] = useState(null);
         dispatch(setSelectedClient(JSON.parse(storedClient)));
       }
     }, [dispatch]);
-    
-
-     
-      //  const exportToExcel = () => {
-        
-      //    const wb = XLSX.utils.book_new();
-         
-        
-      //    const tableData = employeeClients.map((client, index) => {
-      //      const totalAmount = parseFloat(client.amount || 0);
-      //      const collectionAmount = (client.paid_amount_date || []).reduce(
-      //        (sum, payment) => sum + parseFloat(payment.amount || 0),
-      //        0
-      //      );
-      //      const balance = totalAmount - collectionAmount;
-       
-      //      return {
-      //        "#": index + 1,
-      //        "Client Name":  || 'Unknown Employee',
-      //        "Client number": || 'Unknown Client',
-      //         "Amount":,
-      //        "Bank name": ,
-      //        "ifsc code ": ,
-      //        "Account number":,
-      //        "Name of the beneficiary": ,
-      //        "Address of the beneficiary": ,
-      //        "Sender information":,
-      //      };
-      //    });
-       
-         
-      //    const ws = XLSX.utils.json_to_sheet(tableData);
-       
-         
-      //    const headerStyle = {
-      //      font: { bold: true, sz: 10 }, 
-      //      alignment: { horizontal: "center" },
-      //      fill: { fgColor: { rgb: "F2F2F2" } }, 
-      //    };
-       
-      //    const cellStyle = {
-      //      font: { sz: 8 }, 
-      //      alignment: { wrapText: true },
-      //    };
-       
-         
-      //    Object.keys(ws).forEach(cell => {
-          
-      //      if (cell.match(/^[A-Z]+\d+$/)) { 
-      //        if (cell.endsWith('1')) {
-      //          ws[cell].s = headerStyle; 
-      //        } else {
-      //          ws[cell].s = cellStyle; 
-      //        }
-      //      }
-      //    });
-       
-        
-      //    ws['!cols'] = [
-      //      { wch: 5 }, 
-      //      { wch: 20 }, 
-      //      { wch: 20 },
-      //      { wch: 25 },
-      //      { wch: 20 }, 
-      //    ];
-       
-         
-      //    XLSX.utils.book_append_sheet(wb, ws, 'Employee Clients');
-       
-         
-      //    const timestamp = new Date().toISOString().replace(/[-:T]/g, '_').split('.')[0];
-       
-        
-      //    XLSX.writeFile(wb, `employee_clients_${timestamp}.xlsx`);
-      //  };
-       
-
-    
 
   useEffect(() => {
     if (selectedClient?.paid_amount_date) {
@@ -195,7 +117,7 @@ const [editableClient, setEditableClient] = useState(null);
          alignment: { wrapText: true },
        };
        
-       // Apply styles to header and data cells
+      
        Object.keys(ws).forEach(cell => {
          if (cell.match(/^[A-Z]+\d+$/)) {
            if (cell.endsWith('1')) {
@@ -206,7 +128,7 @@ const [editableClient, setEditableClient] = useState(null);
          }
        });
        
-       // Set column width
+      
        ws['!cols'] = [
          { wch: 5 },
          { wch: 20 },
@@ -219,13 +141,13 @@ const [editableClient, setEditableClient] = useState(null);
          { wch: 30 },
        ];
        
-       // Append the worksheet to the workbook
+      
        XLSX.utils.book_append_sheet(wb, ws, 'Client Information');
        
-       // Get a timestamp for the filename
+      
        const timestamp = new Date().toISOString().replace(/[-:T]/g, '_').split('.')[0];
        
-       // Write the file
+      
        XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
         }
         catch(error){
@@ -269,10 +191,10 @@ const [editableClient, setEditableClient] = useState(null);
     
         alert("Client updated successfully");
     
-        // Update Redux store with new client data
+       
         dispatch(setSelectedClient(updatedClient));
     
-        // Close modal
+        
         setEditModal(false);
       } catch (error) {
         console.error("Error updating client:", error);
@@ -315,21 +237,6 @@ const [editableClient, setEditableClient] = useState(null);
   </div>
 
   <div className="w-100 text-center">
-    {/* <div className="d-flex flex-column gap-2">
-      <h2>Name : <span>{selectedClient.client_name}</span></h2>
-      <h4>Contact number : <span>{selectedClient.client_contact}</span></h4>
-      <h4>City : <span>{selectedClient.client_city}</span></h4>
-      <h4>Status : {selectedClient.paid_and_unpaid == 1 ? (<span>paid</span>) : (<span>unpaid</span>)}</h4>
-      <h4>Bank name : <span>{selectedClient.bank_name}</span></h4>
-      <h4>Account number : <span>{selectedClient.accno}</span></h4>
-      <h4>IFSC code : <span>{selectedClient.ifsc_code}</span></h4>
-      <h4>Name of the beneficiary: <span>{selectedClient.name_of_the_beneficiary}</span></h4>
-      <h4>Address of the beneficiary: <span>{selectedClient.address_of_the_beneficiary}</span></h4>
-      <h4>Account type: <span>{selectedClient.accoun_type}</span></h4>
-      <h4>Sender information: <span>{selectedClient.sender_information}</span></h4>
-      
-    </div> */}
-
     <div className="container mt-4">
   <div className="cards shadow p-4">
     <h2 className="mb-4 text-center text-primary">Client Details <span> <Button onClick={handlenavform} variant="primary"  className=' w-auto'>

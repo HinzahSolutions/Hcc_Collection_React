@@ -3,7 +3,7 @@
     padding: 0;
     /* background: linear-gradient(120deg,#2980b9, #8e44ad); */
     background-color:#D6D4CE;
-    height: 100vh;
+    height: 100%;
    
     overflow: hidden;
   }
@@ -132,7 +132,19 @@
     text-decoration: underline;
   }
 
-
+ @media only screen and (max-width: 480px) {
+  
+  .center{
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 10px 10px 15px rgba(0,0,0,0.05);
+  }
+}
 
 
 
