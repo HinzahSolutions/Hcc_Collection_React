@@ -34,34 +34,7 @@ function Assignemploye() {
 
 
         
-//   const handlesend = async (client_id) => {
-//     const sendData = {
-//       client_id,
-//       user_id: employeeId,
-//       sent: true,
-//     };
 
-//     try {
-//       const response = await fetch(`${API_URL}/client_IDupdated/${client_id}`, {
-//         method: "PUT",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(sendData),
-//       });
-
-//       if (!response.ok) {
-//         throw new Error("Failed to update client");
-//       }
-
-//       const result = await response.json();
-//      console.log(result)
-//       setSendModal(false);
-//       alert("Employee assignment successful");
-//     } catch (error) {
-//       console.error("Fetch error:", error);
-//     }
-//   };
 
 
 
