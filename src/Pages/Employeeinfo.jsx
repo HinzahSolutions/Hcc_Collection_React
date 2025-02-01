@@ -145,6 +145,10 @@ function Employeeinfo() {
     XLSX.writeFile(wb, `Employee_details_${new Date().toISOString()}.xlsx`);
   };
 
+  const handlenavform=() =>{
+      navigate("/employeeform")
+  }
+
   return (
     <div style={{ marginTop: '50px' }}>
       <div className="page-header">
@@ -184,9 +188,7 @@ function Employeeinfo() {
           </div>
 
           <div className="d-flex gap-2">
-            <Button className="w-auto btn btn-primary">Edit</Button>
-            <Button className="w-auto btn btn-secondary">Share</Button>
-            <Button className="w-auto btn btn-danger">Delete the Employee</Button>
+            <Button className="w-auto btn btn-primary"   onClick={handlenavform}>Edit The Employee</Button>
           </div>
         </div>
       </div>
@@ -236,7 +238,7 @@ function Employeeinfo() {
                     return (
                       <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{client.client_name || 'Unknown Client'}</td>
+                        <td   onClick={ () => handlenav1(client) }>{client.client_name || 'Unknown Client'}</td>
                         <td>{parseFloat(client.amount || 0)} KWD</td>
                         <td>{collectionAmount} KWD</td>
                         <td>{balanceAmount >= 0 ? balanceAmount : 0} KWD</td>

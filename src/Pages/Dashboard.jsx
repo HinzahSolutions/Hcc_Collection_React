@@ -15,6 +15,7 @@ import Assignemploye from "./Assignemploye";
 import PaymentChart from "./PaymentChart";
 import Todaycollection from "./Todaycollection";
 import useFetchData from "../hooks/useFetchData";
+import {Mosaic } from "react-loading-indicators";
 
 
 
@@ -181,7 +182,7 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
 <div>
   {loading ? (
     <div className="loadingscreen">  
-      <h1>Loading...</h1>
+     <Mosaic color="#1246ac" size="large" text="" textColor="#1246ac" />
     </div>
   ) : (
     <div className="mt-5">

@@ -35,9 +35,9 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   users: [],
-  selectedClient: '',  // Ensure it's an object or null initially
+  selectedClient: '',  
   searchQuery: '',
-  selectedClientId: null,  // Fixed typo
+  selectedClientId: null,  
 };
 
 const clientSlice = createSlice({

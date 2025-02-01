@@ -113,11 +113,7 @@ function Alldata() {
     navigate("/clientinfo");
   };
 
-
-
-
-
-  const exportToExcel = () => {
+  const exportToCSV = () => {
     const tableData = filteredData.map((row, index) => {
       const paidAmountInRange = getPaidAmountInRange(row, startDate, endDate);
       const paidAmount = Array.isArray(row.paid_amount_date)
@@ -130,8 +126,8 @@ function Alldata() {
   
       return {
         "#": index + 1,
-        "Client Name": row.client_name,
-        "City": row.client_city,
+        "Client Name": row.client_name || "N/A",
+        "City": row.client_city || "N/A",
         "Agent Name": employees.find((eid) => eid.user_id === row.user_id)?.username || "N/A",
         "Total Amount": `${row.amount} KWD`,
         "Status": row.paid_and_unpaid === 1 ? "Paid" : "Unpaid",
@@ -141,30 +137,78 @@ function Alldata() {
       };
     });
   
-    // Convert JSON data to a worksheet
-    const ws = XLSX.utils.json_to_sheet(tableData);
+    // Convert JSON data to CSV format
+    const headers = Object.keys(tableData[0]);
+    const csvContent = [
+      headers.join(","), // Add CSV header
+      ...tableData.map((row) => headers.map((header) => row[header]).join(",")), // Add CSV rows
+    ].join("\n");
   
-    // Set column widths for better spacing in Excel
-    ws["!cols"] = [
-      { wch: 5 },  // "#" column width
-      { wch: 20 }, // Client Name
-      { wch: 15 }, // City
-      { wch: 20 }, // Agent Name
-      { wch: 15 }, // Total Amount
-      { wch: 10 }, // Status
-      { wch: 25 }, // Paid Amount in Range
-      { wch: 20 }, // Total Paid Amount
-      { wch: 20 }, // Balance Amount
-    ];
-  
-    // Create a new workbook and append the worksheet
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "FilteredData");
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
   
     // Generate file name with current timestamp
     const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
-    XLSX.writeFile(wb, `filtered_data_${timestamp}.xlsx`);
+    link.download = `filtered_data_${timestamp}.csv`;
+  
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
+  
+
+
+
+  // const exportToExcel = () => {
+  //   const tableData = filteredData.map((row, index) => {
+  //     const paidAmountInRange = getPaidAmountInRange(row, startDate, endDate);
+  //     const paidAmount = Array.isArray(row.paid_amount_date)
+  //       ? row.paid_amount_date.reduce(
+  //           (sum, payment) => sum + parseFloat(payment.amount),
+  //           0
+  //         )
+  //       : 0;
+  //     const balanceAmount = row.amount - paidAmount;
+  
+  //     return {
+  //       "#": index + 1,
+  //       "Client Name": row.client_name,
+  //       "City": row.client_city,
+  //       "Agent Name": employees.find((eid) => eid.user_id === row.user_id)?.username || "N/A",
+  //       "Total Amount": `${row.amount} KWD`,
+  //       "Status": row.paid_and_unpaid === 1 ? "Paid" : "Unpaid",
+  //       "Paid Amount in Range": `${paidAmountInRange} KWD`,
+  //       "Total Paid Amount": `${paidAmount} KWD`,
+  //       "Balance Amount": `${balanceAmount} KWD`,
+  //     };
+  //   });
+  
+  //   // Convert JSON data to a worksheet
+  //   const ws = XLSX.utils.json_to_sheet(tableData);
+  
+  //   // Set column widths for better spacing in Excel
+  //   ws["!cols"] = [
+  //     { wch: 5 },  // "#" column width
+  //     { wch: 20 }, // Client Name
+  //     { wch: 15 }, // City
+  //     { wch: 20 }, // Agent Name
+  //     { wch: 15 }, // Total Amount
+  //     { wch: 10 }, // Status
+  //     { wch: 25 }, // Paid Amount in Range
+  //     { wch: 20 }, // Total Paid Amount
+  //     { wch: 20 }, // Balance Amount
+  //   ];
+  
+  //   // Create a new workbook and append the worksheet
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "FilteredData");
+  
+  //   // Generate file name with current timestamp
+  //   const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
+  //   XLSX.writeFile(wb, `filtered_data_${timestamp}.xlsx`);
+  // };
 
 
 
@@ -388,15 +432,15 @@ function Alldata() {
     <div className="records table-responsive">
       <div className="d-flex justify-content-between">
         <div className="m-4">
-          <h4 className="text-black fs-5  md-fs-6  alldata_h4">
+          {/* <h4 className="text-black fs-5  md-fs-6  alldata_h4">
             Collection List from{" "}
             <span className="text-primary fs-5  md-fs-7  ms-fs-7">{startDate} </span>to{" "}
             <span className="text-primary  fs-5  md-fs-7">{endDate}</span>
-          </h4>
+          </h4> */}
         </div>
        
-        <div className="d-flex gap-1 flex-wrap  justify-content-center  ">
-        <div>  <button onClick={exportToExcel} className="btn btn-primary w-auto">
+        <div className="d-flex gap-1 flex-wrap  justify-content-center align_  ">
+        <div>  <button onClick={ exportToCSV} className="btn btn-primary w-auto">
           Export to Excel
         </button></div>
         <div className="d-flex gap-2 mt-3 md-flex-wrap">

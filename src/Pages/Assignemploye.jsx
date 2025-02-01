@@ -117,12 +117,8 @@ const handlesend = async (client_id) => {
       if (b.client_id !== a.client_id) {
         return b.client_id - a.client_id;
       }
-  
-      // Convert date strings to Date objects
       const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
       const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
-  
-      // Sort by sent status, then by date in descending order
       if (a.sent === b.sent) {
         return dateB - dateA;
       }

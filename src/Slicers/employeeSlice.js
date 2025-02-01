@@ -1,61 +1,3 @@
-// import { createSlice } from '@reduxjs/toolkit';
-
-// const initialState = {
-//   employees: [],
-//   employeeId: '',
-//   selectedEmployee:null,
-// };
-
-// const employeeSlice = createSlice({
-//   name: 'employees',
-//   initialState,
-//   reducers: {
-//     setEmployees: (state, action) => {
-//       state.employees = action.payload;
-//     },
-//     setEmployeeId: (state, action) => {
-//       state.employeeId = action.payload;
-//     },
-//     setSelectedEmployee: (state,action) => {
-//       state.selectedEmployee= action.payload;    
-//     },
-//   },
-// });
-
-// export const { setEmployees, setEmployeeI,selectedEmployee, setSelectedEmployee } = employeeSlice.actions;
-
-// export default employeeSlice.reducer;
-
-
-// import { createSlice } from '@reduxjs/toolkit';
-
-// const initialState = {
-//   employees: [],
-//   employeeId: '',
-//   selectedEmployee: null,
-// };
-
-// const employeeSlice = createSlice({
-//   name: 'employees',
-//   initialState,
-//   reducers: {
-//     setEmployees: (state, action) => {
-//       state.employees = action.payload;
-//     },
-//     setEmployeeId: (state, action) => {
-//       state.employeeId = action.payload;
-//     },
-//     setSelectedEmployee: (state, action) => {
-//       state.selectedEmployee = action.payload;
-//     },
-//   },
-// });
-
-// export const { setEmployees, setEmployeeId, setSelectedEmployee } = employeeSlice.actions;
-
-// export default employeeSlice.reducer;
-
-
 
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -78,7 +20,7 @@ const employeeSlice = createSlice({
     },
     setSelectedEmployee: (state, action) => {
       state.selectedEmployee = action.payload;
-      sessionStorage.setItem('selectedEmployee', JSON.stringify(action.payload)); // Save to sessionStorage
+      sessionStorage.setItem('selectedEmployee', JSON.stringify(action.payload)); 
     },
   },
 });

@@ -81,98 +81,137 @@ const [editableClient, setEditableClient] = useState(null);
 
 
 
-      const exportToExcel = () => {
-        try{
-          console.log("dtfghjk")
-       const wb = XLSX.utils.book_new();
+    //   const exportToExcel = () => {
+    //     try{
+    //       console.log("dtfghjk")
+    //    const wb = XLSX.utils.book_new();
        
-       // Collect the data into an array
-       const tableData = [
-         {
-           "#": 1,
-           "Client Name": selectedClient.client_name || 'Unknown Client',
-           "Client Number": selectedClient.client_contact || 'Unknown Client',
-           "Amount": selectedClient.amount || 0,
-           "Bank Name": selectedClient.bank_name || 'Unknown Bank',
-           "IFSC Code": selectedClient.ifsc_code || 'Unknown IFSC',
-           "Account Number": selectedClient.accno || 'Unknown Account',
-           "Beneficiary Name": selectedClient.name_of_the_beneficiary || 'Unknown Beneficiary',
-           "Beneficiary Address": selectedClient.address_of_the_beneficiary || 'Unknown Address',
-           "Sender Information": selectedClient.sender_information || 'Unknown Sender',
-         }
-       ];
+    //    // Collect the data into an array
+    //    const tableData = [
+    //      {
+    //        "#": 1,
+    //        "Client Name": selectedClient.client_name || 'Unknown Client',
+    //        "Client Number": selectedClient.client_contact || 'Unknown Client',
+    //        "Amount": selectedClient.amount || 0,
+    //        "Bank Name": selectedClient.bank_name || 'Unknown Bank',
+    //        "IFSC Code": selectedClient.ifsc_code || 'Unknown IFSC',
+    //        "Account Number": selectedClient.accno || 'Unknown Account',
+    //        "Beneficiary Name": selectedClient.name_of_the_beneficiary || 'Unknown Beneficiary',
+    //        "Beneficiary Address": selectedClient.address_of_the_beneficiary || 'Unknown Address',
+    //        "Sender Information": selectedClient.sender_information || 'Unknown Sender',
+    //      }
+    //    ];
        
-       // Create the worksheet
-       const ws = XLSX.utils.json_to_sheet(tableData);
+    //    // Create the worksheet
+    //    const ws = XLSX.utils.json_to_sheet(tableData);
        
-       // Style the worksheet headers
-       const headerStyle = {
-         font: { bold: true, sz: 10 },
-         alignment: { horizontal: "center" },
-         fill: { fgColor: { rgb: "F2F2F2" } },
-       };
+    //    // Style the worksheet headers
+    //    const headerStyle = {
+    //      font: { bold: true, sz: 10 },
+    //      alignment: { horizontal: "center" },
+    //      fill: { fgColor: { rgb: "F2F2F2" } },
+    //    };
        
-       const cellStyle = {
-         font: { sz: 8 },
-         alignment: { wrapText: true },
-       };
-       
-      
-       Object.keys(ws).forEach(cell => {
-         if (cell.match(/^[A-Z]+\d+$/)) {
-           if (cell.endsWith('1')) {
-             ws[cell].s = headerStyle;
-           } else {
-             ws[cell].s = cellStyle;
-           }
-         }
-       });
+    //    const cellStyle = {
+    //      font: { sz: 8 },
+    //      alignment: { wrapText: true },
+    //    };
        
       
-       ws['!cols'] = [
-         { wch: 5 },
-         { wch: 20 },
-         { wch: 20 },
-         { wch: 25 },
-         { wch: 20 },
-         { wch: 20 },
-         { wch: 20 },
-         { wch: 30 },
-         { wch: 30 },
-       ];
+    //    Object.keys(ws).forEach(cell => {
+    //      if (cell.match(/^[A-Z]+\d+$/)) {
+    //        if (cell.endsWith('1')) {
+    //          ws[cell].s = headerStyle;
+    //        } else {
+    //          ws[cell].s = cellStyle;
+    //        }
+    //      }
+    //    });
        
       
-       XLSX.utils.book_append_sheet(wb, ws, 'Client Information');
-       
+    //    ws['!cols'] = [
+    //      { wch: 5 },{ wch: 20 },{ wch: 20 },{ wch: 25 },{ wch: 20 },{ wch: 20 },{ wch: 20 },{ wch: 30 },{ wch: 30 },
+    //    ];
+    //    XLSX.utils.book_append_sheet(wb, ws, 'Client Information');
+    //    const timestamp = new Date().toISOString().replace(/[-:T]/g, '_').split('.')[0];
+    //    XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
+    //     }
+    //     catch(error){
+    //       console.error("Export failed:", error);
+    //     }
+    //  };
       
-       const timestamp = new Date().toISOString().replace(/[-:T]/g, '_').split('.')[0];
-       
-      
-       XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
-        }
-        catch(error){
-          console.error("Export failed:", error);
-        }
+    
+    const exportToExcel = () => {
+      try {
+        console.log("Exporting to Excel...");
+        const wb = XLSX.utils.book_new();
         
-     };
-
-
-     const handleEditClick = () => {
+        let tableData = [];
+    
+        if (selectedClient.bank_type === "bank1") {
+          // Only include specific fields for bank_type === 1
+          tableData = [
+            {
+              "#": selectedClient.client_id,
+              "Client Name": selectedClient.client_name || "Unknown Client",
+              "Client Number": selectedClient.client_contact || "Unknown Client",
+              "Amount": selectedClient.amount || 0,
+              "Account Number": selectedClient.accno || "Unknown Account",
+              "Narration": selectedClient.narration || "UNDEFINED",
+            },
+          ];
+        } else {
+          // Default fields for other bank types
+          tableData = [
+            {
+              "#": selectedClient.client_id,
+              "Client Name": selectedClient.client_name || "Unknown Client",
+              "Client Number": selectedClient.client_contact || "Unknown Client",
+              "Amount": selectedClient.amount || 0,
+              "Bank Name": selectedClient.bank_name || "Unknown Bank",
+              "IFSC Code": selectedClient.ifsc_code || "Unknown IFSC",
+              "Account Number": selectedClient.accno || "Unknown Account",
+              "Beneficiary Name": selectedClient.name_of_the_beneficiary || "Unknown Beneficiary",
+              "Beneficiary Address": selectedClient.address_of_the_beneficiary || "Unknown Address",
+              "Sender Information": selectedClient.sender_information || "Unknown Sender",
+            },
+          ];
+        }
+    
+        // Create the worksheet
+        const ws = XLSX.utils.json_to_sheet(tableData);
+    
+        // Adjust column widths
+        ws["!cols"] = [
+          { wch: 5 },  { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 20 }, { wch: 20 },
+        ];
+    
+        XLSX.utils.book_append_sheet(wb, ws, "Client Information");
+    
+        // Generate a timestamp for the file name
+        const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
+    
+        // Save the file
+        XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
+      } catch (error) {
+        console.error("Export failed:", error);
+      }
+    };
+    
+     
+    const handleEditClick = () => {
       setEditableClient(selectedClient);
       setEditModal(true);
     };
-
-
     const handleEditSubmit = async (e) => {
       e.preventDefault();
-    
       try {
         const Authorization = localStorage.getItem("authToken");
         if (!Authorization) {
           console.error("No authorization token found in localStorage");
           return;
         }
-    
         const response = await fetch(`${API_URL}/update_client/${editableClient.client_id}`, {
           method: "PUT",
           headers: {
@@ -181,7 +220,6 @@ const [editableClient, setEditableClient] = useState(null);
           },
           body: JSON.stringify(editableClient),
         });
-    
         if (!response.ok) {
           throw new Error("Failed to update client");
         }
@@ -242,58 +280,135 @@ const [editableClient, setEditableClient] = useState(null);
     <h2 className="mb-4 text-center text-primary">Client Details <span> <Button onClick={handlenavform} variant="primary"  className=' w-auto'>
   Edit Client
 </Button></span></h2>
-    <div className="row gy-3">
+    {/* <div className="row gy-3">
       <div className="col-md-6">
         <h4 className="fw-bold">Name:</h4>
-        <p className="text-muted">{selectedClient.client_name}</p>
+        <p className="text-muted fw-bold">{selectedClient.client_name.toUpperCase() }</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Contact Number:</h4>
-        <p className="text-muted ">{selectedClient.client_contact}</p>
+        <p className="text-muted fw-bold">{selectedClient.client_contact}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">City:</h4>
-        <p className="text-muted">{selectedClient.client_city}</p>
+        <p className="text-muted fw-bold">{selectedClient.client_city.toUpperCase() }</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Status:</h4>
         <p
           className={`badge ${
             selectedClient.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"
-          }`}
+          } fw-bold`}
         >
           {selectedClient.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
         </p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Bank Name:</h4>
-        <p className="text-muted">{selectedClient.bank_name}</p>
+        <p className="text-muted fw-bold">{selectedClient.bank_name.toUpperCase() }</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Account Number:</h4>
-        <p className="text-muted">{selectedClient.accno}</p>
+        <p className="text-muted fw-bold">{selectedClient.accno}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">IFSC Code:</h4>
-        <p className="text-muted">{selectedClient.ifsc_code}</p>
+        <p className="text-muted  fw-bold">{selectedClient.ifsc_code}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Name of Beneficiary:</h4>
-        <p className="text-muted">{selectedClient.name_of_the_beneficiary}</p>
+        <p className="text-muted  fw-bold">{selectedClient.name_of_the_beneficiary.toUpperCase() }</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Address of Beneficiary:</h4>
-        <p className="text-muted">{selectedClient.address_of_the_beneficiary}</p>
+        <p className="text-muted  fw-bold">{selectedClient.address_of_the_beneficiary.toUpperCase() }</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Account Type:</h4>
-        <p className="text-muted">{selectedClient.accoun_type}</p>
+        <p className="text-muted  fw-bold">{selectedClient.accoun_type.toUpperCase() }</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Sender Information:</h4>
-        <p className="text-muted">{selectedClient.sender_information}</p>
+        <p className="text-muted  fw-bold">{selectedClient.sender_information.toUpperCase() }</p>
       </div>
+      <div className="col-md-6">
+        <h4 className="fw-bold">bank Type:</h4>
+        <p className="text-muted  fw-bold">{selectedClient.bank_type.toUpperCase() }</p>
+      </div>
+    </div> */}
+    <div className="row gy-3">
+  <div className="col-md-6">
+    <h4 className="fw-bold">Name:</h4>
+    <p className="text-muted fw-bold">{selectedClient.client_name?.toUpperCase() || "UNDEFINED"}</p>
+  </div>
+  <div className="col-md-6">
+    <h4 className="fw-bold">Contact Number:</h4>
+    <p className="text-muted fw-bold">{selectedClient.client_contact || "UNDEFINED"}</p>
+  </div>
+  <div className="col-md-6">
+    <h4 className="fw-bold">City:</h4>
+    <p className="text-muted fw-bold">{selectedClient.client_city?.toUpperCase() || "UNDEFINED"}</p>
+  </div>
+  <div className="col-md-6">
+    <h4 className="fw-bold">Status:</h4>
+    <p
+      className={`badge ${
+        selectedClient.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"
+      } fw-bold`}
+    >
+      {selectedClient.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
+    </p>
+  </div>
+  <div className="col-md-6">
+    <h4 className="fw-bold">Account Number:</h4>
+    <p className="text-muted fw-bold">{selectedClient.accno || "UNDEFINED"}</p>
+  </div>
+
+  {/* Conditionally hide fields when bank_type === "Bank1" */}
+  {selectedClient.bank_type && selectedClient.bank_type !== "bank1" && (
+    <>
+      <div className="col-md-6">
+        <h4 className="fw-bold">Bank Name:</h4>
+        <p className="text-muted fw-bold">{selectedClient.bank_name?.toUpperCase() || "UNDEFINED"}</p>
+      </div>
+      
+      <div className="col-md-6">
+        <h4 className="fw-bold">IFSC Code:</h4>
+        <p className="text-muted fw-bold">{selectedClient.ifsc_code || "undefined"}</p>
+      </div>
+      <div className="col-md-6">
+        <h4 className="fw-bold">Name of Beneficiary:</h4>
+        <p className="text-muted fw-bold">{selectedClient.name_of_the_beneficiary?.toUpperCase() || "UNDEFINED"}</p>
+      </div>
+      <div className="col-md-6">
+        <h4 className="fw-bold">Address of Beneficiary:</h4>
+        <p className="text-muted fw-bold">{selectedClient.address_of_the_beneficiary?.toUpperCase() || "UNDEFINED"}</p>
+      </div>
+      <div className="col-md-6">
+        <h4 className="fw-bold">Account Type:</h4>
+        <p className="text-muted fw-bold">{selectedClient.accoun_type?.toUpperCase() || "UNDEFINED"}</p>
+      </div>
+      <div className="col-md-6">
+        <h4 className="fw-bold">Sender Information:</h4>
+        <p className="text-muted fw-bold">{selectedClient.sender_information?.toUpperCase() || "UNDEFINED"}</p>
+      </div>
+    </>
+  )}
+
+  {/* Conditionally hide narration when bank_type === "Bank2" */}
+  {selectedClient.bank_type !== "bank2" && (
+    <div className="col-md-6">
+      <h4 className="fw-bold">Narration:</h4>
+      <p className="text-muted fw-bold">{selectedClient.narration?.toUpperCase() || "UNDEFINED"}</p>
     </div>
+  )}
+
+  <div className="col-md-6">
+    <h4 className="fw-bold">Bank Type:</h4>
+    <p className="text-muted fw-bold">{selectedClient.bank_type?.toUpperCase() || "UNDEFINED"}</p>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -323,7 +438,7 @@ const [editableClient, setEditableClient] = useState(null);
     </div>
 
     <div>
-      <table className="table table-striped">
+      {/* <table className="table table-striped">
         <thead>
           <tr>
             <th>#</th>
@@ -346,7 +461,39 @@ const [editableClient, setEditableClient] = useState(null);
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
+      <table className="table table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Collection Agent Name</th>
+      <th>Date and Time</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {selectedClient.paid_amount_date && selectedClient.paid_amount_date.length > 0 ? (
+      selectedClient.paid_amount_date.map((data, index) => {
+        const agent = employees.find((e1) => e1.user_id === selectedClient.user_id);
+        return (
+          <tr key={index}>
+            <td>{index + 1}</td>
+            <td onClick={() => agent && handlenav(agent)}>
+              {agent ? agent.username : "Unknown Agent"}
+            </td>
+            <td>{data.date || "N/A"}</td>
+            <td>{data.amount || "N/A"}</td>
+          </tr>
+        );
+      })
+    ) : (
+      <tr>
+        <td colSpan="4" className="text-center">No data available</td>
+      </tr>
+    )}
+  </tbody>
+</table>
+
     </div>
   </div>
 

@@ -349,13 +349,15 @@ function Employee() {
               Add New Employee
             </Button>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal show={show} onHide={handleClose}    dialogClassName="custom-modal">
+            <div className="dio" style={{ width: '90vw' }}>
                <Modal.Header closeButton>
                  <Modal.Title>Add New Employee</Modal.Title>
                </Modal.Header>
               <Modal.Body>
                  <form onSubmit={handleSubmit}>
-                   <div className="txt_field">
+                 <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                      <input
                        type="text"
                        value={username}
@@ -365,7 +367,7 @@ function Employee() {
                      <label>Employee Name</label>
                    </div>
 
-                  <div className="txt_field">
+                  <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                      <input
                       type="text"
                        value={phone_number}
@@ -374,8 +376,9 @@ function Employee() {
                      />
                     <label>Employee Contact Number</label>
                    </div>
-
-                   <div className="txt_field">
+                   </div>
+                   <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                      <input
                        type="text"
                        value={city}
@@ -385,7 +388,7 @@ function Employee() {
                      <label>City</label>
                    </div>
 
-                   <div className="txt_field">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                      <select
                        value={role}
                        onChange={(e) => setRole(e.target.value)}
@@ -399,15 +402,11 @@ function Employee() {
                        <option value="Collection Agent">Collection Agent</option>
                      </select>
                    </div>
+                   </div>  
 
-                  <div className="txt_field">
-                     <input
-                       type="file"
-                       onChange={(e) => setPhoto(e.target.files)}
-                    />
-                  </div>
-
-                   <div className="txt_field">
+                 
+                   <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                      <input
                        type="text"
                        value={email}
@@ -417,7 +416,7 @@ function Employee() {
                      <label>Enter The Email</label>
                    </div>
 
-                   <div className="txt_field">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                      <input
                        type="password"
                       value={password}
@@ -425,6 +424,7 @@ function Employee() {
                        required
                      />
                      <label>Enter the Password</label>
+                   </div>
                    </div>
 
                   <div className="txt_field">
@@ -437,7 +437,7 @@ function Employee() {
                      <label>Confirm the Password</label>
                   </div>
 
-                  <Modal.Footer>
+                  <Modal.Footer  className=" w-100 justify-content-center">
                     <Button variant="secondary" onClick={handleClose}>
                        Close
                      </Button>
@@ -447,6 +447,7 @@ function Employee() {
                    </Modal.Footer>
                  </form>
                </Modal.Body>
+               </div>
              </Modal>
            </div>
 
