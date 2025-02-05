@@ -996,7 +996,7 @@ function Client() {
       </div>
               
               <div className="row d-flex  gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12 ">
-                <div className="row col-xxl-3">
+                <div className="row col-xxl-3 col-xl-3 col-lg-3 col-md-12 col-sm-12">
                   <label className="form-label">Client Account Type</label>
                   <select
                     className="form-select"

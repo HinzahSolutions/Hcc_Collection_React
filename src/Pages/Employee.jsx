@@ -480,8 +480,8 @@ function Employee() {
                      <label>Enter the Password</label>
                    </div>
                    </div>
-
-                  <div className="txt_field">
+                   <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                  <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                     <input
                        type="password"
                        value={Confirmpassword}
@@ -489,6 +489,7 @@ function Employee() {
                        required
                      />
                      <label>Confirm the Password</label>
+                  </div>
                   </div>
 
                   <Modal.Footer  className=" w-100 justify-content-center">

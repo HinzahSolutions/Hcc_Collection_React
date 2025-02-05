@@ -439,7 +439,7 @@ function Alldata() {
           </h4> */}
         </div>
        
-        <div className="d-flex gap-1 flex-wrap  justify-content-center align_  ">
+        <div className="d-flex gap-2 flex-wrap  justify-content-center p-2  ">
         <div>  <button onClick={ exportToCSV} className="btn btn-primary w-auto">
           Export to Excel
         </button></div>

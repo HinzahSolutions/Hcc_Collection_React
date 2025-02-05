@@ -127,8 +127,8 @@ function Todaycollection() {
             <div className="today collection list">
                 <div className="records table-responsive">
                     <div className="record-header w-100 ">
-                        <div className="add d-flex justify-content-start align-items-center p-1" >
-                            <h4 className='w-auto mt-3 fs-5'>Today Collection</h4>
+                        <div className="add d-flex justify-content-start align-items-center p-1 gap-1 " >
+                            <h4 className='w-auto mt-3 fs-5 '>Today Collection</h4>
                             <Button onClick={exportToCSV} className='w-auto mb-1 '>Export to CSV</Button>
                         </div>
                         <div>
