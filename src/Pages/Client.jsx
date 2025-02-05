@@ -98,9 +98,8 @@ function Client() {
   }, [dispatch]);
 
   const handleUnauthorizedAccess = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("role");
-    localStorage.removeItem("userName");
+     localStorage.clear();
+     sessionStorage.clear();
     navigate("/login");
   };
 
@@ -599,6 +598,9 @@ function Client() {
     link.download = `selected_clients_${format(new Date(), "dd-MM-yyyy")}.csv`;
     link.click();
   };
+  useEffect(() => {
+    sessionStorage.clear(); // Clears all session storage data
+  }, []);
   
   
   return (

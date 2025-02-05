@@ -63,6 +63,7 @@ function Formdata() {
       const updatedClient = await response.json();
       dispatch(setSelectedClient(updatedClient));
       alert("Client updated successfully");
+      sessionStorage.clear();
       navigate("/client");
     } catch (error) {
       console.error("Error updating client:", error);

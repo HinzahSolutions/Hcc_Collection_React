@@ -168,9 +168,8 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
 
 
   const handleUnauthorizedAccess = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("role");
-    localStorage.removeItem("userName");
+    localStorage.clear();
+    sessionStorage.clear();
     navigate("/login");
   };
 

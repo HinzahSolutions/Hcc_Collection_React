@@ -22,6 +22,8 @@ function LoginPage() {
     localStorage.removeItem("authToken");
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
+    localStorage.clear()
+    sessionStorage.clear(); // Clears all sessionStorage data
   }, []);
 
   const handleSubmit = async (e) => {

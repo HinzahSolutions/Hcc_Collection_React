@@ -96,21 +96,21 @@ table thead th {
 
 
 .custom-modal {
-    max-width: 9vw; /* Modal width 90% of the viewport width */
+    max-width: 9vw; 
     width: 9vw; 
     border: 1p solid black;
     display: flex;
     justify-items: center;
-    padding-right: 1000px;/* Ensures that the width is always 90vw */
+    padding-right: 1000px;
   }
 
   .custom-modal1 {
-    max-width: 9vw; /* Modal width 90% of the viewport width */
+    max-width: 9vw; 
     width: 9vw; 
     border: 1p solid black;
     display: flex;
     justify-items: center;
-    padding-right: 1300px;/* Ensures that the width is always 90vw */
+    padding-right: 1100px;
   }
   .dio{ 
     background-color: white;

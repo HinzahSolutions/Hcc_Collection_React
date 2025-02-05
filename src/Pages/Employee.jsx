@@ -72,7 +72,7 @@ function Employee() {
         dispatch(setEmployees(data)); // Dispatch to update the employees list in Redux
       } catch (error) {
         console.error("Fetch error:", error);
-        sessionStorage.removeItem("selectedEmployee");
+       
       } finally {
         setLoading(false); // Set loading to false when fetching is done
       }
@@ -297,11 +297,16 @@ function Employee() {
 
   
   const handleUnauthorizedAccess = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("role");
-    localStorage.removeItem("userName");
+   
+    sessionStorage.clear(); 
+    localStorage.clear()
     navigate("/login");
   };
+
+ useEffect(() => {
+    sessionStorage.clear(); // Clears all session storage data
+  }, []);
+  
 
   return (
     <div style={{ marginTop: "50px" }}>
@@ -404,7 +409,7 @@ function Employee() {
             </Button>
 
             <Modal show={show} onHide={handleClose}    dialogClassName="custom-modal1"  >
-            <div className="dio" style={{ width: '90vw',}}>
+            <div className="dio" style={{ width: '70vw',}}>
                <Modal.Header closeButton>
                  <Modal.Title>Add New Employee</Modal.Title>
                </Modal.Header>
