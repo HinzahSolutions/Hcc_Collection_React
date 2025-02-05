@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import '../Css/info.css';
 import { MdEmail } from "react-icons/md";
 import { IoMdCall } from "react-icons/io";
-import { Button } from 'react-bootstrap';
+import { Button , Modal,Form} from 'react-bootstrap';
 import { setUsers, setSelectedClient } from '../Slicers/clientSlice';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
@@ -19,6 +19,10 @@ function Employeeinfo() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Retrieve selectedEmployee from sessionStorage on component mount
   useEffect(() => {
@@ -50,7 +54,7 @@ function Employeeinfo() {
           }
           return response.json();
         })
-        .then((data) => dispatch(setUsers(data)))
+        .then((data) => dispatch(setUsers(data), console.log(data)))
         .catch((error) => console.error("Fetch error:", error));
     } else {
       console.error("No authorization token found in localStorage");
@@ -77,6 +81,7 @@ function Employeeinfo() {
       }, 0);
 
       setOverallAmount(totalAmount);
+      console.log(overallAmount)
       setOverallCollection(totalCollection);
       setBalanceAmount(totalAmount - totalCollection);
     }
@@ -149,6 +154,53 @@ function Employeeinfo() {
       navigate("/employeeform")
   }
 
+
+  
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (!newPassword.trim()) {
+      alert("Please enter a new password");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const Authorization = localStorage.getItem("authToken");
+      console.log( selectedEmployee.email)
+
+      if (!Authorization) {
+        console.error("No authorization token found");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/passwordupdated`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization,
+        },
+        body: JSON.stringify({ email: selectedEmployee.email,password: newPassword }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to change password");
+      }
+
+      alert("Password updated successfully!");
+      setShowPasswordModal(false);
+      setNewPassword('');
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert(error.message || "Error updating password. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
   return (
     <div style={{ marginTop: '50px' }}>
       <div className="page-header">
@@ -187,9 +239,12 @@ function Employeeinfo() {
             </small>
           </div>
 
-          <div className="d-flex gap-2">
+          <div className="d-flex gap-2 ">
             <Button className="w-auto btn btn-primary"   onClick={handlenavform}>Edit The Employee</Button>
+            <Button className="w-auto btn btn-danger"  onClick={() => setShowPasswordModal(true)} >Password Change</Button>
           </div>
+
+          
         </div>
       </div>
 
@@ -252,6 +307,34 @@ function Employeeinfo() {
           </div>
         </div>
       )}
+
+      <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Change Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handlePasswordChange}>
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control type="email" value={selectedEmployee?.email || 'N/A'} readOnly />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>New Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Button variant="primary" type="submit" disabled={loading}>
+              {loading ? "Updating..." : "Change Password"}
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

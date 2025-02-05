@@ -146,79 +146,124 @@ function Client() {
     setSelectedDate(date ? format(date, "dd-MM-yyyy") : null);
   };
 
+  // const filteredData = useMemo(() => {
+  //   if (!Array.isArray(users)) return [];
+  //   return users.filter((row) => {
+  //     const clientName = row.client_name?.toLowerCase().trim() || "";
+  //     const clientContact = row.client_contact?.toLowerCase().trim() || "";
+  //     const employeeName = row.employee_name?.toLowerCase().trim() || "";
+  //     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+  //     const clientStatus = row.status?.toLowerCase().trim() || "";
+  //     const createdAt = row.created_at ? row.created_at.split("T")[0].trim() : "";
+  //     const query = searchQuery?.toLowerCase().trim() || "";
+  //     const paidAndUnpaid = row.paid_and_unpaid;
+  //     const queryUpper = searchQuery?.toUpperCase().trim() || "";
+  //     const matchesQuery =
+  //       clientName.includes(query) ||
+  //       clientContact.includes(query) ||
+  //       employeeName.includes(query) ||
+  //       accountNumbers.includes(queryUpper);
+  //     const matchesDashboardFilter =
+  //       dashboardNav === "client" ||
+  //       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+  //       (dashboardNav === "unpaid" && paidAndUnpaid === 0);
+  //     const matchesStatusFilter = selectedStatus
+  //       ? clientStatus === selectedStatus.toLowerCase()
+  //       : true;
+  //     const matchesDateFilter = selectedDate
+  //       ? createdAt === selectedDate.trim()
+  //       : true;
+  //     return matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter;
+  //   });
+  // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus]);
+
+
   const filteredData = useMemo(() => {
     if (!Array.isArray(users)) return [];
-
+  
     return users.filter((row) => {
       const clientName = row.client_name?.toLowerCase().trim() || "";
       const clientContact = row.client_contact?.toLowerCase().trim() || "";
       const employeeName = row.employee_name?.toLowerCase().trim() || "";
-
-   
       const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-
       const clientStatus = row.status?.toLowerCase().trim() || "";
-
-    
-      const createdAt = row.created_at ? row.created_at.split("T")[0].trim() : "";
-
+      const createdAt = row.date?.trim() || ""; // Use `row.date` instead of `created_at`
       const query = searchQuery?.toLowerCase().trim() || "";
       const paidAndUnpaid = row.paid_and_unpaid;
-
-    
       const queryUpper = searchQuery?.toUpperCase().trim() || "";
-
-      
+  
       const matchesQuery =
         clientName.includes(query) ||
         clientContact.includes(query) ||
         employeeName.includes(query) ||
         accountNumbers.includes(queryUpper);
-
+  
       const matchesDashboardFilter =
         dashboardNav === "client" ||
         (dashboardNav === "paid" && paidAndUnpaid === 1) ||
         (dashboardNav === "unpaid" && paidAndUnpaid === 0);
-
-    
+  
       const matchesStatusFilter = selectedStatus
         ? clientStatus === selectedStatus.toLowerCase()
         : true;
-
-      
+  
       const matchesDateFilter = selectedDate
-        ? createdAt === selectedDate.trim()
+        ? createdAt === selectedDate.trim() // Compare directly with `selectedDate`
         : true;
-
+  
       return matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter;
     });
   }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus]);
+  
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const currentDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
 
+    // const clientData = {
+    //   client_name: clientName,
+    //   client_contact: contactNumber,
+    //   client_city: city,
+    //   amount: amount,
+    //   today_rate: todayrate,
+    //   date: currentDate,
+    //   sent: false,
+    //   message: message,
+    //   paid_and_unpaid: false,
+    //   success_and_unsuccess: false,
+    //   bank_name: bname,
+    //   accno: anumber,
+    //   ifsc_code: ifsc,
+    //   accoun_type: type,
+    //   name_of_the_beneficiary: holdername,
+    //   address_of_the_beneficiary: holderaddress,
+    //   sender_information: senderinfo,
+    //   bank_type:clientType,
+    //   narration:narration,
+    // };
     const clientData = {
-      client_name: clientName,
-      client_contact: contactNumber,
-      client_city: city,
-      amount: amount,
-      today_rate: todayrate,
-      date: currentDate,
+      client_name: clientName || "N/A",
+      client_contact: contactNumber || "N/A",
+      client_city: city || "N/A",
+      amount: amount || 0,
+      today_rate: todayrate || 0,
+      date: currentDate || new Date().toISOString(),
       sent: false,
-      message: message,
+      message: message || "",
       paid_and_unpaid: false,
       success_and_unsuccess: false,
-      bank_name: bname,
-      accno: anumber,
-      ifsc_code: ifsc,
-      accoun_type: type,
-      name_of_the_beneficiary: holdername,
-      address_of_the_beneficiary: holderaddress,
-      sender_information: senderinfo,
-      bank_type:clientType,
-      narration:narration,
+      bank_name: bname || "N/A",
+      accno: anumber || "N/A",
+      ifsc_code: ifsc || "N/A",
+      accoun_type: type || "N/A",
+      name_of_the_beneficiary: holdername || "N/A",
+      address_of_the_beneficiary: holderaddress || "N/A",
+      sender_information: senderinfo || "N/A",
+      bank_type: clientType || "N/A",
+      narration: narration || "N/A",
     };
+     console.log(clientData)    
 
     fetch(`${API_URL}/acc_insertarrays`, {
       method: "POST",
@@ -255,6 +300,79 @@ function Client() {
         console.error("Error:", error);
       });
   };
+ 
+ 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault(); // Prevent default form submission
+  
+  //   try {
+  //     const Authorization = localStorage.getItem("authToken");
+  //     const currentDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+  
+  //     const clientData = {
+  //       client_name: clientName,
+  //       client_contact: contactNumber,
+  //       client_city: city,
+  //       amount: amount,
+  //       today_rate: todayrate,
+  //       date: currentDate,
+  //       sent: false,
+  //       message: message,
+  //       paid_and_unpaid: false,
+  //       success_and_unsuccess: false,
+  //       bank_name: bname,
+  //       accno: anumber,
+  //       ifsc_code: ifsc,
+  //       accoun_type: type,
+  //       name_of_the_beneficiary: holdername,
+  //       address_of_the_beneficiary: holderaddress,
+  //       sender_information: senderinfo,
+  //       bank_type: clientType,
+  //       narration: narration,
+  //     };
+  //     console.log(clientData)
+  //     // Send client data
+  //     const response = await fetch(`${API_URL}/acc_insertarrays`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization, // Include token if required
+  //       },
+  //       body: JSON.stringify(clientData),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error("Failed to create client");
+  //     }
+  
+  //     const data = await response.json();
+  //     console.log("Response data:", data);
+  //     alert("New Client Created");
+  //     setShow(false);
+  //     resetForm();
+  
+  //     // Fetch updated client list
+  //     const clientListResponse = await fetch(`${API_URL}/acc_list`, {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization,
+  //       },
+  //     });
+  
+  //     if (!clientListResponse.ok) {
+  //       throw new Error("Failed to fetch updated client list");
+  //     }
+  
+  //     const updatedData = await clientListResponse.json();
+  //     dispatch(setUsers(updatedData));
+  
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
+  
+ 
   const resetForm = () => {
     setClientName("");
     setContactNumber("");
@@ -351,19 +469,13 @@ function Client() {
         },
         body: JSON.stringify(sendData),
       });
-
       if (!response.ok) {
         throw new Error("Failed to update client");
       }
-
       const result = await response.json();
       console.log("Updated client response:", result);
-
-      // Close the modal
       setSendModal(false);
       alert("Employee assignment successful");
-
-      // Re-fetch updated client data
       fetch(`${API_URL}/acc_list`, {
         method: "GET",
         headers: {
@@ -382,7 +494,6 @@ function Client() {
 
 
   const [selectedRows, setSelectedRows] = useState([]);
-
   const handleCheckboxChange = (client) => {
     setSelectedRows((prevSelected) => {
       if (prevSelected.some((item) => item.client_id === client.client_id)) {
@@ -451,7 +562,6 @@ function Client() {
         clientData = {
           ...clientData,
           "Client Number": client.client_contact || "Unknown Client",
-          "Date": client.date || "N/A",
           "Bank Name": client.bank_name || "Unknown Bank",
           "IFSC Code": client.ifsc_code || "Unknown IFSC",
           "Beneficiary Name": client.name_of_the_beneficiary || "Unknown Beneficiary",
@@ -459,7 +569,6 @@ function Client() {
           "Sender Information": client.sender_information || "Unknown Sender",
         };
       } 
-      // If bank_type === "Bank2", narration is excluded but all other fields are included
       else {
         clientData = {
           ...clientData,
@@ -476,18 +585,14 @@ function Client() {
       return clientData;
     });
   
-    // Generate unique headers based on filtered data
+    
     const headers = [...new Set(csvData.flatMap((row) => Object.keys(row)))];
-  
-    // Convert data to CSV format
     const csvContent = [
       headers,
-      ...csvData.map((row) => headers.map((header) => row[header] || "")), // Ensure values align with headers
+      ...csvData.map((row) => headers.map((header) => row[header] || "")), 
     ]
-      .map((e) => e.join(",")) // Join as CSV rows
+      .map((e) => e.join(",")) 
       .join("\n");
-  
-    // Create and download the CSV file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -770,7 +875,7 @@ function Client() {
               </div>
               <div>
                 <h4>Assign Employee</h4>
-                <select
+                {/* <select
                   value={employeeId}
                   onChange={(e) => setEmployeeId(e.target.value)}
                   style={{ padding: "0px 0px 0px 0px", border: "none" }}
@@ -787,7 +892,27 @@ function Client() {
                         </option>
                       )
                   )}
-                </select>
+                </select> */}
+                <select
+  value={employeeId}
+  onChange={(e) => setEmployeeId(e.target.value)}
+  style={{ padding: "0px", border: "none" }}
+>
+  {/* Default option */}
+  <option value="" disabled>
+    Select Employee
+  </option>
+
+  {/* Show only employees with role "Collection Agent" */}
+  {employees
+    .filter((emp) => emp.role === "Collection Agent")
+    .map((emp) => (
+      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
+        {emp.username}
+      </option>
+    ))}
+</select>
+
               </div>
             </form>
           ) : (
@@ -809,7 +934,7 @@ function Client() {
 
       
       <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
-        <div className="dio" style={{ width: '90vw' }}>
+        <div className="dio" style={{ width: '70vw' }}>
           <Modal.Header closeButton>
             <Modal.Title>Add New Client</Modal.Title>
           </Modal.Header>
@@ -886,16 +1011,6 @@ function Client() {
 {clientType === "bank2" ? (
   <div className="col-xxl-12 col-xl-12 col-md-12 col-12">
     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
-      {/* <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
-        <input
-          type="number"
-          value={todayrate}
-          onChange={(e) => setTodayRate(e.target.value)}
-          required
-        />
-        <label>Today Rate</label>
-      </div> */}
-
       <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
         <input
           type="text"
@@ -944,7 +1059,7 @@ function Client() {
         <input
           type="text"
           value={holderaddress}
-          onChange={(e) => setHolderaddress(e.target.value)}
+          onChange={(e) => setHolderadderss(e.target.value)}
           required
         />
         <label>Address of the Beneficiary</label>
@@ -978,8 +1093,8 @@ function Client() {
       <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
         <input
           type="text"
-          value={holdername}
-          onChange={(e) => setHoldername(e.target.value)}
+          value={anumber}
+          onChange={(e) => setAnumber(e.target.value)}
           required
         />
         <label>Account Number</label>

@@ -101,40 +101,94 @@ function Employee() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //    // Prevent the default form submission behavior
 
-    const employeeData = new FormData();
+  //   const employeeData = new FormData();
 
-    // Append all fields to FormData
-    employeeData.append("username", username);
-    employeeData.append("email", email);
-    employeeData.append("password", password);
-    employeeData.append("phone_number", phone_number);
-    employeeData.append("photoPath", photo); // Ensure `photo` is a File object
-    employeeData.append("city", city);
-    employeeData.append("role", role);
+  //   // Append all fields to FormData
+  //   employeeData.append("username", username);
+  //   employeeData.append("email", email);
+  //   employeeData.append("password", password);
+  //   employeeData.append("phone_number", phone_number);
+  //   employeeData.append("city", city);
+  //   employeeData.append("role", role);
 
-    // Send the POST request with FormData
-    fetch(`${API_URL}/signup`, {
-      method: "POST",
-      body: employeeData,
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Something went wrong!");
-      })
-      .then((data) => {
-        alert("New Employee successfully created");
-        setShow(false);
+  //   // Send the POST request with FormData
+  //   fetch(`${API_URL}/signup`, {
+  //     method: "POST",
+  //     body: employeeData,
+  //   })
+  //     .then((response) => {
+  //       if (response.ok) {
+  //         return response.json();
+  //       }
+  //       throw new Error("Something went wrong!");
+  //     })
+  //     .then((data) => {
+  //       alert("New Employee successfully created");
+  //       setShow(false);
         
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error:", error);
+  //     });
+  // };
+
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission
+  
+    const Authorization = localStorage.getItem("authToken");
+  
+    if (!Authorization) {
+      console.error("Authorization token is missing");
+      return;
+    }
+  
+    try {
+      // First, fetch the employee list
+      const response = await fetch(`${API_URL}/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: Authorization,
+        },
       });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch employee list");
+      }
+  
+      // Assuming you want to create an employee after fetching the list
+      const employeeData = new FormData();
+      employeeData.append("username", username);
+      employeeData.append("email", email);
+      employeeData.append("password", password);
+      employeeData.append("phone_number", phone_number);
+      employeeData.append("city", city);
+      employeeData.append("role", role);
+  
+      // Send the POST request to create a new employee
+      const signupResponse = await fetch(`${API_URL}/signup`, {
+        method: "POST",
+        body: employeeData,
+      });
+  
+      if (!signupResponse.ok) {
+        throw new Error("Something went wrong!");
+      }
+  
+      const data = await signupResponse.json();
+      alert("New Employee successfully created");
+      setShow(false);
+  
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
+  
 
   const Dashboardclient = () => setDashboardnav("Admin");
   const Dashboardpaid = () => setDashboardnav("Collection Manager");

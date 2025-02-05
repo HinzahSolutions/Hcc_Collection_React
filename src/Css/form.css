@@ -28,6 +28,8 @@ input {
     border: 1px solid #ddd;
     border-radius: 3px;
     font-size: 12px;
+    font-weight: bolder;
+    color:black
 }
 input[type="radio"],
 input[type="checkbox"] {
@@ -66,9 +68,9 @@ label {
     width: 40%;
     font-size: 16px;
 } */
-textarea {
+/* textarea {
     resize: none;
     width: 98%;
     min-height: 100px;
     max-height: 150px;
-}
+} */

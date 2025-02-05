@@ -40,10 +40,11 @@ function Assignemploye() {
 
 
 const handlesend = async (client_id) => {
+  console.log(employeeId)
     const sendData = {
       client_id,
       user_id: employeeId,
-      sent: true,
+      sent:1,
     };
   
     try {
@@ -213,7 +214,7 @@ const handlesend = async (client_id) => {
                     </div>
                     <div>
                       <h4>Assign Employee</h4>
-                      <select
+                      {/* <select
                         value={employeeId}
                         onChange={(e) => setEmployeeId(e.target.value)}
                         style={{ padding: "0px 0px 0px 0px", border: "none" }}
@@ -230,7 +231,28 @@ const handlesend = async (client_id) => {
                               </option>
                             )
                         )}
-                      </select>
+                      </select> */}
+                      <select
+  value={employeeId}
+  onChange={(e) => setEmployeeId(e.target.value)}
+  style={{ padding: "0px", border: "none" }}
+>
+  {/* Default option */}
+  <option value="" disabled>
+    Select Employee
+  </option>
+
+  {/* Show only employees with role "Collection Agent" */}
+  {employees
+    .filter((emp) => emp.role === "Collection Agent")
+    .map((emp) => (
+      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
+        {emp.username}
+      </option>
+    ))}
+</select>
+
+
                     </div>
                   </form>
                 </Modal.Body>

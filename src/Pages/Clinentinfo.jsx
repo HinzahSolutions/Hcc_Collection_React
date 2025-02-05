@@ -360,6 +360,10 @@ const [editableClient, setEditableClient] = useState(null);
     </p>
   </div>
   <div className="col-md-6">
+    <h4 className="fw-bold">Today Rate:</h4>
+    <p className="text-muted fw-bold">{selectedClient.today_rate || "UNDEFINED"}</p>
+  </div>
+  <div className="col-md-6">
     <h4 className="fw-bold">Account Number:</h4>
     <p className="text-muted fw-bold">{selectedClient.accno || "UNDEFINED"}</p>
   </div>

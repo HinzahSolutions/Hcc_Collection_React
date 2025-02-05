@@ -46,20 +46,48 @@ function Todaycollection() {
         }
       }, [dispatch]);
 
+    // useEffect(() => {
+    //     const today = format(new Date(), "dd-MM-yyyy");
+    //     const filteredCollections = users.filter((client) =>
+    //       client.paid_amount_date?.some((payment) => payment.date === today)
+    //     );
+    //     const totalAmount = filteredCollections.reduce((sum, client) => {
+    //       const clientTotal = client.paid_amount_date.reduce((clientSum, payment) => {
+    //         return payment.date === today ? clientSum + parseFloat(payment.amount || 0) : clientSum;
+    //       }, 0);
+    //       return sum + clientTotal;
+    //     }, 0);
+    //     setTodayCollections(filteredCollections);
+    //     console.log(todayCollections)
+    //     setTodayOverallAmount(totalAmount);
+    //   }, [users]);
+  
     useEffect(() => {
-        const today = format(new Date(), "dd-MM-yyyy");
-        const filteredCollections = users.filter((client) =>
-          client.paid_amount_date?.some((payment) => payment.date === today)
-        );
-        const totalAmount = filteredCollections.reduce((sum, client) => {
-          const clientTotal = client.paid_amount_date.reduce((clientSum, payment) => {
-            return payment.date === today ? clientSum + parseFloat(payment.amount || 0) : clientSum;
-          }, 0);
-          return sum + clientTotal;
+      const today = format(new Date(), "dd-MM-yyyy");
+    
+      const filteredCollections = users.filter((client) =>
+        client.paid_amount_date?.some((payment) => payment.date === today)
+      );
+    
+      // Sorting clients by latest paid_amount_time (descending order)
+      filteredCollections.sort((a, b) => {
+        const latestPaymentA = new Date(a.paid_amount_time || "1970-01-01");
+        const latestPaymentB = new Date(b.paid_amount_time || "1970-01-01");
+        return latestPaymentB - latestPaymentA; // Descending order
+      });
+    
+      const totalAmount = filteredCollections.reduce((sum, client) => {
+        const clientTotal = client.paid_amount_date.reduce((clientSum, payment) => {
+          return payment.date === today ? clientSum + parseFloat(payment.amount || 0) : clientSum;
         }, 0);
-        setTodayCollections(filteredCollections);
-        setTodayOverallAmount(totalAmount);
-      }, [users]);
+        return sum + clientTotal;
+      }, 0);
+    
+      setTodayCollections(filteredCollections);
+      setTodayOverallAmount(totalAmount);
+    }, [users]);
+    
+
 
     const exportToCSV = () => {
         const today = format(new Date(), "dd-MM-yyyy");
@@ -133,8 +161,23 @@ function Todaycollection() {
           if (payment.date === format(new Date(), "dd-MM-yyyy")) {
             return (
               <tr key={pIndex}>
-                <td>{index + 1}</td>
-                <td>{client.client_name ? client.client_name.toUpperCase() : "NULL"}</td>
+                <td>{client.client_id}</td>
+                {/* <td>{client.client_name ? client.client_name.toUpperCase() : "NULL"}</td> */}
+                <td>
+                    <div className="client">
+                      <div
+                        className="client-img bg-img"
+                        style={{
+                          backgroundImage:
+                            "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
+                        }}
+                      ></div>
+                      <div className="client-info">
+                        <h4>{client.client_name ? client.client_name.toUpperCase() : "NULL"}</h4>
+                        <small>{client.client_contact}</small>
+                      </div>
+                    </div>
+                  </td>
                 <td>
                   {employees.map((eid) =>
                     eid.user_id === client.user_id ? (
