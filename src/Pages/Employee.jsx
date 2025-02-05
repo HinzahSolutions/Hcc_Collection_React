@@ -403,8 +403,8 @@ function Employee() {
               Add New Employee
             </Button>
 
-            <Modal show={show} onHide={handleClose}    dialogClassName="custom-modal">
-            <div className="dio" style={{ width: '90vw' }}>
+            <Modal show={show} onHide={handleClose}    dialogClassName="custom-modal1"  >
+            <div className="dio" style={{ width: '90vw',}}>
                <Modal.Header closeButton>
                  <Modal.Title>Add New Employee</Modal.Title>
                </Modal.Header>

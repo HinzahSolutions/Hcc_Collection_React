@@ -103,6 +103,15 @@ table thead th {
     justify-items: center;
     padding-right: 1000px;/* Ensures that the width is always 90vw */
   }
+
+  .custom-modal1 {
+    max-width: 9vw; /* Modal width 90% of the viewport width */
+    width: 9vw; 
+    border: 1p solid black;
+    display: flex;
+    justify-items: center;
+    padding-right: 1300px;/* Ensures that the width is always 90vw */
+  }
   .dio{ 
     background-color: white;
   }
@@ -716,6 +725,23 @@ form .txt_field{
   
    
 }
+
+.custom-modal1 {
+    max-width: 9vw; /* Modal width 90% of the viewport width */
+    width: 9vw; 
+    border: 1p solid black;
+    display: flex;
+    justify-items: center;
+    padding-right: 1100px;/* Ensures that the width is always 90vw */
+  }
+  .custom-modal {
+    max-width: 9vw; /* Modal width 90% of the viewport width */
+    width: 9vw; 
+    border: 1p solid black;
+    display: flex;
+    justify-items: center;
+    padding-right: 900px;/* Ensures that the width is always 90vw */
+  }
 
     
     

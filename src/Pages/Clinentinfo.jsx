@@ -142,15 +142,73 @@ const [editableClient, setEditableClient] = useState(null);
     //  };
       
     
-    const exportToExcel = () => {
+    // const exportToExcel = () => {
+    //   try {
+    //     console.log("Exporting to Excel...");
+    //     const wb = XLSX.utils.book_new();
+        
+    //     let tableData = [];
+    
+    //     if (selectedClient.bank_type === "bank1") {
+    //       // Only include specific fields for bank_type === 1
+    //       tableData = [
+    //         {
+    //           "#": selectedClient.client_id,
+    //           "Client Name": selectedClient.client_name || "Unknown Client",
+    //           "Client Number": selectedClient.client_contact || "Unknown Client",
+    //           "Amount": selectedClient.amount || 0,
+    //           "Account Number": selectedClient.accno || "Unknown Account",
+    //           "Narration": selectedClient.narration || "UNDEFINED",
+    //         },
+    //       ];
+    //     } else {
+    //       // Default fields for other bank types
+    //       tableData = [
+    //         {
+    //           "#": selectedClient.client_id,
+    //           "Client Name": selectedClient.client_name || "Unknown Client",
+    //           "Client Number": selectedClient.client_contact || "Unknown Client",
+    //           "Amount": selectedClient.amount || 0,
+    //           "Bank Name": selectedClient.bank_name || "Unknown Bank",
+    //           "IFSC Code": selectedClient.ifsc_code || "Unknown IFSC",
+    //           "Account Number": selectedClient.accno || "Unknown Account",
+    //           "Beneficiary Name": selectedClient.name_of_the_beneficiary || "Unknown Beneficiary",
+    //           "Beneficiary Address": selectedClient.address_of_the_beneficiary || "Unknown Address",
+    //           "Sender Information": selectedClient.sender_information || "Unknown Sender",
+    //         },
+    //       ];
+    //     }
+    
+    //     // Create the worksheet
+    //     const ws = XLSX.utils.json_to_sheet(tableData);
+    
+    //     // Adjust column widths
+    //     ws["!cols"] = [
+    //       { wch: 5 },  { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 20 }, { wch: 20 },
+    //     ];
+    
+    //     XLSX.utils.book_append_sheet(wb, ws, "Client Information");
+    
+    //     // Generate a timestamp for the file name
+    //     const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
+    
+    //     // Save the file
+    //     XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
+    //   } catch (error) {
+    //     console.error("Export failed:", error);
+    //   }
+    // };
+
+
+
+    const exportToCSV = () => {
       try {
-        console.log("Exporting to Excel...");
+        console.log("Exporting to CSV...");
         const wb = XLSX.utils.book_new();
         
         let tableData = [];
     
         if (selectedClient.bank_type === "bank1") {
-          // Only include specific fields for bank_type === 1
           tableData = [
             {
               "#": selectedClient.client_id,
@@ -162,7 +220,6 @@ const [editableClient, setEditableClient] = useState(null);
             },
           ];
         } else {
-          // Default fields for other bank types
           tableData = [
             {
               "#": selectedClient.client_id,
@@ -182,22 +239,24 @@ const [editableClient, setEditableClient] = useState(null);
         // Create the worksheet
         const ws = XLSX.utils.json_to_sheet(tableData);
     
-        // Adjust column widths
-        ws["!cols"] = [
-          { wch: 5 },  { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 20 }, { wch: 20 },
-        ];
+        // Convert worksheet to CSV
+        const csvOutput = XLSX.utils.sheet_to_csv(ws);
     
-        XLSX.utils.book_append_sheet(wb, ws, "Client Information");
-    
-        // Generate a timestamp for the file name
+        // Create a blob and download the file
+        const blob = new Blob([csvOutput], { type: "text/csv" });
+        const link = document.createElement("a");
         const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
     
-        // Save the file
-        XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
+        link.href = URL.createObjectURL(blob);
+        link.download = `client_info_${timestamp}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       } catch (error) {
         console.error("Export failed:", error);
       }
     };
+    
     
      
     const handleEditClick = () => {
@@ -250,7 +309,7 @@ const [editableClient, setEditableClient] = useState(null);
   <small>Client Info</small>
   </div>
     <div>
-    <Button onClick={exportToExcel} className='w-auto'>
+    <Button onClick={exportToCSV} className='w-auto'>
   Export to Excel 
 </Button>
     </div>
