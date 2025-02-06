@@ -80,127 +80,6 @@ const [editableClient, setEditableClient] = useState(null);
       }
 
 
-
-    //   const exportToExcel = () => {
-    //     try{
-    //       console.log("dtfghjk")
-    //    const wb = XLSX.utils.book_new();
-       
-    //    // Collect the data into an array
-    //    const tableData = [
-    //      {
-    //        "#": 1,
-    //        "Client Name": selectedClient.client_name || 'Unknown Client',
-    //        "Client Number": selectedClient.client_contact || 'Unknown Client',
-    //        "Amount": selectedClient.amount || 0,
-    //        "Bank Name": selectedClient.bank_name || 'Unknown Bank',
-    //        "IFSC Code": selectedClient.ifsc_code || 'Unknown IFSC',
-    //        "Account Number": selectedClient.accno || 'Unknown Account',
-    //        "Beneficiary Name": selectedClient.name_of_the_beneficiary || 'Unknown Beneficiary',
-    //        "Beneficiary Address": selectedClient.address_of_the_beneficiary || 'Unknown Address',
-    //        "Sender Information": selectedClient.sender_information || 'Unknown Sender',
-    //      }
-    //    ];
-       
-    //    // Create the worksheet
-    //    const ws = XLSX.utils.json_to_sheet(tableData);
-       
-    //    // Style the worksheet headers
-    //    const headerStyle = {
-    //      font: { bold: true, sz: 10 },
-    //      alignment: { horizontal: "center" },
-    //      fill: { fgColor: { rgb: "F2F2F2" } },
-    //    };
-       
-    //    const cellStyle = {
-    //      font: { sz: 8 },
-    //      alignment: { wrapText: true },
-    //    };
-       
-      
-    //    Object.keys(ws).forEach(cell => {
-    //      if (cell.match(/^[A-Z]+\d+$/)) {
-    //        if (cell.endsWith('1')) {
-    //          ws[cell].s = headerStyle;
-    //        } else {
-    //          ws[cell].s = cellStyle;
-    //        }
-    //      }
-    //    });
-       
-      
-    //    ws['!cols'] = [
-    //      { wch: 5 },{ wch: 20 },{ wch: 20 },{ wch: 25 },{ wch: 20 },{ wch: 20 },{ wch: 20 },{ wch: 30 },{ wch: 30 },
-    //    ];
-    //    XLSX.utils.book_append_sheet(wb, ws, 'Client Information');
-    //    const timestamp = new Date().toISOString().replace(/[-:T]/g, '_').split('.')[0];
-    //    XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
-    //     }
-    //     catch(error){
-    //       console.error("Export failed:", error);
-    //     }
-    //  };
-      
-    
-    // const exportToExcel = () => {
-    //   try {
-    //     console.log("Exporting to Excel...");
-    //     const wb = XLSX.utils.book_new();
-        
-    //     let tableData = [];
-    
-    //     if (selectedClient.bank_type === "bank1") {
-    //       // Only include specific fields for bank_type === 1
-    //       tableData = [
-    //         {
-    //           "#": selectedClient.client_id,
-    //           "Client Name": selectedClient.client_name || "Unknown Client",
-    //           "Client Number": selectedClient.client_contact || "Unknown Client",
-    //           "Amount": selectedClient.amount || 0,
-    //           "Account Number": selectedClient.accno || "Unknown Account",
-    //           "Narration": selectedClient.narration || "UNDEFINED",
-    //         },
-    //       ];
-    //     } else {
-    //       // Default fields for other bank types
-    //       tableData = [
-    //         {
-    //           "#": selectedClient.client_id,
-    //           "Client Name": selectedClient.client_name || "Unknown Client",
-    //           "Client Number": selectedClient.client_contact || "Unknown Client",
-    //           "Amount": selectedClient.amount || 0,
-    //           "Bank Name": selectedClient.bank_name || "Unknown Bank",
-    //           "IFSC Code": selectedClient.ifsc_code || "Unknown IFSC",
-    //           "Account Number": selectedClient.accno || "Unknown Account",
-    //           "Beneficiary Name": selectedClient.name_of_the_beneficiary || "Unknown Beneficiary",
-    //           "Beneficiary Address": selectedClient.address_of_the_beneficiary || "Unknown Address",
-    //           "Sender Information": selectedClient.sender_information || "Unknown Sender",
-    //         },
-    //       ];
-    //     }
-    
-    //     // Create the worksheet
-    //     const ws = XLSX.utils.json_to_sheet(tableData);
-    
-    //     // Adjust column widths
-    //     ws["!cols"] = [
-    //       { wch: 5 },  { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 20 }, { wch: 20 },
-    //     ];
-    
-    //     XLSX.utils.book_append_sheet(wb, ws, "Client Information");
-    
-    //     // Generate a timestamp for the file name
-    //     const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
-    
-    //     // Save the file
-    //     XLSX.writeFile(wb, `client_info_${timestamp}.xlsx`);
-    //   } catch (error) {
-    //     console.error("Export failed:", error);
-    //   }
-    // };
-
-
-
     const exportToCSV = () => {
       try {
         console.log("Exporting to CSV...");
@@ -339,62 +218,7 @@ const [editableClient, setEditableClient] = useState(null);
     <h2 className="mb-4 text-center text-primary">Client Details <span> <Button onClick={handlenavform} variant="primary"  className=' w-auto'>
   Edit Client
 </Button></span></h2>
-    {/* <div className="row gy-3">
-      <div className="col-md-6">
-        <h4 className="fw-bold">Name:</h4>
-        <p className="text-muted fw-bold">{selectedClient.client_name.toUpperCase() }</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Contact Number:</h4>
-        <p className="text-muted fw-bold">{selectedClient.client_contact}</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">City:</h4>
-        <p className="text-muted fw-bold">{selectedClient.client_city.toUpperCase() }</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Status:</h4>
-        <p
-          className={`badge ${
-            selectedClient.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"
-          } fw-bold`}
-        >
-          {selectedClient.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
-        </p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Bank Name:</h4>
-        <p className="text-muted fw-bold">{selectedClient.bank_name.toUpperCase() }</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Account Number:</h4>
-        <p className="text-muted fw-bold">{selectedClient.accno}</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">IFSC Code:</h4>
-        <p className="text-muted  fw-bold">{selectedClient.ifsc_code}</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Name of Beneficiary:</h4>
-        <p className="text-muted  fw-bold">{selectedClient.name_of_the_beneficiary.toUpperCase() }</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Address of Beneficiary:</h4>
-        <p className="text-muted  fw-bold">{selectedClient.address_of_the_beneficiary.toUpperCase() }</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Account Type:</h4>
-        <p className="text-muted  fw-bold">{selectedClient.accoun_type.toUpperCase() }</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">Sender Information:</h4>
-        <p className="text-muted  fw-bold">{selectedClient.sender_information.toUpperCase() }</p>
-      </div>
-      <div className="col-md-6">
-        <h4 className="fw-bold">bank Type:</h4>
-        <p className="text-muted  fw-bold">{selectedClient.bank_type.toUpperCase() }</p>
-      </div>
-    </div> */}
+    
     <div className="row gy-3">
   <div className="col-md-6">
     <h4 className="fw-bold">Name:</h4>
@@ -458,7 +282,7 @@ const [editableClient, setEditableClient] = useState(null);
     </>
   )}
 
-  {/* Conditionally hide narration when bank_type === "Bank2" */}
+  
   {selectedClient.bank_type !== "bank2" && (
     <div className="col-md-6">
       <h4 className="fw-bold">Narration:</h4>
@@ -501,30 +325,7 @@ const [editableClient, setEditableClient] = useState(null);
     </div>
 
     <div>
-      {/* <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Collection Agent Name</th>
-            <th>Date and Time</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {selectedClient.paid_amount_date?.map((data, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              {employees.map((e1) =>
-                e1.user_id === selectedClient.user_id ? (
-                  <td key={e1.user_id} onClick={() => handlenav(e1)}>{e1.username}</td>
-                ) : null
-              )}
-              <td>{data.date}</td>
-              <td>{data.amount}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table> */}
+     
       <table className="table table-striped">
   <thead>
     <tr>

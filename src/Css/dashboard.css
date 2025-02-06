@@ -138,6 +138,39 @@ table thead th {
     display: flex;
    
   }
+
+
+  /* Custom styles for Bank buttons */
+.bank-buttons .btn {
+   /* For rounded corners */
+    font-weight: bold;
+    background-color: white;
+    color: white;
+    width: auto;/* Bold text */
+  }
+  
+  .bank-buttons .btn:hover {
+    opacity: 0.8; 
+     background-color: #007bff;
+     color: white;/* Slightly reduce opacity on hover */
+  }
+  
+  .bank-buttons .btn-primary {
+    background-color: #007bff; /* Customize the primary button color */
+    border-color: #007bff;
+  }
+  
+  .bank-buttons .btn-secondary {
+    background-color: #6c757d; /* Customize the secondary button color */
+    border-color: #6c757d;
+  }
+  
+  /* Active state for selected button */
+  .bank-buttons .btn-active {
+    background-color: #28a745; /* Change background color when active */
+    border-color: #28a745;
+  }
+  
   
   @media (max-width: 768px) {
     .row {
@@ -396,6 +429,21 @@ table tbody tr {
 .client-info small {
     color: #777;
 }
+
+
+Button:focus {
+    outline: none !important; /* Remove the focus outline */
+    border: none !important;  /* Remove the border */
+    box-shadow: none;         /* Remove box-shadow if any */
+  }
+  .record-search:focus {
+    outline: none !important; /* Remove the focus outline */
+    border: none !important;  /* Remove the border */
+    box-shadow: none;         /* Remove box-shadow if any */
+  }
+
+ 
+
 
 .actions span {
     display: inline-block;

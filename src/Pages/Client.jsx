@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { format, parse } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { FaRegCalendarAlt } from "react-icons/fa";
 
 
 function Client() {
@@ -44,6 +45,7 @@ function Client() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [clientNameToDelete, setClientNameToDelete] = useState('');
+  const [navselectedBank, setNavSelectedBank] = useState(""); // Bank selection state
 
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
@@ -137,6 +139,7 @@ function Client() {
   const DashboardUnpaid = () => setDashboardNav("unpaid");
 
 
+
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
 
@@ -145,38 +148,7 @@ function Client() {
     setSelectedDate(date ? format(date, "dd-MM-yyyy") : null);
   };
 
-  // const filteredData = useMemo(() => {
-  //   if (!Array.isArray(users)) return [];
-  //   return users.filter((row) => {
-  //     const clientName = row.client_name?.toLowerCase().trim() || "";
-  //     const clientContact = row.client_contact?.toLowerCase().trim() || "";
-  //     const employeeName = row.employee_name?.toLowerCase().trim() || "";
-  //     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-  //     const clientStatus = row.status?.toLowerCase().trim() || "";
-  //     const createdAt = row.created_at ? row.created_at.split("T")[0].trim() : "";
-  //     const query = searchQuery?.toLowerCase().trim() || "";
-  //     const paidAndUnpaid = row.paid_and_unpaid;
-  //     const queryUpper = searchQuery?.toUpperCase().trim() || "";
-  //     const matchesQuery =
-  //       clientName.includes(query) ||
-  //       clientContact.includes(query) ||
-  //       employeeName.includes(query) ||
-  //       accountNumbers.includes(queryUpper);
-  //     const matchesDashboardFilter =
-  //       dashboardNav === "client" ||
-  //       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-  //       (dashboardNav === "unpaid" && paidAndUnpaid === 0);
-  //     const matchesStatusFilter = selectedStatus
-  //       ? clientStatus === selectedStatus.toLowerCase()
-  //       : true;
-  //     const matchesDateFilter = selectedDate
-  //       ? createdAt === selectedDate.trim()
-  //       : true;
-  //     return matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter;
-  //   });
-  // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus]);
-
-
+  
   const filteredData = useMemo(() => {
     if (!Array.isArray(users)) return [];
   
@@ -186,61 +158,55 @@ function Client() {
       const employeeName = row.employee_name?.toLowerCase().trim() || "";
       const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
       const clientStatus = row.status?.toLowerCase().trim() || "";
-      const createdAt = row.date?.trim() || ""; // Use `row.date` instead of `created_at`
+      const createdAt = row.date?.trim() || "";
       const query = searchQuery?.toLowerCase().trim() || "";
       const paidAndUnpaid = row.paid_and_unpaid;
       const queryUpper = searchQuery?.toUpperCase().trim() || "";
   
+      
       const matchesQuery =
         clientName.includes(query) ||
         clientContact.includes(query) ||
         employeeName.includes(query) ||
         accountNumbers.includes(queryUpper);
   
+     
       const matchesDashboardFilter =
         dashboardNav === "client" ||
         (dashboardNav === "paid" && paidAndUnpaid === 1) ||
         (dashboardNav === "unpaid" && paidAndUnpaid === 0);
   
+      
       const matchesStatusFilter = selectedStatus
         ? clientStatus === selectedStatus.toLowerCase()
         : true;
   
+      
       const matchesDateFilter = selectedDate
-        ? createdAt === selectedDate.trim() // Compare directly with `selectedDate`
+        ? createdAt === selectedDate.trim()
         : true;
   
-      return matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter;
-    });
-  }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus]);
+      
+      const matchesBankFilter = navselectedBank
+        ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+        : true;
   
-
+      return (
+        matchesQuery &&
+        matchesDashboardFilter &&
+        matchesStatusFilter &&
+        matchesDateFilter &&
+        matchesBankFilter
+      );
+    });
+  }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const currentDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
 
-    // const clientData = {
-    //   client_name: clientName,
-    //   client_contact: contactNumber,
-    //   client_city: city,
-    //   amount: amount,
-    //   today_rate: todayrate,
-    //   date: currentDate,
-    //   sent: false,
-    //   message: message,
-    //   paid_and_unpaid: false,
-    //   success_and_unsuccess: false,
-    //   bank_name: bname,
-    //   accno: anumber,
-    //   ifsc_code: ifsc,
-    //   accoun_type: type,
-    //   name_of_the_beneficiary: holdername,
-    //   address_of_the_beneficiary: holderaddress,
-    //   sender_information: senderinfo,
-    //   bank_type:clientType,
-    //   narration:narration,
-    // };
+  
     const clientData = {
       client_name: clientName || "N/A",
       client_contact: contactNumber || "N/A",
@@ -301,77 +267,6 @@ function Client() {
   };
  
  
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault(); // Prevent default form submission
-  
-  //   try {
-  //     const Authorization = localStorage.getItem("authToken");
-  //     const currentDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-  
-  //     const clientData = {
-  //       client_name: clientName,
-  //       client_contact: contactNumber,
-  //       client_city: city,
-  //       amount: amount,
-  //       today_rate: todayrate,
-  //       date: currentDate,
-  //       sent: false,
-  //       message: message,
-  //       paid_and_unpaid: false,
-  //       success_and_unsuccess: false,
-  //       bank_name: bname,
-  //       accno: anumber,
-  //       ifsc_code: ifsc,
-  //       accoun_type: type,
-  //       name_of_the_beneficiary: holdername,
-  //       address_of_the_beneficiary: holderaddress,
-  //       sender_information: senderinfo,
-  //       bank_type: clientType,
-  //       narration: narration,
-  //     };
-  //     console.log(clientData)
-  //     // Send client data
-  //     const response = await fetch(`${API_URL}/acc_insertarrays`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization, // Include token if required
-  //       },
-  //       body: JSON.stringify(clientData),
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error("Failed to create client");
-  //     }
-  
-  //     const data = await response.json();
-  //     console.log("Response data:", data);
-  //     alert("New Client Created");
-  //     setShow(false);
-  //     resetForm();
-  
-  //     // Fetch updated client list
-  //     const clientListResponse = await fetch(`${API_URL}/acc_list`, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization,
-  //       },
-  //     });
-  
-  //     if (!clientListResponse.ok) {
-  //       throw new Error("Failed to fetch updated client list");
-  //     }
-  
-  //     const updatedData = await clientListResponse.json();
-  //     dispatch(setUsers(updatedData));
-  
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-  
- 
   const resetForm = () => {
     setClientName("");
     setContactNumber("");
@@ -389,16 +284,16 @@ function Client() {
   };
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
-      // Sort by client_id in descending order first
+      
       if (b.client_id !== a.client_id) {
         return b.client_id - a.client_id;
       }
 
-      // Convert date strings to Date objects
+    
       const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
       const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
 
-      // Sort by sent status, then by date in descending order
+      
       if (a.sent === b.sent) {
         return dateB - dateA;
       }
@@ -503,103 +398,69 @@ function Client() {
     });
   };
 
-  // const exportToCSV = () => {
-  //   if (selectedRows.length === 0) {
-  //     alert("No rows selected to export.");
-  //     return;
-  //   }
-
-  //   const csvData = selectedRows.map((client, index) => {
-  //     const employee = employees.find((e) => e.user_id === client.user_id);
-  //     return {
-  //       "#": 1,
-  //       "Client Name": client.client_name || 'Unknown Client',
-  //       "Client Number": client.client_contact || 'Unknown Client',
-  //       "Amount": client.amount || 0,
-  //       "Date": client.amount || 0,
-  //       "Bank Name": client.bank_name || 'Unknown Bank',
-  //       "IFSC Code": client.ifsc_code || 'Unknown IFSC',
-  //       "Account Number": client.accno || 'Unknown Account',
-  //       "Beneficiary Name": client.name_of_the_beneficiary || 'Unknown Beneficiary',
-  //       "Beneficiary Address": client.address_of_the_beneficiary || 'Unknown Address',
-  //       "Sender Information": client.sender_information || 'Unknown Sender',
-
-  //     };
-  //   });
-
-  //   const csvContent = [
-  //     ["#", "Client Name", "Client Number", "Amount", "Date", "Bank Name", "IFSC Code", "Account Number", "Beneficiary Name", "Beneficiary Address", "Sender Information"],
-  //     ...csvData.map((row) => Object.values(row)),
-  //   ]
-  //     .map((e) => e.join(","))
-  //     .join("\n");
-  //   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  //   const link = document.createElement("a");
-  //   link.href = URL.createObjectURL(blob);
-  //   link.download = `selected_clients_${format(new Date(), "dd-MM-yyyy")}.csv`;
-  //   link.click();
-  // };
+  const [showModal, setShowModal] = useState(false); 
+  const [selectedBank, setSelectedBank] = useState(""); 
   
+
+
   const exportToCSV = () => {
     if (selectedRows.length === 0) {
       alert("No rows selected to export.");
       return;
     }
-  
+
+    setShowModal(true); 
+  };
+
+  const handleBankSelection = (bankType) => {
+    setSelectedBank(bankType);
+    setShowModal(false); 
+
     const csvData = selectedRows.map((client, index) => {
       let clientData = {
-        "#": index + 1, // Adjusting index for correct row numbering
-        "Client Name": client.client_name || "Unknown Client",
         "Amount": client.amount || 0,
         "Account Number": client.accno || "Unknown Account",
       };
-  
-      if (client.bank_type === "bank1") {
-        clientData["Narration"] = client.narration || "N/A"; // Include Narration for Bank1 only
-      } else if (client.bank_type !== "bank2") {
-        // Include all fields if bank_type is neither "Bank1" nor "Bank2"
+
+      if (selectedBank === "bank1") {
+        clientData["Sender Information"] = client.sender_information || "N/A";
+      } else if (selectedBank === "bank2") {
         clientData = {
-          ...clientData,
-          "Client Number": client.client_contact || "Unknown Client",
-          "Bank Name": client.bank_name || "Unknown Bank",
+          
           "IFSC Code": client.ifsc_code || "Unknown IFSC",
+          "Account type":client.accoun_type || "Unknown Acc No",
+          "Account Number": client.accno || "Unknown Account",
           "Beneficiary Name": client.name_of_the_beneficiary || "Unknown Beneficiary",
           "Beneficiary Address": client.address_of_the_beneficiary || "Unknown Address",
           "Sender Information": client.sender_information || "Unknown Sender",
-        };
-      } 
-      else {
-        clientData = {
           ...clientData,
-          "Client Number": client.client_contact || "Unknown Client",
-          "Date": client.date || "N/A",
-          "Bank Name": client.bank_name || "Unknown Bank",
-          "IFSC Code": client.ifsc_code || "Unknown IFSC",
-          "Beneficiary Name": client.name_of_the_beneficiary || "Unknown Beneficiary",
-          "Beneficiary Address": client.address_of_the_beneficiary || "Unknown Address",
-          "Sender Information": client.sender_information || "Unknown Sender",
+          
         };
       }
-  
+
       return clientData;
     });
-  
-    
+
+    // IFCODE,ACCTYPE,ACCNO,NAMEOFBENIFIERY,ADDRESSOFBENEFICERY,SENDERINFOMRATION,AMOUNT
+
+
     const headers = [...new Set(csvData.flatMap((row) => Object.keys(row)))];
     const csvContent = [
       headers,
-      ...csvData.map((row) => headers.map((header) => row[header] || "")), 
+      ...csvData.map((row) => headers.map((header) => row[header] || "")),
     ]
-      .map((e) => e.join(",")) 
+      .map((e) => e.join(","))
       .join("\n");
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `selected_clients_${format(new Date(), "dd-MM-yyyy")}.csv`;
+    link.download = `selected_clients_${selectedBank}_${format(new Date(), "dd-MM-yyyy")}.csv`;
     link.click();
   };
+
   useEffect(() => {
-    sessionStorage.clear(); // Clears all session storage data
+    sessionStorage.clear(); 
   }, []);
   
   
@@ -658,35 +519,71 @@ function Client() {
         </div>
       </div>
       <div className="records table-responsive  table-responsive-md table-responsive-sm">
+       
         <div className="record-header">
-          <div className="add">
-            <Button className="w-auto" onClick={handleShow}>
-              Add New
-            </Button>
-          </div>
-          <div className="browse">
-            <Button onClick={exportToCSV} className='w-auto mb-1'>Export to CSV</Button>
-            <div style={{ paddingTop: "10px" }}>
-              <InputGroup className="d-flex gap-2 align-items-center">
-                <DatePicker
-                  selected={selectedDate}
-                  onChange={handleDateChange}
-                  placeholderText="Select Date"
-                  dateFormat="dd-MM-yyyy"
-                  className="form-control"
-                  isClearable
-                />
-                <FormControl
-                  placeholder="Name,phoneNumber,Acc_number"
-                  aria-label="Search"
-                  className="record-search"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
-              </InputGroup>
-            </div>
-          </div>
-        </div>
+  <div className="add ">
+{/* 
+  <div className="bank-buttons d-flex justify-content-start align-items-center">
+  <Button
+    variant="primary"
+    onClick={() => setNavSelectedBank("bank1")}
+    className={`w-auto h-auto ${navselectedBank === "bank1" ? "btn-active" : ""}`}
+  >
+    Bank 1
+  </Button>
+  <Button
+    variant="primary"
+    onClick={() => setNavSelectedBank("bank2")}
+    className={`w-auto h-auto ${navselectedBank === "bank2" ? "btn-active" : ""}`}
+  >
+    Bank 2
+  </Button>
+  <Button
+    variant="primary"
+    onClick={() => setNavSelectedBank("")}
+    style={{ marginLeft: "10px" }}
+    className={`w-auto hh-auto ${navselectedBank === "" ? "btn-active" : ""}`}
+  >
+    All
+  </Button>
+</div> */}
+<div>
+<Button className="w-auto " onClick={handleShow}>
+      Add New
+    </Button>
+</div>
+   
+    
+  </div>
+  <div className="browse">
+    <Button onClick={exportToCSV} className="w-auto mb-1 h-auto">
+      Export to CSV
+    </Button>
+    <div style={{ paddingTop: "10px" }}>
+      <InputGroup className="d-flex gap-2 align-items-center">
+      <DatePicker
+        selected={selectedDate}
+        onChange={handleDateChange}
+        placeholderText="Select Date"
+        dateFormat="dd-MM-yyyy"
+        className="form-control date-input  w-auto " // Hide this input field
+        isClearable
+        customInput={<button className="calendar-icon-btn"><FaRegCalendarAlt /></button>} // Calendar icon button
+      />
+        <FormControl
+          placeholder="Name,phoneNumber,Acc_number"
+          aria-label="Search"
+          className="record-search "
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+      </InputGroup>
+    </div>
+  
+    
+  </div>
+</div>
+
         <div className="table-responsive-md table-responsive-sm">
           <table className="table table-striped">
             <thead>
@@ -877,35 +774,18 @@ function Client() {
               </div>
               <div>
                 <h4>Assign Employee</h4>
-                {/* <select
-                  value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
-                  style={{ padding: "0px 0px 0px 0px", border: "none" }}
-                >
-                  {employees.map(
-                    (emp) =>
-                      emp.role === "Collection Agent" && (
-                        <option
-                          key={emp.user_id}
-                          value={emp.user_id}
-                          style={{ fontSize: "15px" }}
-                        >
-                          {emp.username}
-                        </option>
-                      )
-                  )}
-                </select> */}
+               
                 <select
   value={employeeId}
   onChange={(e) => setEmployeeId(e.target.value)}
   style={{ padding: "0px", border: "none" }}
 >
-  {/* Default option */}
+  
   <option value="" disabled>
     Select Employee
   </option>
 
-  {/* Show only employees with role "Collection Agent" */}
+ 
   {employees
     .filter((emp) => emp.role === "Collection Agent")
     .map((emp) => (
@@ -1166,6 +1046,27 @@ function Client() {
       >
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select Bank</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Button
+            variant="primary"
+            onClick={() => handleBankSelection("bank1")}
+            className="mr-2"
+          >
+            Bank1
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => handleBankSelection("bank2")}
+          >
+            Bank2
+          </Button>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

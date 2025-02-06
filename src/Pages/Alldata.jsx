@@ -19,7 +19,7 @@ function Alldata() {
   const [dashboardNav, setDashboardNav] = useState("OverAllAmount");
   const dispatch = useDispatch();
 
-  // Calculate yesterday's date
+  
   const yesterday = subDays(new Date(), 1);
   const formattedYesterday = format(yesterday, "yyyy-MM-dd");
 
@@ -137,19 +137,18 @@ function Alldata() {
       };
     });
   
-    // Convert JSON data to CSV format
+    
     const headers = Object.keys(tableData[0]);
     const csvContent = [
-      headers.join(","), // Add CSV header
-      ...tableData.map((row) => headers.map((header) => row[header]).join(",")), // Add CSV rows
+      headers.join(","), 
+      ...tableData.map((row) => headers.map((header) => row[header]).join(",")), 
     ].join("\n");
   
-    // Create a Blob and trigger download
+    
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
   
-    // Generate file name with current timestamp
     const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
     link.download = `filtered_data_${timestamp}.csv`;
   
@@ -157,15 +156,23 @@ function Alldata() {
     link.click();
     document.body.removeChild(link);
   };
+  const getTotalPaidClientCount = (users, startDate, endDate) => {
+    return users.filter((row) => {
+      if (Array.isArray(row.paid_amount_date)) {
+        return row.paid_amount_date.some((payment) => {
+          const paymentDateParsed = parse(payment.date, "dd-MM-yyyy", new Date());
+          const startParsed = parse(startDate, "yyyy-MM-dd", new Date());
+          const endParsed = parse(endDate, "yyyy-MM-dd", new Date());
   
-
-
-
+          return paymentDateParsed >= startParsed && paymentDateParsed <= endParsed;
+        });
+      }
+      return false;
+    }).length;
+  };
   
-
-
-
-
+  
+  const totalpaidclientcount = getTotalPaidClientCount(users, startDate, endDate);
   return (
 
 
@@ -174,54 +181,44 @@ function Alldata() {
     <h1>All Data</h1>
     <small>Alldata / Dash</small>
   </div>
-  <div className="analytics">
-    <div
-      className={dashboardNav === "OverAllAmount" ? "cardAction" : "card"}
-      onClick={() => setDashboardNav("OverAllAmount")}
-    >
-      <div className="card-head">
-        <h2>{overallAmount}</h2>
-      </div>
-      <div className="card-progress">
-        <small>Over All Amount</small>
-      </div>
-    </div>
 
-    {startDate && endDate && (
-      <div
-        className={dashboardNav === "OverAllAmount" ? "cardAction" : "card"}
-        onClick={() => setDashboardNav("OverAllAmount")}
-      >
-        <div className="card-head">
-          <h2>{totalPaidAmountInRange}</h2>
-        </div>
-        <div className="card-progress">
-          <small>
-            paid Amount {startDate} to {endDate}
-          </small>
-        </div>
-      </div>
-    )}
+
+<div className="p-4 bg-white border rounded-3 shadow-lg">
+  <h4 className="text-center fw-bold mb-4 text-primary">Dashboard Summary</h4>
+  
+  <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
+    <span className="fw-semibold text-muted">Overall Amount</span>
+    <span className="fw-bold fs-5 text-success">{overallAmount} KWD</span>
   </div>
+  
+  <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
+    <span className="fw-semibold text-muted">
+      Paid Amount ({startDate} to {endDate})
+    </span>
+    <span className="fw-bold fs-5 text-primary">{totalPaidAmountInRange} KWD</span>
+  </div>
+
+  <div className="py-3 px-4 bg-light rounded-2 d-flex justify-content-between align-items-center">
+    <span className="fw-semibold text-muted">Total Paid Clients</span>
+    <span className="fw-bold fs-5 text-danger">{totalpaidclientcount}</span>
+  </div>
+</div>
+
   <div>
-    <div className="date-filter">
+    
      
     </div>
     <div className="records table-responsive">
       <div className="d-flex justify-content-between">
-        <div className="m-4">
-          {/* <h4 className="text-black fs-5  md-fs-6  alldata_h4">
-            Collection List from{" "}
-            <span className="text-primary fs-5  md-fs-7  ms-fs-7">{startDate} </span>to{" "}
-            <span className="text-primary  fs-5  md-fs-7">{endDate}</span>
-          </h4> */}
+        <div className="">
+        <div  className="m-0 p-0">  <button onClick={ exportToCSV} className="btn btn-primary w-auto">
+          Export to Excel
+        </button></div>
         </div>
        
         <div className="d-flex gap-2 flex-wrap  justify-content-center p-2  ">
-        <div>  <button onClick={ exportToCSV} className="btn btn-primary w-auto">
-          Export to Excel
-        </button></div>
-        <div className="d-flex gap-2 mt-3 md-flex-wrap">
+        
+        <div className="d-flex gap-2  md-flex-wrap pt-2">
           <InputGroup className="mb-auto w-50">
             <FormControl
               type="date"
@@ -339,7 +336,7 @@ function Alldata() {
       )}
     </div>
   </div>
-</div>
+
 
   );
 }

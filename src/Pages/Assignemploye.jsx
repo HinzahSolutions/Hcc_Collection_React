@@ -21,8 +21,8 @@ function Assignemploye() {
           const unassigned = users.filter((assigns) => assigns.sent == false);
         
           if (unassigned.length > 0) {
-            setAssign(unassigned); // Update state with all unassigned users
-            console.log("Unassigned Users:", unassigned); // Log them directly
+            setAssign(unassigned); 
+            console.log("Unassigned Users:", unassigned); 
           }
         }, [users]);
 
@@ -63,11 +63,11 @@ const handlesend = async (client_id) => {
       const result = await response.json();
       console.log("Updated client response:", result);
       
-      // Close the modal
+     
       setSendModal(false);
       alert("Employee assignment successful");
   
-      // Re-fetch updated client data
+     
       fetch(`${API_URL}/acc_list`, {
         method: "GET",
         headers: {
@@ -87,7 +87,7 @@ const handlesend = async (client_id) => {
 
   const sortedData = useMemo(() => {
     return [...assign].sort((a, b) => {
-      // Sort by client_id in descending order first
+     
       if (b.client_id !== a.client_id) {
         return b.client_id - a.client_id;
       }
@@ -214,35 +214,18 @@ const handlesend = async (client_id) => {
                     </div>
                     <div>
                       <h4>Assign Employee</h4>
-                      {/* <select
-                        value={employeeId}
-                        onChange={(e) => setEmployeeId(e.target.value)}
-                        style={{ padding: "0px 0px 0px 0px", border: "none" }}
-                      >
-                        {employees.map(
-                          (emp) =>
-                            emp.role === "Collection Agent" && (
-                              <option
-                                key={emp.user_id}
-                                value={emp.user_id}
-                                style={{ fontSize: "15px" }}
-                              >
-                                {emp.username}
-                              </option>
-                            )
-                        )}
-                      </select> */}
+                    
                       <select
   value={employeeId}
   onChange={(e) => setEmployeeId(e.target.value)}
   style={{ padding: "0px", border: "none" }}
 >
-  {/* Default option */}
+ 
   <option value="" disabled>
     Select Employee
   </option>
 
-  {/* Show only employees with role "Collection Agent" */}
+  
   {employees
     .filter((emp) => emp.role === "Collection Agent")
     .map((emp) => (
