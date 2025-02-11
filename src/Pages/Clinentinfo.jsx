@@ -222,15 +222,15 @@ const [editableClient, setEditableClient] = useState(null);
     <div className="row gy-3">
   <div className="col-md-6">
     <h4 className="fw-bold">Name:</h4>
-    <p className="text-muted fw-bold">{selectedClient.client_name?.toUpperCase() || "UNDEFINED"}</p>
+    <p className="text-muted fw-bold">{selectedClient.client_name?.toUpperCase() || " -----  "}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Contact Number:</h4>
-    <p className="text-muted fw-bold">{selectedClient.client_contact || "UNDEFINED"}</p>
+    <p className="text-muted fw-bold">{selectedClient.client_contact || " -----  "}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">City:</h4>
-    <p className="text-muted fw-bold">{selectedClient.client_city?.toUpperCase() || "UNDEFINED"}</p>
+    <p className="text-muted fw-bold">{selectedClient.client_city?.toUpperCase() || " -----  "}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Status:</h4>
@@ -244,55 +244,55 @@ const [editableClient, setEditableClient] = useState(null);
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Today Rate:</h4>
-    <p className="text-muted fw-bold">{selectedClient.today_rate || "UNDEFINED"}</p>
+    <p className="text-muted fw-bold">{selectedClient.today_rate ||" -----  "}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Account Number:</h4>
-    <p className="text-muted fw-bold">{selectedClient.accno || "UNDEFINED"}</p>
+    <p className="text-muted fw-bold">{selectedClient.accno || " -----  "}</p>
   </div>
 
   {/* Conditionally hide fields when bank_type === "Bank1" */}
-  {selectedClient.bank_type && selectedClient.bank_type !== "bank1" && (
-    <>
+  
+  
       <div className="col-md-6">
         <h4 className="fw-bold">Bank Name:</h4>
-        <p className="text-muted fw-bold">{selectedClient.bank_name?.toUpperCase() || "UNDEFINED"}</p>
+        <p className="text-muted fw-bold">{selectedClient.bank_name?.toUpperCase() || " -----  "}</p>
       </div>
       
       <div className="col-md-6">
         <h4 className="fw-bold">IFSC Code:</h4>
-        <p className="text-muted fw-bold">{selectedClient.ifsc_code || "undefined"}</p>
+        <p className="text-muted fw-bold">{selectedClient.ifsc_code || " -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Name of Beneficiary:</h4>
-        <p className="text-muted fw-bold">{selectedClient.name_of_the_beneficiary?.toUpperCase() || "UNDEFINED"}</p>
+        <p className="text-muted fw-bold">{selectedClient.name_of_the_beneficiary?.toUpperCase() ||" -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Address of Beneficiary:</h4>
-        <p className="text-muted fw-bold">{selectedClient.address_of_the_beneficiary?.toUpperCase() || "UNDEFINED"}</p>
+        <p className="text-muted fw-bold">{selectedClient.address_of_the_beneficiary?.toUpperCase() || " -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Account Type:</h4>
-        <p className="text-muted fw-bold">{selectedClient.accoun_type?.toUpperCase() || "UNDEFINED"}</p>
+        <p className="text-muted fw-bold">{selectedClient.accoun_type?.toUpperCase() || " -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Sender Information:</h4>
-        <p className="text-muted fw-bold">{selectedClient.sender_information?.toUpperCase() || "UNDEFINED"}</p>
+        <p className="text-muted fw-bold">{selectedClient.sender_information?.toUpperCase() ||" -----  "}</p>
       </div>
-    </>
-  )}
+    
+  
 
   
-  {selectedClient.bank_type !== "bank2" && (
+ 
     <div className="col-md-6">
       <h4 className="fw-bold">Narration:</h4>
-      <p className="text-muted fw-bold">{selectedClient.narration?.toUpperCase() || "UNDEFINED"}</p>
+      <p className="text-muted fw-bold">{selectedClient.narration?.toUpperCase() || " ----- "}</p>
     </div>
-  )}
+  
 
   <div className="col-md-6">
     <h4 className="fw-bold">Bank Type:</h4>
-    <p className="text-muted fw-bold">{selectedClient.bank_type?.toUpperCase() || "UNDEFINED"}</p>
+    <p className="text-muted fw-bold">{selectedClient.bank_type?.toUpperCase() || " ----- "}</p>
   </div>
 </div>
 

@@ -204,7 +204,7 @@ function Client() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const currentDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+    const currentDate = format(new Date(), "dd-mm-yyyy");
 
   
     const clientData = {
@@ -388,37 +388,70 @@ function Client() {
 
 
   const [selectedRows, setSelectedRows] = useState([]);
+  // const handleCheckboxChange = (client) => {
+  //   setSelectedRows((prevSelected) => {
+  //     if (prevSelected.some((item) => item.client_id === client.client_id)) {
+  //       return prevSelected.filter((item) => item.client_id !== client.client_id);
+  //     } else {
+  //       return [...prevSelected, client];
+  //     }
+  //   });
+  // };
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBank, setSelectedBank] = useState("");
+  const [selectAll, setSelectAll] = useState(false);
+  // const [selectedRows, setSelectedRows] = useState([]);
+
+  useEffect(() => {
+    sessionStorage.clear();
+  }, []);
+
   const handleCheckboxChange = (client) => {
     setSelectedRows((prevSelected) => {
       if (prevSelected.some((item) => item.client_id === client.client_id)) {
-        return prevSelected.filter((item) => item.client_id !== client.client_id);
+        const updatedSelection = prevSelected.filter(
+          (item) => item.client_id !== client.client_id
+        );
+        setSelectAll(updatedSelection.length === sortedData.length);
+        return updatedSelection;
       } else {
-        return [...prevSelected, client];
+        const updatedSelection = [...prevSelected, client];
+        setSelectAll(updatedSelection.length === sortedData.length);
+        return updatedSelection;
       }
     });
   };
 
-  const [showModal, setShowModal] = useState(false); 
-  const [selectedBank, setSelectedBank] = useState(""); 
-  
-
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(sortedData);
+    }
+    setSelectAll(!selectAll);
+  };
 
   const exportToCSV = () => {
     if (selectedRows.length === 0) {
       alert("No rows selected to export.");
       return;
     }
-
-    setShowModal(true); 
+    setShowModal(true);
   };
 
   const handleBankSelection = (bankType) => {
     setSelectedBank(bankType);
-    setShowModal(false); 
+  };
 
-    const csvData = selectedRows.map((client, index) => {
+  const confirmExport = () => {
+    if (!selectedBank) {
+      alert("Please select a bank before exporting.");
+      return;
+    }
+
+    const csvData = selectedRows.map((client) => {
       let clientData = {
-        "Amount": client.amount || 0,
+        Amount: client.amount || 0,
         "Account Number": client.accno || "Unknown Account",
       };
 
@@ -426,23 +459,18 @@ function Client() {
         clientData["Sender Information"] = client.sender_information || "N/A";
       } else if (selectedBank === "bank2") {
         clientData = {
-          
           "IFSC Code": client.ifsc_code || "Unknown IFSC",
-          "Account type":client.accoun_type || "Unknown Acc No",
+          "Account Type": client.accoun_type || "Unknown Type",
           "Account Number": client.accno || "Unknown Account",
           "Beneficiary Name": client.name_of_the_beneficiary || "Unknown Beneficiary",
           "Beneficiary Address": client.address_of_the_beneficiary || "Unknown Address",
           "Sender Information": client.sender_information || "Unknown Sender",
           ...clientData,
-          
         };
       }
 
       return clientData;
     });
-
-    // IFCODE,ACCTYPE,ACCNO,NAMEOFBENIFIERY,ADDRESSOFBENEFICERY,SENDERINFOMRATION,AMOUNT
-
 
     const headers = [...new Set(csvData.flatMap((row) => Object.keys(row)))];
     const csvContent = [
@@ -457,7 +485,97 @@ function Client() {
     link.href = URL.createObjectURL(blob);
     link.download = `selected_clients_${selectedBank}_${format(new Date(), "dd-MM-yyyy")}.csv`;
     link.click();
+
+    setShowModal(false);
   };
+
+//   const [showModal, setShowModal] = useState(false); 
+//   const [selectedBank, setSelectedBank] = useState("bank1"); 
+//   const [selectAll, setSelectAll] = useState(false);
+
+
+
+
+// const handleCheckboxChange = (client) => {
+//   setSelectedRows((prevSelected) => {
+//     if (prevSelected.some((item) => item.client_id === client.client_id)) {
+//       const updatedSelection = prevSelected.filter((item) => item.client_id !== client.client_id);
+//       setSelectAll(updatedSelection.length === sortedData.length);
+//       return updatedSelection;
+//     } else {
+//       const updatedSelection = [...prevSelected, client];
+//       setSelectAll(updatedSelection.length === sortedData.length);
+//       return updatedSelection;
+//     }
+//   });
+// };
+
+// const handleSelectAll = () => {
+//   if (selectAll) {
+//     setSelectedRows([]);
+//   } else {
+//     setSelectedRows(sortedData);
+//   }
+//   setSelectAll(!selectAll);
+// };
+  
+
+
+//   const exportToCSV = () => {
+//     if (selectedRows.length === 0) {
+//       alert("No rows selected to export.");
+//       return;
+//     }
+
+//     setShowModal(true); 
+//   };
+
+//   const handleBankSelection = (bankType) => {
+//     setSelectedBank(bankType);
+//     setShowModal(false); 
+
+//     const csvData = selectedRows.map((client, index) => {
+//       let clientData = {
+//         "Amount": client.amount || 0,
+//         "Account Number": client.accno || "Unknown Account",
+//       };
+
+//       if (selectedBank === "bank1") {
+//         clientData["Sender Information"] = client.sender_information || "N/A";
+//       } else if (selectedBank === "bank2") {
+//         clientData = {
+          
+//           "IFSC Code": client.ifsc_code || "Unknown IFSC",
+//           "Account type":client.accoun_type || "Unknown Acc No",
+//           "Account Number": client.accno || "Unknown Account",
+//           "Beneficiary Name": client.name_of_the_beneficiary || "Unknown Beneficiary",
+//           "Beneficiary Address": client.address_of_the_beneficiary || "Unknown Address",
+//           "Sender Information": client.sender_information || "Unknown Sender",
+//           ...clientData,
+          
+//         };
+//       }
+
+//       return clientData;
+//     });
+
+//     // IFCODE,ACCTYPE,ACCNO,NAMEOFBENIFIERY,ADDRESSOFBENEFICERY,SENDERINFOMRATION,AMOUNT
+
+
+//     const headers = [...new Set(csvData.flatMap((row) => Object.keys(row)))];
+//     const csvContent = [
+//       headers,
+//       ...csvData.map((row) => headers.map((header) => row[header] || "")),
+//     ]
+//       .map((e) => e.join(","))
+//       .join("\n");
+
+//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+//     const link = document.createElement("a");
+//     link.href = URL.createObjectURL(blob);
+//     link.download = `selected_clients_${selectedBank}_${format(new Date(), "dd-MM-yyyy")}.csv`;
+//     link.click();
+//   };
 
   useEffect(() => {
     sessionStorage.clear(); 
@@ -521,7 +639,7 @@ function Client() {
       <div className="records table-responsive  table-responsive-md table-responsive-sm">
        
         <div className="record-header">
-  <div className="add ">
+  <div className="d-flex ">
 {/* 
   <div className="bank-buttons d-flex justify-content-start align-items-center">
   <Button
@@ -547,8 +665,23 @@ function Client() {
     All
   </Button>
 </div> */}
+<button
+  onClick={handleSelectAll}
+  style={{
+    marginBottom: "10px",
+    padding: "8px 15px",
+    backgroundColor: selectAll ? "#dc2f2f" : "#42b883",
+    color: "white",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    width:'auto'
+  }}
+>
+  {selectAll ? "Deselect All" : "Select All"}
+</button>
 <div>
-<Button className="w-auto " onClick={handleShow}>
+<Button className="w-100 " onClick={handleShow}>
       Add New
     </Button>
 </div>
@@ -592,11 +725,12 @@ function Client() {
                 <th>CLIENT</th>
                 <th>CITY</th>
                 <th>TOTAL</th>
+                <th>RATE</th>
                 <th>STATUS</th>
-                <th>LAST PAID DATE</th>
-                <th>TOTALLY PAID AMOUNT</th>
+                <th> DATE</th>
+                <th> PAID AMOUNT</th>
                 <th>BALANCE AMOUNT</th>
-                <th>COLLECTION AGENT</th>
+                <th>AGENT</th>
                 <th>ACTIONS</th>
               </tr>
             </thead>
@@ -614,13 +748,13 @@ function Client() {
                   </td>
                   <td>
                     <div className="client">
-                      <div
+                      {/* <div
                         className="client-img bg-img"
                         style={{
                           backgroundImage:
                             "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
                         }}
-                      ></div>
+                      ></div> */}
                       <div className="client-info">
                         <h4>{row.client_name ? row.client_name.replace(/"/g, "").toUpperCase() : ""}</h4>
                         <small>{row.client_contact.toUpperCase()}</small>
@@ -629,46 +763,136 @@ function Client() {
                   </td>
                   <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : ""}</td>
                   <td>
-                    {row.amount ? row.amount : 0}{" "}
-                    <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
+                    <div className="client">
+                      <div className="client-info">
+                      
+                      <h4  style={{color:'black',fontWeight:'500',color:'blue'}}>
+                      INTER :  <span  >{row.amount ? row.amount : 0}{" "}</span>
+                         
+                         </h4>
+                       {/* <h4 style={{color:'black',fontWeight:'500',color:'red'}}>INTER : -</h4> */}
+                       <h4 style={{ color: 'red', fontWeight: '500' }}>
+                       LOCAL : <span> {row.amount && row.today_rate ? (row.amount / row.today_rate).toFixed(2) : "-"}</span>
+</h4>
+                      </div>
+                    </div>
                   </td>
+                  <td>
+                    {row.today_rate }
+                  </td>
+              
                   <td>
                     <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
                       {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
                     </p>
                   </td>
                   <td>
-                    {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+                    {/* {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
                       <div>{row.paid_amount_date[row.paid_amount_date.length - 1].date.toUpperCase()}</div>
                     ) : (
                       <span>-</span>
-                    )}
+                    )} */}
+                    {row.date}
                   </td>
-                  <td>
-                    {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
-                      <div>
-                        {row.paid_amount_date
+                 
+                  {/* <td>
+                    <div className="client">
+                      <div className="client-info">
+                      {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+                      <h4  style={{color:'black',fontWeight:'500',color:'blue'}}>
+                         LOCAL : <span  style={{}}>{row.paid_amount_date
                           .reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
-                          .toFixed(2)}{" "}
-                        <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
-                      </div>
+                          .toFixed(2)}{" "}</span>
+                       
+                      </h4>
                     ) : (
-                      <span>NO PAYMENTS YET</span>
+                      <h4  style={{color:'black',fontWeight:'500',color:'blue'}} >LOCAL : -</h4>
                     )}
-                  </td>
+                       <h4 style={{color:'black',fontWeight:'500',color:'red'}}>INTER : -</h4>
+                      </div>
+                    </div>
+                  </td> */}
                   <td>
-                    {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
-                      <div>
-                        {(
+  <div className="client">
+    <div className="client-info">
+      {/* Local Paid Amount */}
+      {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+        <h4 style={{ color: 'blue', fontWeight: '500' }}>
+        INTER : <span>
+            {row.paid_amount_date
+              .reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
+              .toFixed(2)}
+          </span>
+        </h4>
+      ) : (
+        <h4 style={{ color: 'blue', fontWeight: '500' }}> INTER : </h4>
+      )}
+
+      {/* International Paid Amount */}
+      {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 && row.today_rate ? (
+        <h4 style={{ color: 'red', fontWeight: '500' }}>
+        LOCAL :<span>
+            {(row.paid_amount_date
+              .reduce((total, entry) => total + parseFloat(entry.amount || 0), 0) / row.today_rate)
+              .toFixed(2)}
+          </span>
+        </h4>
+      ) : (
+        <h4 style={{ color: 'red', fontWeight: '500' }}>INTER : -</h4>
+      )}
+    </div>
+  </div>
+</td>
+{/* 
+                  <td>
+                    <div className="client">
+                      <div className="client-info">
+                      {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+                      <h4   style={{color:'black',fontWeight:'500'}}>
+                        LOCAL : {(
                           (row.amount ? parseFloat(row.amount) : 0) -
                           row.paid_amount_date.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
                         ).toFixed(2)}
-                        <span style={{ fontWeight: "bolder", color: "black" }}>KWD</span>
-                      </div>
+                       
+                      </h4>
                     ) : (
-                      <span>NO PAYMENTS YET</span>
+                      <h4   style={{color:'black',fontWeight:'500'}}>LOCAL : -</h4>
                     )}
-                  </td>
+                       <h4 style={{color:'black',fontWeight:'500'}}>INTER : -</h4>
+                      </div>
+                    </div>
+                  </td> */}
+                  <td>
+  <div className="client">
+    <div className="client-info">
+      {/* Local Balance Amount */}
+      {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 ? (
+        <h4 style={{ color: 'blue', fontWeight: '500',}}>
+        INTER :<span>{(
+            (row.amount ? parseFloat(row.amount) : 0) -
+            row.paid_amount_date.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
+          ).toFixed(2)}</span> 
+        </h4>
+      ) : (
+        <h4 style={{ color: 'black', fontWeight: '500' }}>  INTER : -</h4>
+      )}
+
+      {/* International Balance Amount */}
+      {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0 && row.today_rate ? (
+        <h4 style={{ color: 'red', fontWeight: '500', }}>
+        LOCAL : {(
+            ((row.amount ? parseFloat(row.amount) : 0) -
+              row.paid_amount_date.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)) /
+            row.today_rate
+          ).toFixed(2)}
+        </h4>
+      ) : (
+        <h4 style={{ color: 'red', fontWeight: '500' }}> LOCAL : -</h4>
+      )}
+    </div>
+  </div>
+</td>
+
                   <td>
                     {employees.length > 0 && row.user_id ? (
                       employees.some((eid) => eid.user_id === row.user_id) ? (
@@ -683,11 +907,11 @@ function Client() {
                         <span>NO AGENT ASSIGNED</span>
                       )
                     ) : (
-                      <span>NO AGENT</span>
+                      <span style={{textAlign:'center'}}>------</span>
                     )}
                   </td>
                   <td>
-                    <div className="actions d-flex justify-content-start align-items-center pt-3">
+                    <div className="actions d-flex justify-content-start align-items-center pt-3 gap-1">
                       {row.sent == false ? (
                         <span
                           className=""
@@ -695,9 +919,9 @@ function Client() {
                             cursor: "pointer",
                             fontSize: "11px",
                             backgroundColor: "#00bbf0",
-                            padding: "5px 10px 5px 10px",
+                            padding: "3px 5px 3px 5px",
                             color: "white",
-                            borderRadius: "10px",
+                            borderRadius:"4px",
                           }}
                           onClick={() => handleClientClick(row)}
                         >
@@ -712,9 +936,9 @@ function Client() {
                           cursor: "pointer",
                           fontSize: "11px",
                           backgroundColor: "#42b883",
-                          padding: "5px 10px 5px 10px",
+                          padding: "3px 5px 3px 5px",
                           color: "white",
-                          borderRadius: "10px",
+                          borderRadius:"4px",
                         }}
                         onClick={() => handlenav(row)}
                       >
@@ -725,9 +949,9 @@ function Client() {
                           cursor: "pointer",
                           fontSize: "11px",
                           backgroundColor: "#dc2f2f",
-                          padding: "5px 10px 5px 10px",
+                          padding: "3px 5px 3px 5px",
                           color: "white",
-                          borderRadius: "10px",
+                          borderRadius:"4px",
                         }}
                         onClick={() => showConfirm(row.client_id, row.client_name)}
                       >
@@ -877,7 +1101,7 @@ function Client() {
       </div>
       </div>
               
-              <div className="row d-flex  gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12 ">
+              {/* <div className="row d-flex  gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12 ">
                 <div className="row col-xxl-3 col-xl-3 col-lg-3 col-md-12 col-sm-12">
                   <label className="form-label">Client Account Type</label>
                   <select
@@ -889,8 +1113,8 @@ function Client() {
                     <option value="bank2">Bank 2</option>
                   </select>
                 </div>
-              </div>
-{clientType === "bank2" ? (
+              </div> */}
+{/* 
   <div className="col-xxl-12 col-xl-12 col-md-12 col-12">
     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
       <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
@@ -968,9 +1192,9 @@ function Client() {
         <label>Sender Information</label>
       </div>
     </div>
-  </div>
-) : (
-  <div className="col-xxl-12 col-xl-12 col-md-12 col-12">
+  </div> */}
+
+  {/* <div className="col-xxl-12 col-xl-12 col-md-12 col-12">
     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
       <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
         <input
@@ -992,8 +1216,8 @@ function Client() {
         <label>NARRATION</label>
       </div>
     </div>
-  </div>
-)}
+  </div> */}
+
 
               <Modal.Footer className=" w-100 justify-content-center">
                 <Button variant="secondary" onClick={handleClose}>
@@ -1047,7 +1271,7 @@ function Client() {
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      {/* <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Select Bank</Modal.Title>
         </Modal.Header>
@@ -1066,6 +1290,34 @@ function Client() {
             Bank2
           </Button>
         </Modal.Body>
+      </Modal> */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select Bank</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Button
+            variant={selectedBank === "bank1" ? "primary" : "secondary"}
+            onClick={() => handleBankSelection("bank1")}
+            className="mr-2"
+          >
+            Bank1
+          </Button>
+          <Button
+            variant={selectedBank === "bank2" ? "primary" : "secondary"}
+            onClick={() => handleBankSelection("bank2")}
+          >
+            Bank2
+          </Button>
+        </Modal.Body>
+        <Modal.Footer  className="d-flex justify-content-center align-items-center">
+          <Button variant="danger" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="success" onClick={confirmExport}>
+            Confirm & Export
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

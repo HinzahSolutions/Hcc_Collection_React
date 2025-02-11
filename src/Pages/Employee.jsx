@@ -271,7 +271,7 @@ function Employee() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: Authorization, // Include token in the Authorization header
+          Authorization: Authorization, 
         },
       });
   
@@ -280,7 +280,7 @@ function Employee() {
       }
   
       const updatedEmployees = await listResponse.json();
-      dispatch(setEmployees(updatedEmployees)); // Update Redux store
+      dispatch(setEmployees(updatedEmployees)); 
   
     } catch (error) {
       console.error("Error deleting client:", error);
@@ -291,7 +291,7 @@ function Employee() {
 
   const showConfirm = (clientId, clientName) => {
     setemployeeIdToDelete(clientId);
-    setemployeeNameToDelete(clientName); // Set the client name for confirmation
+    setemployeeNameToDelete(clientName); 
     setShowConfirmModal(true);
   };
 
@@ -304,15 +304,15 @@ function Employee() {
   };
 
  useEffect(() => {
-    sessionStorage.clear(); // Clears all session storage data
+    sessionStorage.clear(); 
   }, []);
   
 
   return (
     <div style={{ marginTop: "50px" }}>
-      {/* Your existing code for the page */}
+     
       {loading ? (
-        <div></div> // Display loading message or spinner while loading
+        <div></div> 
       ) : (
         <div style={{ marginTop: "50px" }}>
        <div className="page-header">
@@ -628,7 +628,7 @@ function Employee() {
             </Modal>
      
 
-      {/* Toast Notification for Successful Deletion */}
+      
        <Toast
          style={{
            position: 'fixed',
@@ -647,7 +647,7 @@ function Employee() {
      </div>
       )}
 
-      {/* Toast Notification for Successful Deletion */}
+     
       <Toast
         style={{
           position: 'fixed',

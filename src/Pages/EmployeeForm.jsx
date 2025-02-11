@@ -36,7 +36,7 @@ function EmployeeForm() {
 
   useEffect(() => {
     if (!selectedEmployee) {
-      navigate('');
+      navigate('/employee');
     } else {
       setEmployeeData(selectedEmployee);
     }
@@ -113,7 +113,7 @@ function EmployeeForm() {
               <Button variant="primary" type="submit">
                 Save Changes
               </Button>
-              <Button variant="secondary" onClick={() => navigate('/clientinfo')}>
+              <Button variant="secondary" onClick={() => navigate('/employeeinfo')}>
                 Cancel
               </Button>
             </div>

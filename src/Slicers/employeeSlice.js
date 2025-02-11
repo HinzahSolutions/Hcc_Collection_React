@@ -12,7 +12,7 @@ const employeeSlice = createSlice({
   initialState,
   reducers: {
     setEmployees: (state, action) => {
-      // Ensure employees is always an array
+      
       state.employees = Array.isArray(action.payload) ? action.payload : [];
     },
     setEmployeeId: (state, action) => {

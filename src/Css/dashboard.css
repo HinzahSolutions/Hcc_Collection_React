@@ -91,7 +91,7 @@ table thead th {
     padding: 1rem 0rem;
     text-align: left;
     color: #444;
-    font-size: .6rem;
+    font-size: .3rem;
 }
 
 
@@ -368,13 +368,14 @@ input, button, select {
 }
 
 .table-responsive {
-    width: 100%;
-    overflow: auto;
+    width: auto;
+    overflow-x: auto; 
 }
 
 table {
-    border-collapse: collapse;
-    width: 100%;
+    /* border-collapse: collapse; */
+   width: fit-content;
+    overflow-x: auto; 
 }
 
 table thead tr {
@@ -382,18 +383,18 @@ table thead tr {
 }
 
 table thead th {
-    padding: 1rem 0rem;
+   
     text-align: left;
     color: #444;
     font-size: .9rem;
 }
 
 table thead th:first-child {
-    padding-left: 1rem;
+    padding-left: .5rem;
 }
 
 table tbody td {
-    padding: 1rem 0rem;
+  
     color: #444;
     font-size: .8rem;
 }
@@ -447,8 +448,8 @@ Button:focus {
 
 .actions span {
     display: inline-block;
-    font-size: 1.5rem;
-    margin-right: .5rem;
+   
+    margin-right: .1rem;
 }
 
 .actions span:hover{
