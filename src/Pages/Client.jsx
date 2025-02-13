@@ -766,13 +766,13 @@ function Client() {
                     <div className="client">
                       <div className="client-info">
                       
-                      <h4  style={{color:'black',fontWeight:'500',color:'blue'}}>
+                      <h4  style={{color:'black',fontWeight:'500'}}>
                       INTER :  <span  >{row.amount ? row.amount : 0}{" "}</span>
                          
                          </h4>
                        {/* <h4 style={{color:'black',fontWeight:'500',color:'red'}}>INTER : -</h4> */}
                        <h4 style={{ color: 'red', fontWeight: '500' }}>
-                       LOCAL : <span> {row.amount && row.today_rate ? (row.amount / row.today_rate).toFixed(2) : "-"}</span>
+                       LOCAL : <span> {row.amount && row.today_rate ? (row.amount / row.today_rate).toFixed(3) : "-"}</span>
 </h4>
                       </div>
                     </div>
@@ -834,7 +834,7 @@ function Client() {
         LOCAL :<span>
             {(row.paid_amount_date
               .reduce((total, entry) => total + parseFloat(entry.amount || 0), 0) / row.today_rate)
-              .toFixed(2)}
+              .toFixed(3)}
           </span>
         </h4>
       ) : (
@@ -871,7 +871,7 @@ function Client() {
         INTER :<span>{(
             (row.amount ? parseFloat(row.amount) : 0) -
             row.paid_amount_date.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
-          ).toFixed(2)}</span> 
+          ).toFixed(3)}</span> 
         </h4>
       ) : (
         <h4 style={{ color: 'black', fontWeight: '500' }}>  INTER : -</h4>
@@ -884,7 +884,7 @@ function Client() {
             ((row.amount ? parseFloat(row.amount) : 0) -
               row.paid_amount_date.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)) /
             row.today_rate
-          ).toFixed(2)}
+          ).toFixed(3)}
         </h4>
       ) : (
         <h4 style={{ color: 'red', fontWeight: '500' }}> LOCAL : -</h4>
