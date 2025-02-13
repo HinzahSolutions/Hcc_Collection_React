@@ -210,7 +210,7 @@ function Alldata() {
     </div>
     <div className="records table-responsive">
       <div className="d-flex justify-content-between">
-        <div className="">
+        <div className="add  pt-1">
         <div  className="m-0 p-0">  <button onClick={ exportToCSV} className="btn btn-primary w-auto">
           Export to Excel
         </button></div>
@@ -283,18 +283,18 @@ function Alldata() {
                           ></div>
                           <div className="client-info ms-2">
                             <h4 onClick={() => handlenav1(row)}>
-                              {row.client_name}
+                              {row.client_name.toUpperCase()}
                             </h4>
                             <small>{row.phone_number}</small>
                           </div>
                         </div>
                       </td>
-                      <td>{row.client_city}</td>
+                      <td>{row.client_city.toUpperCase()}</td>
                       <td>
                         {employees.map((eid) =>
                           eid.user_id == row.user_id ? (
                             <span onClick={() => handlenav(eid)}>
-                              {eid.username}
+                              {eid.username.toUpperCase()}
                             </span>
                           ) : (
                             <span></span>
