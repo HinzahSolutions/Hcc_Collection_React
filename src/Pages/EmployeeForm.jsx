@@ -95,13 +95,13 @@ function EmployeeForm() {
               </Form.Group>
 
               <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
-                <Form.Label>Contact Number</Form.Label>
+                <Form.Label>Email</Form.Label>
                 <Form.Control type="text" name="email" value={employeeData.email || ''} onChange={handleChange} required />
               </Form.Group>
 
               <Form.Group className="mb-3 col-xxl-5 col-md-12 col-lg-6 col-xl-6">
-                <Form.Label>City</Form.Label>
-                <Form.Control type="text" name="phone_number" value={employeeData.phone_number || ''} onChange={handleChange} required />
+                <Form.Label>Contact Number</Form.Label>
+                <Form.Control type="number" name="phone_number" value={employeeData.phone_number || ''} onChange={handleChange} required />
               </Form.Group>
 
               <Form.Group className="mb-3 col-xxl-5 col-md-12 col-lg-6 col-xl-6">

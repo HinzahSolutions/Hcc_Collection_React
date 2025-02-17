@@ -89,7 +89,7 @@ const Sidebar = () => {
     <NavLink to="/client" onClick={closenav} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
       <div className="navtext">
         <span className={isOpen ? 'spans' : 'hiddenspans'}><HiUsers /></span>
-        <p className={isOpen ? 'p' : 'hiddenp'}>Client</p>
+        <p className={isOpen ? 'p' : 'hiddenp'}>Client Order</p>
       </div>
     </NavLink>
   </li>

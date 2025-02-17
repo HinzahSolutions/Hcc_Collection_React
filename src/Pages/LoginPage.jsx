@@ -13,7 +13,7 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // <-- Added Loading State
+  const [loading, setLoading] = useState(false); 
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -23,7 +23,7 @@ function LoginPage() {
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
     localStorage.clear()
-    sessionStorage.clear(); // Clears all sessionStorage data
+    sessionStorage.clear();
   }, []);
 
   const handleSubmit = async (e) => {

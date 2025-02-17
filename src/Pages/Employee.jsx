@@ -241,6 +241,9 @@ function Employee() {
   const collectionAgentCount = employees.filter(
     (employee) => employee.role === "Collection Agent"
   ).length;
+  const Distributor = employees.filter(
+    (employee) => employee.role === "Distributor"
+  ).length;
   const allEmployeeCount = employees.filter((e1) => e1.user_id).length;
 
   const handleDelete = async (clientId) => {
@@ -396,7 +399,7 @@ function Employee() {
              </span>
            </div>
            <div className="card-progress">
-             <small>Others</small>
+             <small>Distributor</small>
            </div>
          </div>
        </div>
@@ -459,6 +462,7 @@ function Employee() {
                          Collection Manager
                        </option>
                        <option value="Collection Agent">Collection Agent</option>
+                       <option value="Distributor">Distributor</option>
                      </select>
                    </div>
                    </div>  

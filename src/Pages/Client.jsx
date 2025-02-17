@@ -32,6 +32,7 @@ function Client() {
   const [ifsc, setIfsc] = useState("")
   const [holdername, setHoldername] = useState("")
   const [holderaddress, setHolderadderss] = useState("")
+  const [distributor,setDistributor] = useState("")
   const [type, setType] = useState("")
   const [senderinfo, setSenderinfo] = useState("")
   const [clientType, setClientType] = useState("");
@@ -209,7 +210,7 @@ function Client() {
     }
   };
 
-  // Filtered Data
+ 
   const filteredData = useMemo(() => {
     if (!Array.isArray(users)) return [];
 
@@ -282,12 +283,13 @@ function Client() {
       bank_name: bname || "Unknown",
       accno: anumber || "Unknown",
       ifsc_code: ifsc || "Unknown",
-      accoun_type: type || "Unknown",
+      accoun_type: type || "10",
+      distributor_id:distributor || "",
       name_of_the_beneficiary: holdername || "Unknown",
-      address_of_the_beneficiary: holderaddress || "Unknown",
-      sender_information: senderinfo || "Unknown",
+      address_of_the_beneficiary: holderaddress || "Chennai",
+      sender_information: senderinfo || "STOCK",
       bank_type: clientType || "Unknown",
-      narration: narration || "Unknown",
+      narration: narration || "STOCK",
     };
      console.log(clientData)    
 
@@ -504,21 +506,21 @@ function Client() {
 
     const csvData = selectedRows.map((client) => {
       let clientData = {
-        "Account Number": client.accno || "Unknown Account",
-        Amount: client.amount || 0,
+        " ACCOUNT NUMBER": `   ${client.accno}` || "UNKNOWN ACCOUNT",
+        " AMOUNT": `  ${client.amount}` || 0,
        
       };
 
       if (selectedBank === "bank1") {
-        clientData["Sender Information"] = client.sender_information || "UNknown";
+        clientData["NARRATION"] = `  ${client.narration}` || "UNKNOWN";
       } else if (selectedBank === "bank2") {
         clientData = {
-          "IFSC Code": client.ifsc_code || "Unknown IFSC",
-          "Account Type": client.accoun_type || "Unknown Type",
-          "Account Number": client.accno || "Unknown Account",
-          "Beneficiary Name": client.name_of_the_beneficiary || "Unknown Beneficiary",
-          "Beneficiary Address": client.address_of_the_beneficiary || "Unknown Address",
-          "Sender Information": client.sender_information || "Unknown Sender",
+          " IFSC CODE": `  ${client.ifsc_code}`|| "UNKNOWN IFSC",
+          " ACCOUNT TYPE":`  ${client.accoun_type}`  || "UNKNOWN TYPE",
+          "  ACCOUNT NUMBER": `  ${client.accno}` || "UNKNOWN ACCOUNT NUMBER",
+          "  BENEFICIARY NAME":  `  ${ client.name_of_the_beneficiary.toUpperCase()}`  || "UNKNOWN BENEFICIARY NAME",
+          "  BENEFICIARY ADDRESS": `  ${client.address_of_the_beneficiary.toUpperCase()}` || "UNKNOWN BENEFICIARY ADDRESS",
+          "  SENDER INFORMATION": `  ${client.sender_information.toUpperCase()}` || "UNKNOWN SENDER INFORMATION",
           ...clientData,
         };
       }
@@ -784,7 +786,7 @@ function Client() {
 
 
         <td>
-          <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
+          <p className={`badge ${row.paid_and_unpaid == 1? "bg-success" : "bg-danger"}`}>
             {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
           </p>
         </td>
@@ -1013,8 +1015,8 @@ function Client() {
         </Modal.Footer>
       </Modal>
 
-      
-      <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
+       
+       <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
         <div className="dio" style={{ width: '70vw' }}>
           <Modal.Header closeButton>
             <Modal.Title>Add New Client</Modal.Title>
@@ -1076,7 +1078,49 @@ function Client() {
         />
         <label>Today Rate</label>
       </div>
-      </div>
+    {/* <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10" >
+      <select
+  value={employeeId}
+  onChange={(e) => setEmployeeId(e.target.value)}
+  style={{ padding: "0px", border: "none" }}
+>
+ 
+  <option value="" disabled>
+    Select Distributor
+  </option>
+
+  
+  {employees
+    .filter((emp) => emp.role === "Distributor")
+    .map((emp) => (
+      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
+        {emp.username}
+      </option>
+    ))}
+</select>
+</div> */}
+<div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+  <select
+    value={distributor ? distributor.user_id : ""}
+    onChange={(e) => {
+      const distributor = employees.find(emp => emp.user_id === e.target.value);
+      setDistributor(distributor || null);
+    }}
+    className="form-select"
+  >
+    <option value="" disabled>
+      Select Distributor
+    </option>
+    {employees
+      .filter((emp) => emp.role === "Distributor")
+      .map((emp) => (
+        <option key={emp.user_id} value={emp.user_id}>
+          {emp.username}
+        </option>
+      ))}
+  </select>
+</div>
+  </div>
               
            
 
@@ -1091,7 +1135,14 @@ function Client() {
             </form>
           </Modal.Body>
         </div>
-      </Modal>
+      </Modal> 
+
+
+    
+
+
+
+
       <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
