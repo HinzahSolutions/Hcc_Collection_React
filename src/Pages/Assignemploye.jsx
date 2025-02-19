@@ -31,14 +31,6 @@ function Assignemploye() {
             dispatch(setSelectedClient(client));
             setSendModal(true);
           };
-
-
-        
-
-
-
-
-
 const handlesend = async (client_id) => {
   console.log(employeeId)
     const sendData = {
@@ -46,7 +38,6 @@ const handlesend = async (client_id) => {
       user_id: employeeId,
       sent:1,
     };
-  
     try {
       const response = await fetch(`${API_URL}/client_IDupdated/${client_id}`, {
         method: "PUT",
@@ -62,12 +53,8 @@ const handlesend = async (client_id) => {
   
       const result = await response.json();
       console.log("Updated client response:", result);
-      
-     
       setSendModal(false);
       alert("Employee assignment successful");
-  
-     
       fetch(`${API_URL}/acc_list`, {
         method: "GET",
         headers: {
@@ -83,11 +70,8 @@ const handlesend = async (client_id) => {
       console.error("Fetch error:", error);
     }
   };
-
-
   const sortedData = useMemo(() => {
     return [...assign].sort((a, b) => {
-     
       if (b.client_id !== a.client_id) {
         return b.client_id - a.client_id;
       }
@@ -99,9 +83,6 @@ const handlesend = async (client_id) => {
       return a.sent ? 1 : -1;
     });
   }, [assign]);
-
-  
-
   return (
     <div> {sortedData.length > 0 ? (
         <div className="records table-responsive">
@@ -144,7 +125,7 @@ const handlesend = async (client_id) => {
         <td>{row.client_city ? row.client_city.toUpperCase() : "UNKNOWN CITY"}</td>
         <td>
           {row.amount && row.amount !== "null"
-            ? `${row.amount.toString().toUpperCase()} KWD`
+            ? `${row.amount.toString().toUpperCase()}`
             : "0 KWD"}
         </td>
         <td>{row.date ? row.date.toUpperCase() : "UNKNOWN DATE"}</td>

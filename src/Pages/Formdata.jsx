@@ -217,7 +217,7 @@ function Formdata() {
   const [additionalAmount, setAdditionalAmount] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+ const employees = useSelector((state) => state.employees.employees);
 
   const handleAddEmployee = (e) => {
     setOtherEmployees([...otherEmployees, e.target.value]);
@@ -225,6 +225,16 @@ function Formdata() {
   const handleAdditionalAmount = (e) => {
     setAdditionalAmount(Number(e.target.value)); // Ensure it's a number
   };
+
+  const handleDistributorChange = (e) => {
+    console.log(e.target.value)
+    setClientData((prevData) => ({
+      ...prevData,
+      Distributor_id: Number(e.target.value),
+     // Convert to number
+    }));
+  };
+  
 
   useEffect(() => {
     if (!selectedClient) {
@@ -248,10 +258,11 @@ function Formdata() {
 
       const updatedClientData = {
         ...clientData,
+      
         amount: (Number(clientData.amount) || 0) + additionalAmount,
         employees: [...(clientData.employees || []), ...otherEmployees],
       };
-
+          
       const response = await fetch(`${API_URL}/acc_clientupdated/${clientData.client_id}`, {
         method: "PUT",
         headers: {
@@ -259,6 +270,7 @@ function Formdata() {
           Authorization,
         },
         body: JSON.stringify(updatedClientData),
+       
       });
 
       if (!response.ok) {
@@ -266,6 +278,7 @@ function Formdata() {
       }
 
       const updatedClient = await response.json();
+      console.log(updatedClientData)
       dispatch(setSelectedClient(updatedClient));
       alert("Client updated successfully");
       navigate("/client");
@@ -315,6 +328,29 @@ function Formdata() {
                   required
                 />
               </Form.Group>
+
+              
+              
+              <Form.Group className="col-md-6">
+              <Form.Label>Select Distributor</Form.Label>
+              <Form.Select
+                // value={clientData.Distributor_id || ''}
+                type="number"
+                value={clientData?.Distributor_id || ''} 
+                onChange={handleDistributorChange} 
+                required
+              >
+                <option value="">Select Distributor</option>
+                {employees
+                  .filter((emp) => emp.role === "Distributor")
+                  .map((emp) => (
+                    <option key={emp.user_id} value={emp.user_id}>
+                      {emp.username}
+                    </option>
+                  ))}
+              </Form.Select>
+            </Form.Group>
+
               <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label>Add Amount</Form.Label>
                 <Form.Control
@@ -352,19 +388,6 @@ function Formdata() {
                   onChange={handleChange}
                 />
               </Form.Group>
-{/* 
-              <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
-                <Form.Label>Client Account Type</Form.Label>
-                <select
-                  className="form-select"
-                  value={clientData.bank_type || ''}
-                  onChange={handleChange}
-                  name="bank_type"
-                >
-                  <option value="bank1">Bank 1</option>
-                  <option value="bank2">Bank 2</option>
-                </select>
-              </Form.Group> */}
               <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label>Account Number</Form.Label>
                 <Form.Control
@@ -373,10 +396,7 @@ function Formdata() {
                   value={clientData.accno || ''}
                   onChange={handleChange}
                 />
-              </Form.Group>
-
-              {/* Conditionally render fields based on bank_type  today_rate*/}
-              
+              </Form.Group>     
                   <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                     <Form.Label>Bank Name</Form.Label>
                     <Form.Control
@@ -386,7 +406,6 @@ function Formdata() {
                       onChange={handleChange}
                     />
                   </Form.Group>
-
                   <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                     <Form.Label>Name of the Beneficiary</Form.Label>
                     <Form.Control
@@ -396,7 +415,6 @@ function Formdata() {
                       onChange={handleChange}
                     />
                   </Form.Group>
-
                   <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                     <Form.Label>Address of the Beneficiary</Form.Label>
                     <Form.Control
@@ -406,9 +424,6 @@ function Formdata() {
                       onChange={handleChange}
                     />
                   </Form.Group>
-
-
-
                   <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                     <Form.Label>IFSC Code</Form.Label>
                     <Form.Control
@@ -418,7 +433,6 @@ function Formdata() {
                       onChange={handleChange}
                     />
                   </Form.Group>
-
                   <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                     <Form.Label>Account Type</Form.Label>
                     <Form.Control
@@ -428,7 +442,6 @@ function Formdata() {
                       onChange={handleChange}
                     />
                   </Form.Group>
-
                   <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                     <Form.Label>Sender Information</Form.Label>
                     <Form.Control
@@ -438,7 +451,6 @@ function Formdata() {
                       onChange={handleChange}
                     />
                   </Form.Group>
-             
                 <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                   <Form.Label>Narration</Form.Label>
                   <Form.Control

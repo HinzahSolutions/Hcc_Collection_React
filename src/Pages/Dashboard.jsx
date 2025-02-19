@@ -79,11 +79,6 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
   const fetchEmployeeList = async () => {
     setLoading(true);
     const Authorization = localStorage.getItem("authToken");
-    // if (!Authorization) {
-    //   console.error("No authorization token found in cookies");
-    //   setLoading(false);
-    //   return;
-    // }
     try {
       const response = await fetch(`${API_URL}/list`, {
         method: "GET",
@@ -115,186 +110,11 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
   }, []);
 
 
-  
-
-  // useEffect(() => {
-  //   if (users.length > 0) {
-  //     const balanceAmountTotal = users.reduce((total, client) => {
-  //       const totalPaidForClient = client.paid_amount_date
-  //         ? client.paid_amount_date.reduce(
-  //             (sum, payment) => sum + (parseInt(payment.amount, 10) || 0),
-  //             0
-  //           )
-  //         : 0;
-  //       return total + (parseInt(client.amount, 10) - totalPaidForClient || 0);
-  //     }, 0);
-  //     setTotalBalanceAmount(balanceAmountTotal);
-  //   }
-
-
-  //   const overallAmount = users.reduce(
-  //     (total, client) => total + (parseInt(client.amount, 10) || 0),
-  //     0
-  //   );
-
-  //   setOverallAmount(overallAmount)
-  
-  // }, [users]);
-  
-//   useEffect(() => {
-//     if (users.length > 0) {
-//         // Calculate total amount paid per client
-//         const balanceAmountTotal = users.reduce((total, client) => {
-//             const totalPaidForClient = (client.paid_amount_date || []).reduce(
-//                 (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-//                 0
-//             );
-
-//             const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
-//             return total + clientBalance;
-//         }, 0);
-        
-
-//         setTotalBalanceAmount(balanceAmountTotal);
-
-//         // Calculate overall amount (International currency)
-//         const overallAmount = users.reduce(
-//             (total, client) => total + (parseFloat(client.amount) || 0),
-//             0
-//         );
-
-//         // Calculate total exchange rate (sum of today_rate from all clients)
-//         const totalRate = users.reduce(
-//             (sum, client) => sum + (parseFloat(client.today_rate) || 0),
-//             0
-//         );
-
-//         // Convert to Local Currency (International / Rate)
-//         const localCurrency = totalRate > 0 ? overallAmount / totalRate : 0;
-//         // const paidlocalcurrency = totalRate > 0 ? clientBalance / totalRate :
-
-//         // Store Local Currency
-//         setOverallAmount(localCurrency.toFixed(3)); // Format to 3 decimal places
-//     }
-// }, [users]);
-
-// useEffect(() => {
-//   if (users.length > 0) {
-//     // Calculate total paid amount (International)
-//     const internationalPaid = users.reduce((total, client) => {
-//       return total + (client.paid_amount_date || []).reduce(
-//         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-//         0
-//       );
-//     }, 0);
-
-//     // Calculate total balance amount (International)
-//     const internationalBalance = users.reduce((total, client) => {
-//       const totalPaidForClient = (client.paid_amount_date || []).reduce(
-//         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-//         0
-//       );
-
-//       const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
-//       return total + clientBalance;
-//     }, 0);
-
-//     // Calculate total exchange rate (sum of today_rate from all clients)
-//     const totalRate = users.reduce(
-//       (sum, client) => sum + (parseFloat(client.today_rate) || 0),
-//       0
-//     );
-
-//     // Calculate total amount (International)
-//     const overallAmount = users.reduce(
-//       (total, client) => total + (parseFloat(client.amount) || 0),
-//       0
-//     );
-
-//     // Convert to Local Currency using (International / Rate)
-//     const localCurrency = totalRate > 0 ? overallAmount / totalRate : 0;
-//     console.log(overallAmount)
-//     const localPaid = totalRate > 0 ? internationalPaid / totalRate : 0;
-//     const localBalance = totalRate > 0 ? internationalBalance / totalRate : 0;
-
-
-//     const totalLocalCurrency = users.reduce((total, client) => {
-//       const clientAmount = parseFloat(client.amount) || 0;
-//       const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
-//       return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-      
-//     }, 0);
-
-//     console.log("dhgfdhg",totalLocalCurrency)
-//     // Store values with 3 decimal places
-//     setOverallAmount(localCurrency.toFixed(3)); 
-//     setOverallPaidAmount(localPaid.toFixed(3));  
-//     setTotalBalanceAmount(localBalance.toFixed(3)); 
-//   }
-// }, [users]);
-
-
-
-// useEffect(() => {
-//   if (users.length > 0) {
-//     // Calculate total paid amount (International)
-//     const internationalPaid = users.reduce((total, client) => {
-//       return total + (client.paid_amount_date || []).reduce(
-//         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-//         0
-//       );
-//     }, 0);
-
-//     // Calculate total balance amount (International)
-//     const internationalBalance = users.reduce((total, client) => {
-//       const totalPaidForClient = (client.paid_amount_date || []).reduce(
-//         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-//         0
-//       );
-
-//       const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
-//       return total + clientBalance;
-//     }, 0);
-
-//     // Calculate total exchange rate (sum of today_rate from all clients)
-//     const totalRate = users.reduce(
-//       (sum, client) => sum + (parseFloat(client.today_rate) || 0),
-//       0
-//     );
-
-//     // Calculate total amount (International)
-//     const overallAmount = users.reduce(
-//       (total, client) => total + (parseFloat(client.amount) || 0),
-//       0
-//     );
-
-//     // Convert to Local Currency using (International Amount / Rate)
-//     const localCurrency = totalRate > 0 ? overallAmount / totalRate : 0;
-//     const localPaid = totalRate > 0 ? internationalPaid / totalRate : 0;
-//     const localBalance = totalRate > 0 ? internationalBalance / totalRate : 0;
-
-//     // Sum of local currency for all clients
-//     const totalLocalCurrency = users.reduce((total, client) => {
-//       const clientAmount = parseFloat(client.amount) || 0;
-//       const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
-//       return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-//     }, 0);
-
-//     console.log("Overall International Amount:", overallAmount);
-//     console.log("Total Local Currency Sum:", totalLocalCurrency);
-
-//     // Store values with 3 decimal places
-//     setOverallAmount(totalLocalCurrency.toFixed(3)); // Sum of all local currency values
-//     setOverallPaidAmount(localPaid.toFixed(3));
-//     setTotalBalanceAmount(localBalance.toFixed(3));
-//   }
-// }, [users]);
-
 
 
 useEffect(() => {
   if (users.length > 0) {
-    // Calculate total paid amount (International)
+   
     const internationalPaid = users.reduce((total, client) => {
       return total + (client.paid_amount_date || []).reduce(
         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
@@ -302,7 +122,7 @@ useEffect(() => {
       );
     }, 0);
 
-    // Calculate total balance amount (International)
+    
     const internationalBalance = users.reduce((total, client) => {
       const totalPaidForClient = (client.paid_amount_date || []).reduce(
         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
@@ -313,55 +133,50 @@ useEffect(() => {
       return total + clientBalance;
     }, 0);
 
-    // Calculate total exchange rate (sum of today_rate from all clients)
+  
     const totalRate = users.reduce(
       (sum, client) => sum + (parseFloat(client.today_rate) || 0),
       0
     );
 
-    // Calculate total amount (International)
+    
     const overallAmount = users.reduce(
       (total, client) => total + (parseFloat(client.amount) || 0),
       0
     );
 
-    // Convert to Local Currency using (International Amount / Rate)
+  
     const totalLocalCurrency = users.reduce((total, client) => {
       const clientAmount = parseFloat(client.amount) || 0;
       const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
       return total + (clientRate > 0 ? clientAmount / clientRate : 0);
     }, 0);
 
-    // Convert paid amount to local currency
+    
     const totalLocalPaid = users.reduce((total, client) => {
       const totalPaidForClient = (client.paid_amount_date || []).reduce(
         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
         0
       );
-      const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
+      const clientRate = parseFloat(client.today_rate) || 1; 
       return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
     }, 0);
 
-    // Convert balance amount to local currency
+   
     const totalLocalBalance = users.reduce((total, client) => {
       const totalPaidForClient = (client.paid_amount_date || []).reduce(
         (sum, payment) => sum + (parseFloat(payment.amount) || 0),
         0
       );
       const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
-      const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
+      const clientRate = parseFloat(client.today_rate) || 1; 
       return total + (clientRate > 0 ? clientBalance / clientRate : 0);
     }, 0);
 
-    console.log("Overall International Amount:", overallAmount);
-    console.log("Total Local Currency Sum:", totalLocalCurrency);
-    console.log("Total Local Paid Amount:", totalLocalPaid);
-    console.log("Total Local Balance Amount:", totalLocalBalance);
-
-    // Store values with 3 decimal places
-    setOverallAmount(totalLocalCurrency.toFixed(3)); // Sum of all local currency values
-    setOverallPaidAmount(totalLocalPaid.toFixed(3)); // Sum of all local paid values
-    setTotalBalanceAmount(totalLocalBalance.toFixed(3)); // Sum of all local balance values
+  
+    setOverallAmount(totalLocalCurrency.toFixed(3)); 
+    setOverallPaidAmount(totalLocalPaid.toFixed(3)); 
+    setTotalBalanceAmount(totalLocalBalance.toFixed(3));
   }
 }, [users]);
 

@@ -304,19 +304,19 @@ const [editableClient, setEditableClient] = useState(null);
     <div className="d-flex gap-4 justify-content-center align-items-center py-3 px-5">
       <div className="d-flex">
         <h4 className='totalamount pt-2'>Total Amount :</h4>
-        <div className='totalbox'><h4>{selectedClient.amount} KWD</h4></div>
+        <div className='totalbox'><h4>{selectedClient.amount} </h4></div>
       </div>
       <div className="d-flex">
         <h4 className='totalamount pt-2'>Paid Amount :</h4>
-        <div className='totalbox'><h4>{totalPaidAmount} KWD</h4></div>
+        <div className='totalbox'><h4>{totalPaidAmount.toFixed(2)|| "0.00"} </h4></div>
       </div>
       <div className="d-flex">
         <h4 className='totalamount pt-2'>Balance Amount :</h4>
-        <div className='totalbox'><h4>{balanceAmount} KWD</h4></div>
+        <div className='totalbox'><h4>{balanceAmount.toFixed(2)|| "0.00"}</h4></div>
       </div>
     </div>
   </div>
-
+   
   <div className="records table-responsive">
     <div className="record-header">
       <div className="add">
@@ -336,9 +336,12 @@ const [editableClient, setEditableClient] = useState(null);
     </tr>
   </thead>
   <tbody>
-    {selectedClient.paid_amount_date && selectedClient.paid_amount_date.length > 0 ? (
-      selectedClient.paid_amount_date.map((data, index) => {
-        const agent = employees.find((e1) => e1.user_id === selectedClient.user_id);
+  {selectedClient.paid_amount_date && selectedClient.paid_amount_date.length > 0 ? (
+    selectedClient.paid_amount_date
+      .filter((data) => employees.some((e1) => e1.user_id === data.userID)) // Filter payments
+      .map((data, index) => {
+        const agent = employees.find((e1) => e1.user_id === data.userID); // Find matching employee
+
         return (
           <tr key={index}>
             <td>{index + 1}</td>
@@ -350,12 +353,13 @@ const [editableClient, setEditableClient] = useState(null);
           </tr>
         );
       })
-    ) : (
-      <tr>
-        <td colSpan="4" className="text-center">No data available</td>
-      </tr>
-    )}
-  </tbody>
+  ) : (
+    <tr>
+      <td colSpan="4" className="text-center">No data available</td>
+    </tr>
+  )}
+</tbody>
+
 </table>
 
     </div>

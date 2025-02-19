@@ -3,17 +3,11 @@ import React, { useState, useEffect } from "react";
 import { Button, Modal, InputGroup, FormControl, Toast } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import "../Css/dashboard.css";
-
 import { FaUserTie } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
-
-import { IoEyeSharp } from "react-icons/io5";
-
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
-import { MdDelete } from "react-icons/md";
-
 
 function Employee() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -170,7 +164,7 @@ function Employee() {
       employeeData.append("city", city);
       employeeData.append("role", role);
   
-      // Send the POST request to create a new employee
+      
       const signupResponse = await fetch(`${API_URL}/signup`, {
         method: "POST",
         body: employeeData,
@@ -194,13 +188,13 @@ function Employee() {
   const Dashboardpaid = () => setDashboardnav("Collection Manager");
   const Dashboardunpaid = () => setDashboardnav("Collection Agent");
   const DashboardAll = () => setDashboardnav("All");
-  const Dashboardother = () => setDashboardnav("other");
+  const Dashboardother = () => setDashboardnav("Distributor");
 
   const imageExists = (url) => {
     const img = new Image();
     img.src = url;
     img.onerror = () => {
-      return "/images/fallback.jpg"; // Fallback image
+      return "/images/fallback.jpg"; 
     };
     return url;
   };
@@ -219,7 +213,10 @@ function Employee() {
           (dashboardnav === "Collection Manager" &&
             row.role === "Collection Manager") ||
           (dashboardnav === "Collection Agent" &&
-            row.role === "Collection Agent"))
+            row.role === "Collection Agent") ||
+          (dashboardnav === "Distributor" && 
+            row.role === "Distributor"
+          ))
       );
     });
   });
@@ -269,7 +266,7 @@ function Employee() {
       setToastMessage(`Client ${employeeNameToDelete} deleted successfully!`);
       setShowToast(true);
   
-      // Fetch updated employee list
+      
       const listResponse = await fetch(`${API_URL}/list`, {
         method: "GET",
         headers: {
@@ -393,7 +390,7 @@ function Employee() {
            onClick={Dashboardother}
          >
            <div className="card-head">
-            <h2>0</h2>
+            <h2>{Distributor}</h2>
              <span className="las la-user-friends">
                <FaUserTie />
              </span>

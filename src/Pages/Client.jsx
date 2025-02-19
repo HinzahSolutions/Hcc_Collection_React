@@ -32,7 +32,7 @@ function Client() {
   const [ifsc, setIfsc] = useState("")
   const [holdername, setHoldername] = useState("")
   const [holderaddress, setHolderadderss] = useState("")
-  const [distributor,setDistributor] = useState("")
+  const [distributor, setDistributor] = useState(null);
   const [type, setType] = useState("")
   const [senderinfo, setSenderinfo] = useState("")
   const [clientType, setClientType] = useState("");
@@ -47,7 +47,7 @@ function Client() {
   const [toastMessage, setToastMessage] = useState('');
   const [clientNameToDelete, setClientNameToDelete] = useState('');
   const [navselectedBank, setNavSelectedBank] = useState(""); // Bank selection state
-
+  const [distributorId, setDistributorId] = useState();
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
     if (Authorization) {
@@ -67,7 +67,7 @@ function Client() {
           return response.json();
         })
         .then((data) => dispatch(setUsers(data)))
-        .then((data) => console.log(data))
+        // .then((data) => console.log(data))
         .catch((error) => console.error("Fetch error:", error));
     } else {
       console.error("No authorization token found in localStorage");
@@ -138,75 +138,15 @@ function Client() {
   const DashboardClient = () => setDashboardNav("client");
   const DashboardPaid = () => setDashboardNav("paid");
   const DashboardUnpaid = () => setDashboardNav("unpaid");
-
-
-
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
 
-
-  // const handleDateChange = (date) => {
-  //   setSelectedDate(date ? format(date, "dd-MM-yyyy") : null);
-  // };
-
-  
-  // const filteredData = useMemo(() => {
-  //   if (!Array.isArray(users)) return [];
-  
-  //   return users.filter((row) => {
-  //     const clientName = row.client_name?.toLowerCase().trim() || "";
-  //     const clientContact = row.client_contact?.toLowerCase().trim() || "";
-  //     const employeeName = row.employee_name?.toLowerCase().trim() || "";
-  //     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-  //     const clientStatus = row.status?.toLowerCase().trim() || "";
-  //     const createdAt = row.date?.trim() || "";
-  //     const query = searchQuery?.toLowerCase().trim() || "";
-  //     const paidAndUnpaid = row.paid_and_unpaid;
-  //     const queryUpper = searchQuery?.toUpperCase().trim() || "";
-  
-      
-  //     const matchesQuery =
-  //       clientName.includes(query) ||
-  //       clientContact.includes(query) ||
-  //       employeeName.includes(query) ||
-  //       accountNumbers.includes(queryUpper);
-  
-     
-  //     const matchesDashboardFilter =
-  //       dashboardNav === "client" ||
-  //       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-  //       (dashboardNav === "unpaid" && paidAndUnpaid === 0);
-  
-      
-  //     const matchesStatusFilter = selectedStatus
-  //       ? clientStatus === selectedStatus.toLowerCase()
-  //       : true;
-  
-  //       const matchesDateFilter = selectedDate
-  //       ? createdAt.startsWith(format(selectedDate, "yyyy-MM-dd")) // Match only YYYY-MM-DD part
-  //       : true;
-      
-      
-  //     const matchesBankFilter = navselectedBank
-  //       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-  //       : true;
-  
-  //     return (
-  //       matchesQuery &&
-  //       matchesDashboardFilter &&
-  //       matchesStatusFilter &&
-  //       matchesDateFilter &&
-  //       matchesBankFilter
-  //     );
-  //   });
-  // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
-  
 
   const handleDateChange = (date) => {
     if (date instanceof Date && !isNaN(date.getTime())) {
       setSelectedDate(date);
     } else {
-      setSelectedDate(null); // Prevents errors
+      setSelectedDate(null); 
     }
   };
 
@@ -243,13 +183,13 @@ function Client() {
         ? clientStatus === selectedStatus.toLowerCase()
         : true;
 
-      // Match Date Filter
+    
       const matchesDateFilter =
         selectedDate instanceof Date && !isNaN(selectedDate.getTime())
           ? createdAt === format(selectedDate, "dd-MM-yyyy") // Ensures safe date comparison
           : true;
 
-      // Match Bank Filter
+     
       const matchesBankFilter = navselectedBank
         ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
         : true;
@@ -267,8 +207,7 @@ function Client() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const currentDate = format(new Date(), "dd-MM-yyyy");
-
-  
+    const selectedDistributor = employees.find(emp => emp.user_id === distributorId);
     const clientData = {
       client_name: clientName || "Unknown",
       client_contact: contactNumber || "Unknown",
@@ -284,7 +223,7 @@ function Client() {
       accno: anumber || "Unknown",
       ifsc_code: ifsc || "Unknown",
       accoun_type: type || "10",
-      distributor_id:distributor || "",
+      Distributor_id:distributorId || "",
       name_of_the_beneficiary: holdername || "Unknown",
       address_of_the_beneficiary: holderaddress || "Chennai",
       sender_information: senderinfo || "STOCK",
@@ -311,7 +250,7 @@ function Client() {
         alert("New Client Created");
         setShow(false);
         resetForm();
-        // Re-fetch client list to show updated data
+      
         fetch(`${API_URL}/acc_list`, {
           method: "GET",
           headers: {
@@ -606,74 +545,11 @@ function Client() {
       </div>
 <div className="records table-responsive  table-responsive-md table-responsive-sm">
        
-        {/* <div className="record-header">
-  <div className="d-flex ">
-<div className="d-flex align-items-center">
-  <button
-    onClick={handleSelectAll}
-    style={{
-      marginBottom: "10px",
-      padding: "1px 9px",
-      backgroundColor: selectAll ? "#dc2f2f" : "#42b883",
-      color: "white",
-      border: "none",
-      borderRadius: "5px",
-      cursor: "pointer",
-      width: "auto",
-    }}
-  >
-    {selectAll ? "Deselect All" : "Select All"}
-  </button>
-
-
-</div>
-<div  className="mr-1">
-<Button className="w-100 " onClick={handleShow}>
-      Add New
-    </Button>
-</div>
-   
     
-  </div>
-  <div className="browse">
-  
-    <Button onClick={exportToCSV} className="btn btn-primary position-relative">
-  Export to CSV
-  {selectedRows.length > 0 && (
-    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-      {selectedRows.length}
-    </span>
-  )}
-</Button>
-
-    <div style={{ paddingTop: "10px" }}>
-      <InputGroup className="d-flex gap-2 align-items-center">
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleDateChange}
-        placeholderText="Select Date"
-        dateFormat="dd-MM-yyyy"
-        className="form-control date-input  w-auto " // Hide this input field
-        isClearable
-        customInput={<button className="calendar-icon-btn"><FaRegCalendarAlt /></button>} // Calendar icon button
-      />
-        <FormControl
-          placeholder="Name,phoneNumber,Acc_number"
-          aria-label="Search"
-          className="record-search "
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
-      </InputGroup>
-    </div>
-  
-    
-  </div>
-</div> */}
 <div className="record-header d-flex justify-content-between align-items-center flex-wrap gap-1">
-  {/* Left Side: Select All + Add New */}
+ 
   <div className="d-flex align-items-center gap-2 ">
-    {/* Select All Button */}
+    
     <button
       onClick={handleSelectAll}
       className={`btn ${selectAll ? "btn-danger" : "btn-success"} btn-sm`}
@@ -682,15 +558,15 @@ function Client() {
       {selectAll ? "Deselect All" : "Select All"}
     </button>
 
-    {/* Add New Button */}
+   
     <Button className="btn btn-primary btn-sm" style={{ minWidth: "80px" }} onClick={handleShow}>
       Add New
     </Button>
   </div>
 
-  {/* Right Side: Export CSV + Search */}
+ 
   <div className="d-flex align-items-center gap-2 ">
-    {/* Export to CSV Button */}
+  
     <Button 
       onClick={exportToCSV} 
       className="btn btn-primary position-relative text-nowrap"
@@ -704,7 +580,7 @@ function Client() {
       )}
     </Button>
 
-    {/* Search & Date Picker */}
+   
     <InputGroup className="d-flex gap-2 flex-wrap align-items-center">
     <DatePicker
         selected={selectedDate || null} // Ensures it's never undefined
@@ -828,7 +704,7 @@ function Client() {
         </td>
         <td>
   <div className="client-info">
-    {/* INTER Balance Amount */}
+  
     <h4 style={{ color: "blue", fontWeight: "500" }}>
       INTER:{" "}
       <span>
@@ -846,7 +722,7 @@ function Client() {
       </span>
     </h4>
 
-    {/* LOCAL Balance Amount */}
+    
     <h4 style={{ color: "red", fontWeight: "500" }}>
       LOCAL:{" "}
       <span>
@@ -887,7 +763,7 @@ function Client() {
         </td>
         <td>
           <div className="actions d-flex justify-content-start align-items-center pt-3 gap-1">
-            {row.sent == false ? (
+         
               <span
                 style={{
                   cursor: "pointer",
@@ -901,9 +777,7 @@ function Client() {
               >
                 SEND
               </span>
-            ) : (
-              <span></span>
-            )}
+           
             <span
               style={{
                 cursor: "pointer",
@@ -1015,134 +889,98 @@ function Client() {
         </Modal.Footer>
       </Modal>
 
-       
-       <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
-        <div className="dio" style={{ width: '70vw' }}>
-          <Modal.Header closeButton>
-            <Modal.Title>Add New Client</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <form onSubmit={handleSubmit} className="custom-form">
-              <div className="row d-flex  gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12 ">
-                <div className=" txt_field col-xxl-5 col-xl-5  col-lg-5 col-md-10  col-sm-10  ">
-                  <input
-                    type="text"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    required
-                  />
-                  <label>Client Name</label>
-                </div>
-                <div className=" txt_field  col-xxl-5 col-xl-5  col-md-10  col-lg-5 col-sm-10">
-                  <input
-                    type="text"
-                    value={contactNumber}
-                    onChange={(e) => setContactNumber(e.target.value)}
-                    required
-                  />
-                  <label>Client Contact Number</label>
-                </div>
-              </div>
-              <div className="row d-flex  gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12 ">
-                <div className="txt_field col-xxl-5 col-xl-5  col-lg-5 col-md-10  col-sm-10 ">
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    required
-                  />
-                  <label>City</label>
-                </div>
-                <div className="txt_field col-xxl-5 col-xl-5  col-lg-5 col-md-10  col-sm-10 ">
-                  <input
-                    type="number"
-                    value={amount}
-                    step="0.01" 
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                  <label>Amount</label>
-                </div>
-              </div>
 
-
-             
-    <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
-      <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
-        <input
-          type="number"
-          value={todayrate}
-          step="0.01" 
-          onChange={(e) => setTodayRate(e.target.value)}
-          required
-        />
-        <label>Today Rate</label>
-      </div>
-    {/* <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10" >
-      <select
-  value={employeeId}
-  onChange={(e) => setEmployeeId(e.target.value)}
-  style={{ padding: "0px", border: "none" }}
->
- 
-  <option value="" disabled>
-    Select Distributor
-  </option>
-
-  
-  {employees
-    .filter((emp) => emp.role === "Distributor")
-    .map((emp) => (
-      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
-        {emp.username}
-      </option>
-    ))}
-</select>
-</div> */}
-<div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
-  <select
-    value={distributor ? distributor.user_id : ""}
-    onChange={(e) => {
-      const distributor = employees.find(emp => emp.user_id === e.target.value);
-      setDistributor(distributor || null);
-    }}
-    className="form-select"
-  >
-    <option value="" disabled>
-      Select Distributor
-    </option>
-    {employees
-      .filter((emp) => emp.role === "Distributor")
-      .map((emp) => (
-        <option key={emp.user_id} value={emp.user_id}>
-          {emp.username}
-        </option>
-      ))}
-  </select>
-</div>
-  </div>
-              
-           
-
-              <Modal.Footer className=" w-100 justify-content-center">
-                <Button variant="secondary" onClick={handleClose}>
-                  Close
-                </Button>
-                <Button variant="primary" type="submit">
-                  Save Changes
-                </Button>
-              </Modal.Footer>
-            </form>
-          </Modal.Body>
+      <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
+  <div className="dio" style={{ width: '70vw' }}>
+    <Modal.Header closeButton>
+      <Modal.Title>Add New Client</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <form onSubmit={handleSubmit} className="custom-form">
+        <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
+          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="text"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              required
+            />
+            <label>Client Name</label>
+          </div>
+          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="text"
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value)}
+              required
+            />
+            <label>Client Contact Number</label>
+          </div>
         </div>
-      </Modal> 
-
-
-    
-
-
-
-
+        <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
+          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              required
+            />
+            <label>City</label>
+          </div>
+          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="number"
+              value={amount}
+              step="0.01"
+              onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+              required
+            />
+            <label>Amount</label>
+          </div>
+        </div>
+        <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
+          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="number"
+              value={todayrate}
+              step="0.01"
+              onChange={(e) => setTodayRate(parseFloat(e.target.value) || 0)}
+              required
+            />
+            <label>Today Rate</label>
+          </div>
+          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+                <select    style={{border:'none', outline: "none" }}
+                  value={distributorId}
+                  onChange={(e) => setDistributorId(e.target.value)}
+                  className="form-select"
+                  required
+                >
+                  <option value="" >
+                    Select Distributor
+                  </option>
+                  {employees
+                    .filter((emp) => emp.role === "Distributor")
+                    .map((emp) => (
+                      <option key={emp.user_id} value={emp.user_id}>
+                        {emp.username}
+                      </option>
+                    ))}
+                </select>
+              </div>
+        </div>
+        <Modal.Footer className="w-100 justify-content-center">
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" type="submit">
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </form>
+    </Modal.Body>
+  </div>
+</Modal>
       <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
@@ -1183,26 +1021,6 @@ function Client() {
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
 
-      {/* <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Select Bank</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Button
-            variant="primary"
-            onClick={() => handleBankSelection("bank1")}
-            className="mr-2"
-          >
-            Bank1
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => handleBankSelection("bank2")}
-          >
-            Bank2
-          </Button>
-        </Modal.Body>
-      </Modal> */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Select Bank</Modal.Title>

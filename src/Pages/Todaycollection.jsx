@@ -135,7 +135,7 @@ function Todaycollection() {
                             <div className="d-flex justify-content-center" style={{ width: "400px" }}>
                                 <h4 className="totalamount pt-2">Total Amount :</h4>
                                 <div className="totalbox">
-                                    <h4>{todayOverallAmount} KWD</h4>
+                                    <h4>{todayOverallAmount.toFixed(2)}</h4>
                                 </div>
                             </div>
                         </div>
