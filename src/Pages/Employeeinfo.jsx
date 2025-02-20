@@ -181,9 +181,9 @@ const EmployeeInfo = () => {
         "#": index + 1,
         "Employee Name": selectedEmployee?.username || 'Unknown Employee',
         "  Client Name": client.client_name || 'Unknown Client',
-        "Total Amount": totalAmount + ' KWD',
-        "Collection Amount": collectionAmount + ' KWD',
-        "Balance Amount": balance + ' KWD',
+        "Total Amount": totalAmount + ' ',
+        "Collection Amount": collectionAmount + '',
+        "Balance Amount": balance + '',
       };
     });
 
@@ -386,7 +386,7 @@ const EmployeeInfo = () => {
       );
       const balance = totalAmount - collectionAmount;
   
-      message += `${index + 1} | ${selectedEmployee?.username || 'Unknown'} | ${client.client_name || 'Unknown'} | ${totalAmount} KWD | ${collectionAmount} KWD | ${balance} KWD | ${selectedDate}\n`;
+      message += `${index + 1} | ${selectedEmployee?.username || 'Unknown'} | ${client.client_name || 'Unknown'} | ${totalAmount} | ${collectionAmount} | ${balance} | ${selectedDate}\n`;
     });
   
    

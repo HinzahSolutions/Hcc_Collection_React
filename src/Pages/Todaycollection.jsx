@@ -186,7 +186,7 @@ function Todaycollection() {
                   )}
                 </td>
                 <td>{client.client_city ? client.client_city.toUpperCase() : "NULL"}</td>
-                <td>{parseFloat(payment.amount).toFixed(2)} KWD</td>
+                <td>{parseFloat(payment.amount).toFixed(2)}</td>
                 <td>{payment.date.toUpperCase()}</td>
               </tr>
             );
