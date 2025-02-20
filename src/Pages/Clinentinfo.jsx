@@ -226,7 +226,7 @@ const [editableClient, setEditableClient] = useState(null);
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Contact Number:</h4>
-    <p className="text-muted fw-bold">{selectedClient.client_contact || " -----  "}</p>
+    <p className="text-muted fw-bold">{selectedClient.client_contact.toUpperCase() || " -----  "}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">City:</h4>
@@ -248,7 +248,7 @@ const [editableClient, setEditableClient] = useState(null);
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Account Number:</h4>
-    <p className="text-muted fw-bold">{selectedClient.accno || " -----  "}</p>
+    <p className="text-muted fw-bold">{selectedClient.accno.toUpperCase() || " -----  "}</p>
   </div>
 
   {/* Conditionally hide fields when bank_type === "Bank1" */}
@@ -261,7 +261,7 @@ const [editableClient, setEditableClient] = useState(null);
       
       <div className="col-md-6">
         <h4 className="fw-bold">IFSC Code:</h4>
-        <p className="text-muted fw-bold">{selectedClient.ifsc_code || " -----  "}</p>
+        <p className="text-muted fw-bold">{selectedClient.ifsc_code.toUpperCase() || " -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Name of Beneficiary:</h4>

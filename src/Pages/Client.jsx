@@ -67,7 +67,7 @@ function Client() {
           return response.json();
         })
         .then((data) => dispatch(setUsers(data)))
-        // .then((data) => console.log(data))
+        .then((data) => console.log(data))
         .catch((error) => console.error("Fetch error:", error));
     } else {
       console.error("No authorization token found in localStorage");
@@ -209,9 +209,9 @@ function Client() {
     const currentDate = format(new Date(), "dd-MM-yyyy");
     const selectedDistributor = employees.find(emp => emp.user_id === distributorId);
     const clientData = {
-      client_name: clientName || "Unknown",
-      client_contact: contactNumber || "Unknown",
-      client_city: city || "Unknown",
+      client_name: clientName || "UNKNOWN",
+      client_contact: contactNumber || "UNKNOWN",
+      client_city: city || "UNKNOWN",
       amount: amount || 0,
       today_rate: todayrate || 0,
       date: currentDate || new Date().toISOString(),
@@ -219,15 +219,15 @@ function Client() {
       message: message || "",
       paid_and_unpaid: false,
       success_and_unsuccess: false,
-      bank_name: bname || "Unknown",
-      accno: anumber || "Unknown",
-      ifsc_code: ifsc || "Unknown",
+      bank_name: bname || "UNKNOWN",
+      accno: anumber || "UNKNOWN",
+      ifsc_code: ifsc || "UNKNOWN",
       accoun_type: type || "10",
-      Distributor_id:distributorId || "",
-      name_of_the_beneficiary: holdername || "Unknown",
+      Distributor_id:distributorId || null ,
+      name_of_the_beneficiary: holdername || "UNKNOWN",
       address_of_the_beneficiary: holderaddress || "Chennai",
       sender_information: senderinfo || "STOCK",
-      bank_type: clientType || "Unknown",
+      bank_type: clientType || "UNKNOWN",
       narration: narration || "STOCK",
     };
      console.log(clientData)    
@@ -454,12 +454,12 @@ function Client() {
         clientData["NARRATION"] = `  ${client.narration}` || "UNKNOWN";
       } else if (selectedBank === "bank2") {
         clientData = {
-          " IFSC CODE": `  ${client.ifsc_code}`|| "UNKNOWN IFSC",
-          " ACCOUNT TYPE":`  ${client.accoun_type}`  || "UNKNOWN TYPE",
-          "  ACCOUNT NUMBER": `  ${client.accno}` || "UNKNOWN ACCOUNT NUMBER",
-          "  BENEFICIARY NAME":  `  ${ client.name_of_the_beneficiary.toUpperCase()}`  || "UNKNOWN BENEFICIARY NAME",
-          "  BENEFICIARY ADDRESS": `  ${client.address_of_the_beneficiary.toUpperCase()}` || "UNKNOWN BENEFICIARY ADDRESS",
-          "  SENDER INFORMATION": `  ${client.sender_information.toUpperCase()}` || "UNKNOWN SENDER INFORMATION",
+          " IFSC CODE": ` ${client.ifsc_code}`|| "UNKNOWN IFSC",
+          " ACCOUNT TYPE":` ${client.accoun_type}`  || "UNKNOWN TYPE",
+          " ACCOUNT NUMBER": ` ${client.accno}` || "UNKNOWN ACCOUNT NUMBER",
+          " BENEFICIARY NAME":  ` ${ client.name_of_the_beneficiary.toUpperCase()}`  || "UNKNOWN BENEFICIARY NAME",
+          " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary.toUpperCase()}` || "UNKNOWN BENEFICIARY ADDRESS",
+          " SENDER INFORMATION": ` ${client.sender_information.toUpperCase()}` || "UNKNOWN SENDER INFORMATION",
           ...clientData,
         };
       }
@@ -507,7 +507,7 @@ function Client() {
             </span>
           </div>
           <div className="card-progress">
-            <small>Client</small>
+            <small>CLIENT</small>
           </div>
         </div>
 
@@ -523,7 +523,7 @@ function Client() {
             </span>
           </div>
           <div className="card-progress">
-            <small>Money Paid Client</small>
+            <small> PAID CLIENT</small>
           </div>
         </div>
 
@@ -539,7 +539,7 @@ function Client() {
             </span>
           </div>
           <div className="card-progress">
-            <small>Money Pending Client</small>
+            <small>PENDING CLIENT</small>
           </div>
         </div>
       </div>
@@ -954,7 +954,7 @@ function Client() {
                   value={distributorId}
                   onChange={(e) => setDistributorId(e.target.value)}
                   className="form-select"
-                  required
+                 
                 >
                   <option value="" >
                     Select Distributor

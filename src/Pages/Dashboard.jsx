@@ -238,7 +238,7 @@ useEffect(() => {
             </span>
           </div>
           <div className="card-progress">
-            <small>overallAmount</small>
+            <small>OVERALLAMOUNT</small>
           </div>
         </div>
         <div className="card" onClick={() => navigate("/alldata")}> 
@@ -249,7 +249,7 @@ useEffect(() => {
             </span>
           </div>
           <div className="card-progress">
-            <small>Paid Amount</small>
+            <small>PAID AMOUNT</small>
           </div>
         </div>
         <div className="card" onClick={() => navigate("/alldata")}> 
@@ -260,7 +260,7 @@ useEffect(() => {
             </span>
           </div>
           <div className="card-progress">
-            <small>Unpaid Amount</small>
+            <small>UNPAID AMOUNT</small>
           </div>
         </div>
         <div className="card" onClick={() => navigate("/employee")}> 
@@ -271,7 +271,7 @@ useEffect(() => {
             </span>
           </div>
           <div className="card-progress">
-            <small>Admin</small>
+            <small>ADMIN</small>
           </div>
         </div>
         <div className="card" onClick={() => navigate("/client")}> 
@@ -282,7 +282,7 @@ useEffect(() => {
             </span>
           </div>
           <div className="card-progress">
-            <small>Client</small>
+            <small>CLIENT ORDER</small>
           </div>
 
           
@@ -297,7 +297,7 @@ useEffect(() => {
             </span>
           </div>
           <div className="card-progress">
-            <small>Collection Manager</small>
+            <small>COLLECTION MANAGER</small>
           </div>
         </div>
 
@@ -310,7 +310,7 @@ useEffect(() => {
             </span>
           </div>
           <div className="card-progress">
-            <small>Collection Agent</small>
+            <small>COLLECTION AGENT</small>
           </div>
         </div>
       </div>

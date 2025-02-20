@@ -78,7 +78,9 @@ const EmployeeInfo = () => {
 
   useEffect(() => {
     if (selectedEmployee && users.length > 0) {
-      const clients = users.filter(client => client.user_id === selectedEmployee.user_id);
+      const clients = users.filter(client => 
+        client.paid_amount_date?.some(payment => payment.userID === selectedEmployee.user_id)
+      );
       setEmployeeClients(clients);
   
       const totalAmount = clients.reduce((sum, client) => sum + parseFloat(client.amount || 0), 0);

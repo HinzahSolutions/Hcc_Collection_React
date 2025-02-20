@@ -129,11 +129,11 @@ function Alldata() {
         "Client Name": row.client_name || "N/A",
         "City": row.client_city || "N/A",
         "Agent Name": employees.find((eid) => eid.user_id === row.user_id)?.username || "N/A",
-        "Total Amount": `${row.amount} KWD`,
+        "Total Amount": `${row.amount}`,
         "Status": row.paid_and_unpaid === 1 ? "Paid" : "Unpaid",
-        "Paid Amount in Range": `${paidAmountInRange} KWD`,
-        "Total Paid Amount": `${paidAmount} KWD`,
-        "Balance Amount": `${balanceAmount} KWD`,
+        "Paid Amount in Range": `${paidAmountInRange}`,
+        "Total Paid Amount": `${paidAmount}`,
+        "Balance Amount": `${balanceAmount} `,
       };
     });
   
@@ -246,7 +246,7 @@ function Alldata() {
                 <th>#</th>
                 <th>Client Name</th>
                 <th>City</th>
-                <th>Agent Name</th>
+                {/* <th>Agent Name</th> */}
                 <th>Total</th>
                 <th>Status</th>
                 <th>Paid Amount</th>
@@ -290,7 +290,7 @@ function Alldata() {
                         </div>
                       </td>
                       <td>{row.client_city.toUpperCase()}</td>
-                      <td>
+                      {/* <td>
                         {employees.map((eid) =>
                           eid.user_id == row.user_id ? (
                             <span onClick={() => handlenav(eid)}>
@@ -300,7 +300,7 @@ function Alldata() {
                             <span></span>
                           )
                         )}
-                      </td>
+                      </td> */}
                       <td>{row.amount}</td>
                       <td>
             <p

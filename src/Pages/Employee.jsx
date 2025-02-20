@@ -332,7 +332,7 @@ function Employee() {
              </span>
            </div>
            <div className="card-progress">
-             <small>All</small>
+             <small>ALL</small>
            </div>
          </div>
 
@@ -347,7 +347,7 @@ function Employee() {
              </span>
            </div>
           <div className="card-progress">
-            <small>Admin</small>
+            <small>ADMIN</small>
            </div>
         </div>
 
@@ -364,7 +364,7 @@ function Employee() {
              </span>
            </div>
           <div className="card-progress">
-             <small>Collection Manager</small>
+             <small>COLLECTION MANAGER</small>
            </div>
          </div>
 
@@ -381,12 +381,12 @@ function Employee() {
             </span>
            </div>
            <div className="card-progress">
-             <small>Collection Agents</small>
+             <small>COLLECTION AGENT</small>
            </div>
          </div>
 
         <div
-         className={dashboardnav === "other" ? "cardAction" : "card"}
+         className={dashboardnav === "Distributor" ? "cardAction" : "card"}
            onClick={Dashboardother}
          >
            <div className="card-head">
@@ -396,7 +396,7 @@ function Employee() {
              </span>
            </div>
            <div className="card-progress">
-             <small>Distributor</small>
+             <small>DISTRIBUTOR</small>
            </div>
          </div>
        </div>
