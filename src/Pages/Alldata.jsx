@@ -53,6 +53,32 @@ function Alldata() {
       .catch((error) => console.error("Fetch error:", error));
   }, [dispatch]);
 
+    useEffect(() => {
+      const Authorization = localStorage.getItem("authToken");
+      if (Authorization) {
+        fetch(`${API_URL}/list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: Authorization,
+          },
+        })
+          .then((response) => {
+            if (response.status === 401) {
+              console.error("Unauthorized access - redirecting to login");
+              handleUnauthorizedAccess();
+              return;
+            }
+            return response.json();
+          })
+          .then((data) => dispatch(setEmployees(data)))
+  
+          .catch((error) => console.error("Fetch error:", error));
+      } else {
+        console.error("No authorization token found in localStorage");
+      }
+    }, [dispatch]);
+
   const getPaidAmountInRange = (row, startDate, endDate) => {
     if (Array.isArray(row.paid_amount_date)) {
       const startParsed = parse(startDate, "yyyy-MM-dd", new Date());
@@ -173,6 +199,27 @@ function Alldata() {
   
   
   const totalpaidclientcount = getTotalPaidClientCount(users, startDate, endDate);
+
+
+  const filterDataByDateRange = (data, startDate, endDate) => {
+    if (!startDate || !endDate) {
+      return data; // Show all data if no date range is selected
+    }
+  
+    return data.map((row) => {
+      if (Array.isArray(row.paid_amount_date)) {
+        const filteredPayments = row.paid_amount_date.filter((payment) => {
+          const paymentDate = new Date(payment.date.split("-").reverse().join("-")); // Convert to Date object
+          return paymentDate >= new Date(startDate) && paymentDate <= new Date(endDate);
+        });
+  
+        return { ...row, paid_amount_date: filteredPayments };
+      }
+      return row;
+    });
+  };
+  
+  const filteredDataToShow = filterDataByDateRange(filteredData, startDate, endDate);
   return (
 
 
@@ -246,16 +293,15 @@ function Alldata() {
                 <th>#</th>
                 <th>Client Name</th>
                 <th>City</th>
-                {/* <th>Agent Name</th> */}
-                <th>Total</th>
+                <th>Agent Name</th>               
                 <th>Status</th>
                 <th>Paid Amount</th>
-                <th>Total Paid Amount in Range</th>
-                <th>Balance Amount</th>
+                <th>paid date </th>
+              
               </tr>
             </thead>
             <tbody>
-              {filteredData.length > 0 ? (
+              {/* {filteredData.length > 0 ? (
                 filteredData.map((row, index) => {
                   const paidAmount = Array.isArray(row.paid_amount_date)
                     ? row.paid_amount_date.reduce(
@@ -290,17 +336,7 @@ function Alldata() {
                         </div>
                       </td>
                       <td>{row.client_city.toUpperCase()}</td>
-                      {/* <td>
-                        {employees.map((eid) =>
-                          eid.user_id == row.user_id ? (
-                            <span onClick={() => handlenav(eid)}>
-                              {eid.username.toUpperCase()}
-                            </span>
-                          ) : (
-                            <span></span>
-                          )
-                        )}
-                      </td> */}
+                    
                       <td>{row.amount}</td>
                       <td>
             <p
@@ -323,7 +359,128 @@ function Alldata() {
                     No data found for the selected date range
                   </td>
                 </tr>
-              )}
+              )} */}
+
+              {/* {filteredDataToShow.length > 0 ? (
+  filteredDataToShow.map((row, index) => {
+    const paidAmount = Array.isArray(row.paid_amount_date)
+      ? row.paid_amount_date.reduce(
+          (sum, payment) => sum + parseFloat(payment.amount),
+          0
+        )
+      : 0;
+
+    const balanceAmount = row.amount - paidAmount;
+
+    return (
+      <tr key={`${row.client_id}-${index}`}>
+        <td>{index + 1}</td>
+        <td>{row.client_name.toUpperCase()}</td>
+        <td>{row.client_city.toUpperCase()}</td>
+        <td>
+          {row.paid_amount_date && row.paid_amount_date.length > 0
+            ? row.paid_amount_date.map((payment, i) => (
+            employees.map((eid) =>(
+              eid.user_id === payment.userID?(
+              <div key={i}>
+                  {eid.username}
+                </div>):("")
+            ))
+              ))
+            : "No Payments"}
+        </td>
+        
+        <td>
+          <p
+            className={`badge ${
+              row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
+            }`}
+          >
+            {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
+          </p>
+        </td>
+        <td>
+          {row.paid_amount_date && row.paid_amount_date.length > 0
+            ? row.paid_amount_date.map((payment, i) => (
+                <div key={i}>
+                  {payment.amount}
+                </div>
+              ))
+            : "No Payments"}
+        </td>
+        <td>
+          {row.paid_amount_date && row.paid_amount_date.length > 0
+            ? row.paid_amount_date.map((payment, i) => (
+                <div key={i}>
+                  {payment.date}  
+                </div>
+              ))
+            : "No Payments"}
+        </td>
+      </tr>
+    );
+  })
+) : (
+  <tr>
+    <td colSpan="9" className="text-center">
+      No data found for the selected date range
+    </td>
+  </tr>
+)} */}
+
+{filteredDataToShow.length > 0 ? (
+  filteredDataToShow.flatMap((row, index) => 
+    row.paid_amount_date && row.paid_amount_date.length > 0
+      ? row.paid_amount_date.map((payment, i) => {
+          const agent = employees.find(e => e.user_id === payment.userID);
+          return (
+            <tr key={`${row.client_id}-${index}-${i}`}>
+              <td>{index + 1}</td>
+              <td>{row.client_name.toUpperCase()}</td>
+              <td>{row.client_city.toUpperCase()}</td>
+              <td>{agent ? agent.username.toUpperCase()  : "Unknown"}</td>
+              <td>
+                <p
+                  className={`badge ${
+                    row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
+                  }`}
+                >
+                  {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
+                </p>
+              </td>
+              <td>{payment.amount}</td>
+              <td>{payment.date}</td>
+            </tr>
+          );
+        })
+      : [
+          <tr key={`${row.client_id}-${index}`}>
+            <td>{index + 1}</td>
+            <td>{row.client_name.toUpperCase()}</td>
+            <td>{row.client_city.toUpperCase()}</td>
+            <td>—</td> {/* No agent if no payments */}
+            <td>
+              <p
+                className={`badge ${
+                  row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
+                }`}
+              >
+                {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
+              </p>
+            </td>
+            <td>No Payments</td>
+            <td>No Payments</td>
+          </tr>
+        ]
+  )
+) : (
+  <tr>
+    <td colSpan="7" className="text-center">
+      No data found for the selected date range
+    </td>
+  </tr>
+)}
+
             </tbody>
           </table>
           <div className="d-flex justify-content-end p-3">
