@@ -32,26 +32,26 @@ function Employee() {
   const [users, setUsers] = useState([]);
 
   const employees = useSelector((state) => state.employees.employees);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false); 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [employeeIdToDelete, setemployeeIdToDelete] = useState(null);
-  const [showToast, setShowToast] = useState(false); // State to control the toast notification
+  const [showToast, setShowToast] = useState(false); 
   const [toastMessage, setToastMessage] = useState('');
   const [employeeNameToDelete, setemployeeNameToDelete] = useState('');
 
   // Fetch Employees function
   const fetchEmployees = async () => {
-    setLoading(true); // Set loading to true when fetching starts
+    setLoading(true); 
     const Authorization = localStorage.getItem("authToken");
 
-    // Ensure the token exists before making the request
+    
     if (Authorization) {
       try {
         const response = await fetch(`${API_URL}/list`, {
-          method: "GET", // Use GET method for fetching data
+          method: "GET", 
           headers: {
             "Content-Type": "application/json",
-            Authorization: Authorization, // Include token in the Authorization header
+            Authorization: Authorization, 
           },
           
         });
@@ -63,25 +63,25 @@ function Employee() {
         }
         const data = await response.json();
 
-        dispatch(setEmployees(data)); // Dispatch to update the employees list in Redux
+        dispatch(setEmployees(data));
       } catch (error) {
         console.error("Fetch error:", error);
        
       } finally {
-        setLoading(false); // Set loading to false when fetching is done
+        setLoading(false); 
       }
     } else {
       console.error("No authorization token found in localStorage");
-      setLoading(false); // Set loading to false if no token is found
+      setLoading(false); 
     }
   };
 
-  // Call the fetchEmployees function inside useEffect
+  
   useEffect(() => {
     fetchEmployees();
   }, [dispatch]);
 
-  // Dispatch the fetched data to Redux once it is loaded
+  
   useEffect(() => {
     if (employees.length > 0) {
       dispatch(setEmployees(employees));
@@ -95,44 +95,10 @@ function Employee() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //    // Prevent the default form submission behavior
-
-  //   const employeeData = new FormData();
-
-  //   // Append all fields to FormData
-  //   employeeData.append("username", username);
-  //   employeeData.append("email", email);
-  //   employeeData.append("password", password);
-  //   employeeData.append("phone_number", phone_number);
-  //   employeeData.append("city", city);
-  //   employeeData.append("role", role);
-
-  //   // Send the POST request with FormData
-  //   fetch(`${API_URL}/signup`, {
-  //     method: "POST",
-  //     body: employeeData,
-  //   })
-  //     .then((response) => {
-  //       if (response.ok) {
-  //         return response.json();
-  //       }
-  //       throw new Error("Something went wrong!");
-  //     })
-  //     .then((data) => {
-  //       alert("New Employee successfully created");
-  //       setShow(false);
-        
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error:", error);
-  //     });
-  // };
 
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault(); 
   
     const Authorization = localStorage.getItem("authToken");
   
@@ -142,7 +108,7 @@ function Employee() {
     }
   
     try {
-      // First, fetch the employee list
+     
       const response = await fetch(`${API_URL}/list`, {
         method: "GET",
         headers: {
@@ -155,7 +121,7 @@ function Employee() {
         throw new Error("Failed to fetch employee list");
       }
   
-      // Assuming you want to create an employee after fetching the list
+      
       const employeeData = new FormData();
       employeeData.append("username", username);
       employeeData.append("email", email);

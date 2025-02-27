@@ -115,13 +115,13 @@ const [editableClient, setEditableClient] = useState(null);
           ];
         }
     
-        // Create the worksheet
+        
         const ws = XLSX.utils.json_to_sheet(tableData);
     
-        // Convert worksheet to CSV
+       
         const csvOutput = XLSX.utils.sheet_to_csv(ws);
     
-        // Create a blob and download the file
+       
         const blob = new Blob([csvOutput], { type: "text/csv" });
         const link = document.createElement("a");
         const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
@@ -222,15 +222,15 @@ const [editableClient, setEditableClient] = useState(null);
     <div className="row gy-3">
   <div className="col-md-6">
     <h4 className="fw-bold">Name:</h4>
-    <p className="text-muted fw-bold">{selectedClient.client_name?.toUpperCase() || " -----  "}</p>
+    <p className="text-muted fw-bold">{(selectedClient.client_name || " ----- ").toUpperCase()}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Contact Number:</h4>
-    <p className="text-muted fw-bold">{selectedClient.client_contact.toUpperCase() || " -----  "}</p>
+    <p className="text-muted fw-bold">{(selectedClient.client_contact || " -----  ").toUpperCase()}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">City:</h4>
-    <p className="text-muted fw-bold">{selectedClient.client_city?.toUpperCase() || " -----  "}</p>
+    <p className="text-muted fw-bold">{(selectedClient.client_city|| " -----  ").toUpperCase()}</p>
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Status:</h4>
@@ -248,36 +248,32 @@ const [editableClient, setEditableClient] = useState(null);
   </div>
   <div className="col-md-6">
     <h4 className="fw-bold">Account Number:</h4>
-    <p className="text-muted fw-bold">{selectedClient.accno.toUpperCase() || " -----  "}</p>
+    <p className="text-muted fw-bold">{selectedClient.accno || " -----  "}</p>
   </div>
-
-  {/* Conditionally hide fields when bank_type === "Bank1" */}
-  
-  
       <div className="col-md-6">
         <h4 className="fw-bold">Bank Name:</h4>
-        <p className="text-muted fw-bold">{selectedClient.bank_name?.toUpperCase() || " -----  "}</p>
+        <p className="text-muted fw-bold">{selectedClient.bank_name || " -----  "}</p>
       </div>
       
       <div className="col-md-6">
         <h4 className="fw-bold">IFSC Code:</h4>
-        <p className="text-muted fw-bold">{selectedClient.ifsc_code.toUpperCase() || " -----  "}</p>
+        <p className="text-muted fw-bold">{selectedClient.ifsc_code || " -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Name of Beneficiary:</h4>
-        <p className="text-muted fw-bold">{selectedClient.name_of_the_beneficiary?.toUpperCase() ||" -----  "}</p>
+        <p className="text-muted fw-bold">{selectedClient.name_of_the_beneficiary ||" -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Address of Beneficiary:</h4>
-        <p className="text-muted fw-bold">{selectedClient.address_of_the_beneficiary?.toUpperCase() || " -----  "}</p>
+        <p className="text-muted fw-bold">{selectedClient.address_of_the_beneficiary || " -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Account Type:</h4>
-        <p className="text-muted fw-bold">{selectedClient.accoun_type?.toUpperCase() || " -----  "}</p>
+        <p className="text-muted fw-bold">{selectedClient.accoun_type || " -----  "}</p>
       </div>
       <div className="col-md-6">
         <h4 className="fw-bold">Sender Information:</h4>
-        <p className="text-muted fw-bold">{selectedClient.sender_information?.toUpperCase() ||" -----  "}</p>
+        <p className="text-muted fw-bold">{(selectedClient.sender_information ||" -----  ").toUpperCase()}</p>
       </div>
     
   
@@ -286,13 +282,13 @@ const [editableClient, setEditableClient] = useState(null);
  
     <div className="col-md-6">
       <h4 className="fw-bold">Narration:</h4>
-      <p className="text-muted fw-bold">{selectedClient.narration?.toUpperCase() || " ----- "}</p>
+      <p className="text-muted fw-bold">{(selectedClient.narration || " ----- ").toUpperCase()}</p>
     </div>
   
 
   <div className="col-md-6">
     <h4 className="fw-bold">Bank Type:</h4>
-    <p className="text-muted fw-bold">{selectedClient.bank_type?.toUpperCase() || " ----- "}</p>
+    <p className="text-muted fw-bold">{selectedClient.bank_type || " ----- "}</p>
   </div>
 </div>
 

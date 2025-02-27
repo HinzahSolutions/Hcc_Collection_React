@@ -9,12 +9,17 @@ import * as XLSX from 'xlsx';
 import { MdEmail } from "react-icons/md";
 import { IoMdCall } from "react-icons/io";
 import { setUsers, setSelectedClient } from '../Slicers/clientSlice';
+import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
+
+
 import '../Css/info.css';
 
 const EmployeeInfo = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const users = useSelector((state) => state.clients.users);
+  const employees = useSelector((state) => state.employees.employees);
 
   const [employeeClients, setEmployeeClients] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -26,43 +31,121 @@ const EmployeeInfo = () => {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedClientDate, setSelectedClientDate] = useState("");
 
 
   useEffect(() => {
     const storedEmployee = sessionStorage.getItem('selectedEmployee');
     if (storedEmployee) {
       setSelectedEmployee(JSON.parse(storedEmployee));
+      fetchEmployees();
+      console.log( employees)
+      
     } else {
       navigate("/employee");
     }
   }, [navigate]);
 
+  // const handleDateChange = (e) => {
+  //   setSelectedClientDate(e.target.value);
+  //   console.log(selectedClientDate)
+  // };
+
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value; // yyyy-MM-dd
+    const formattedDate = formatDateToDDMMYYYY(selectedDate);
+    setSelectedClientDate(formattedDate);
+    console.log(formattedDate);
+  };
+  
+  // Convert yyyy-MM-dd to dd-MM-yyyy
+  const formatDateToDDMMYYYY = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}-${month}-${year}`;
+  };
+  
+   
+
+  // const filteredUsers = users.filter(
+  //   (eid) =>
+  //     eid.Distributor_id === selectedEmployee.user_id &&
+  //     (!selectedClientDate || eid.date === selectedClientDate) // Match formatted date
+  // );
+     
+
+  const filteredUsers = users.filter(
+    (eid) =>
+      selectedEmployee?.user_id &&  // Ensure selectedEmployee exists
+      eid.Distributor_id === selectedEmployee.user_id &&
+      (!selectedClientDate || eid.date === selectedClientDate) // Match formatted date
+  );
+  
+
+
+   const fetchEmployees = async () => {
+       setLoading(true); 
+       const Authorization = localStorage.getItem("authToken");
+   
+       
+       if (Authorization) {
+         try {
+           const response = await fetch(`${API_URL}/list`, {
+             method: "GET", 
+             headers: {
+               "Content-Type": "application/json",
+               Authorization: Authorization, 
+             },
+             
+           });
+   
+           if (response.status === 401) {
+             console.error("Unauthorized access - redirecting to login");
+             handleUnauthorizedAccess();
+             return;
+           }
+           const data = await response.json();
+   
+           dispatch(setEmployees(data));
+         } catch (error) {
+           console.error("Fetch error:", error);
+          
+         } finally {
+           setLoading(false); 
+         }
+       } else {
+         console.error("No authorization token found in localStorage");
+         setLoading(false); 
+       }
+     };
+
+
 
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL;
-    const Authorization = localStorage.getItem("authToken");
-
-    if (Authorization) {
-      fetch(`${API_URL}/acc_list`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: Authorization,
-        },
-      })
-        .then((response) => {
-          if (response.status === 401) {
-            handleUnauthorizedAccess();
-            throw new Error("Unauthorized access - 401");
-          }
-          return response.json();
+      const Authorization = localStorage.getItem("authToken");
+      if (Authorization) {
+        fetch(`${API_URL}/acc_list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: Authorization,
+          },
         })
-        .then((data) => dispatch(setUsers(data)))
-        .catch((error) => console.error("Fetch error:", error));
-    } else {
-      console.error("No authorization token found in localStorage");
-    }
-  }, [dispatch]);
+          .then((response) => {
+            if (response.status === 401) {
+              console.error("Unauthorized access - redirecting to login");
+              handleUnauthorizedAccess();
+              return;
+            }
+            return response.json();
+          })
+          .then((data) => dispatch(setUsers(data)))
+          .then((data) => console.log(data))
+          .catch((error) => console.error("Fetch error:", error));
+      } else {
+        console.error("No authorization token found in localStorage");
+      }
+    }, [dispatch]);
 
 
   const handleUnauthorizedAccess = () => {
@@ -100,7 +183,6 @@ const EmployeeInfo = () => {
     }
   }, [selectedEmployee, users]);
 
-  // Filter Clients Based on Selected Date
   const filteredClients = selectedDate
     ? employeeClients.map(client => ({
       ...client,
@@ -217,13 +299,102 @@ const EmployeeInfo = () => {
 
       message += `${index + 1} | ${selectedEmployee?.username || 'Unknown'} | ${client.client_name || 'Unknown'} | ${totalAmount} | ${collectionAmount} | ${balance} | ${selectedDate}\n`;
     });
-
+  
 
     const phone = selectedEmployee.phone_number;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
 
     window.open(whatsappLink, "_blank");
   };
+
+
+  // const sendDistributorCSVToWhatsApp = () => {
+  //   if (!selectedEmployee?.phone_number) {
+  //     alert("No phone number available for the employee.");
+  //     return;
+  //   }
+
+
+  //   let message = "🔹 *Clients Report*\n\n";
+  //   message += " #   | Client Name | Date  |  Amount | Today Rate |  \n";
+  //   message += "---|-----------|---------|--------------|-------------|----------\n";
+
+  //   filteredUsers.forEach((client, index) => {
+  //     // const totalAmount = parseFloat(client.amount || 0);
+  //     // const collectionAmount = (client.paid_amount_date || []).reduce(
+  //     //   (sum, payment) => sum + parseFloat(payment.amount || 0),
+  //     //   0
+  //     // );
+  //     // const balance = totalAmount - collectionAmount;
+
+  //     const localAmount = (parseFloat(eid.amount) / parseFloat(eid.today_rate)).toFixed(3)
+
+  //     message += `${index + 1} |  ${client.client_name || 'Unknown'}| ${client.date} | ${localAmount} | ${client.today_date.toFixed(3)}\n`;
+  //   });
+  
+
+  //   const phone = selectedEmployee.phone_number;
+  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+  //   window.open(whatsappLink, "_blank");
+  // };
+
+  const sendDistributorCSVToWhatsApp = () => {
+    if (!selectedEmployee?.phone_number) {
+      alert("No phone number available for the employee.");
+      return;
+    }
+  
+    let message = "🔹 * Distributor Clients Report*\n\n";
+    message += " #   | Client Name | Date  | Amount | Today Rate |\n";
+    message += "---|--------------|---------|---------|------------\n";
+  
+    filteredUsers.forEach((client, index) => {
+      const localAmount = client.amount && client.today_rate
+        ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
+        : "N/A"; // Handle cases where amount or rate is missing
+  
+      const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
+  
+      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${localAmount} | ${todayRate}\n`;
+    });
+  
+    const phone = selectedEmployee.phone_number;
+    const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+  
+    window.open(whatsappLink, "_blank");
+  };
+  
+
+
+  // const Distributor = () => {
+  //   if (!selectedEmployee?.phone_number) {
+  //     alert("No phone number available for the employee.");
+  //     return;
+  //   }
+
+
+  //   let message = "🔹 *Clients Report*\n\n";
+  //   message += " # | Distributor Name | Client |  Amount | Today | Balance | Date \n";
+  //   message += "---|-----------|---------|--------------|-------------|----------\n";
+
+  //   filteredClients.forEach((client, index) => {
+  //     const totalAmount = parseFloat(client.amount || 0);
+  //     const collectionAmount = (client.paid_amount_date || []).reduce(
+  //       (sum, payment) => sum + parseFloat(payment.amount || 0),
+  //       0
+  //     );
+  //     const balance = totalAmount - collectionAmount;
+
+  //     message += `${index + 1} | ${selectedEmployee?.username || 'Unknown'} | ${client.client_name || 'Unknown'} | ${totalAmount} | ${collectionAmount} | ${balance} | ${selectedDate}\n`;
+  //   });
+  //  c
+
+  //   const phone = selectedEmployee.phone_number;
+  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+  //   window.open(whatsappLink, "_blank");
+  // };
 
   const overallamount = filteredClients.reduce((total, client) => {
     return (
@@ -306,14 +477,14 @@ const EmployeeInfo = () => {
 
         </div>
       </div>
-
+        
       <div className='d-flex justify-content-end px-2'> <h4 className='px-4 py-3' style={{ backgroundColor: '#1246ac', color: 'white' }}>COLLECTON AMOUNT
         <span style={{ backgroundColor: 'white', color: 'black' }} className='px-2 py-2 mx-1'  >{thisAgentCollectionAmount}</span></h4></div>
 
 
       {selectedEmployee?.role === "Collection Agent" ? (
         <div>
-          <div className='d-flex justify-content-end align-items-center  ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
+          <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
             <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
             <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
               <FormControl type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
@@ -333,10 +504,12 @@ const EmployeeInfo = () => {
                 <tr>
                   <th>#</th>
                   <th>Client Name</th>
+                   <th>date</th>
                   <th>Total Amount</th>
                   <th>Collection Amount</th>
                   <th>Balance Amount</th>
                   {selectedDate ? <th>Collection Date</th> :<></>}
+                 
                 </tr>
               </thead>
               <tbody>
@@ -373,22 +546,24 @@ const EmployeeInfo = () => {
                             </div>
                           </div>
                         </td>
+                         <td>{client.date}</td>
                         <td>{client.amount}</td>
                         <td>{collectedAmount}</td>
                         <td>{client.amount - collectedAmount}</td>
                         {selectedDate?<td>{selectedDate}</td>:<></>}
+                       
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan="6" className="text-center">No Data Found</td>
+                    <td colSpan="7" className="text-center">No Data Found</td>
                   </tr>
                 )}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan="3" className="text-end">
+                  <td colSpan="4" className="text-end">
                     <strong>Total Collection:</strong>
                   </td>
                   <td>
@@ -415,49 +590,130 @@ const EmployeeInfo = () => {
       ) : selectedEmployee?.role === "Distributor" ? (
 
         <div>
-          <h4>Distributor Dashboard</h4>
+             <div>
+          <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
+            <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
+            <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
+              <FormControl type="date"   value={selectedClientDate} onChange={handleDateChange}  />
+            </InputGroup></div>
+            <div>  <Button className='mB-3 w-auto' variant="success" onClick={sendDistributorCSVToWhatsApp} >
+              Send to WhatsApp
+            </Button></div>
 
+          </div>
+
+
+          <div className="records table-responsive">
+
+
+           
+          </div>
+
+        </div>
+
+
+
+{/*                     
           <table className="table table-striped w-70">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Client Name</th>
+                <th>date</th>
+                <th>Agent</th>
                 <th> Amount</th>
               </tr>
             </thead>
             <tbody>
+              
               {users.filter(eid => eid.Distributor_id === selectedEmployee.user_id).length > 0 ? (
-                users
-                  .filter(eid => eid.Distributor_id === selectedEmployee.user_id)
-                  .map((eid, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div className="client">
-                          <div
-                            className="client-img bg-img"
-                            style={{
-                              backgroundImage: eid.client_image
-                                ? `url(${eid.client_image})`
-                                : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-                            }}
-                          ></div>
-                          <div className="client-info">
-                            <h4 onClick={() => handleClientClick(eid)} >{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
-                            <small>{eid.client_contact ? eid.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{eid.amount}</td>
-                    </tr>
-                  ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="text-center">No Data Found</td>
-                </tr>
-              )}
+  users
+    .filter(eid => eid.Distributor_id === selectedEmployee.user_id)
+    .map((eid, index) => {
+    
+      const matchedEmployee = employees.find(ename => ename.user_id === eid.user_id);
+
+      return (
+        <tr key={index}>
+          <td>{index + 1}</td>
+          <td>
+            <div className="client">
+              <div
+                className="client-img bg-img"
+                style={{
+                  backgroundImage: eid.client_image
+                    ? `url(${eid.client_image})`
+                    : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
+                }}
+              ></div>
+              <div className="client-info">
+                <h4 onClick={() => handleClientClick(eid)}>{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
+                <small>{eid.client_contact ? eid.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
+              </div>
+            </div>
+          </td>
+          <td>{eid.date}</td>
+          <td>{matchedEmployee ? matchedEmployee.username : '---'}</td>
+          <td>{eid.amount}</td>
+        </tr>
+      );
+    })
+) : (
+  <tr>
+    <td colSpan="5" style={{ textAlign: "center" }}>No data available</td>
+  </tr>
+)}
+
             </tbody>
-          </table>
+          </table> */}
+
+          <table className="table table-striped w-70">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Client Name</th>
+            <th>Date</th>
+            <th>Agent</th>
+            <th>Amount</th>
+            <th>Today Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((eid, index) => {
+              const matchedEmployee = employees.find((ename) => ename.user_id === eid.user_id);
+              return (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</td>
+                  <td>{eid.date}</td>
+                  <td>{matchedEmployee ? matchedEmployee.username : "---"}</td>
+                  <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{eid.amount ? parseFloat(eid.amount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {eid.amount && eid.today_rate
+                  ? (parseFloat(eid.amount) / parseFloat(eid.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>
+                  <td>{eid.today_rate}</td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan="5" style={{ textAlign: "center" }}>No data available</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
         </div>
       ) : (
@@ -492,12 +748,6 @@ const EmployeeInfo = () => {
           </Form>
         </Modal.Body>
       </Modal>
-
-
-      {/* <h1> overall collection amount {overallCollectionAmount}</h1>
-       <h1> this Agent collection amount {thisAgentCollectionAmount}</h1>
-       <h1> Other agent  collection amount {otherAgentsCollectionAmount}</h1>
-       <h1> balance  collection amount {totalbalanceAmount}</h1> */}
     </div>
   );
 };

@@ -165,20 +165,20 @@ function Client() {
       const queryUpper = searchQuery?.toUpperCase().trim() || "";
       const paidAndUnpaid = row.paid_and_unpaid;
 
-      // Match Search Query
+      
       const matchesQuery =
         clientName.includes(query) ||
         clientContact.includes(query) ||
         employeeName.includes(query) ||
         accountNumbers.includes(queryUpper);
 
-      // Match Dashboard Filter
+      
       const matchesDashboardFilter =
         dashboardNav === "client" ||
         (dashboardNav === "paid" && paidAndUnpaid === 1) ||
         (dashboardNav === "unpaid" && paidAndUnpaid === 0);
 
-      // Match Status Filter
+      
       const matchesStatusFilter = selectedStatus
         ? clientStatus === selectedStatus.toLowerCase()
         : true;
@@ -248,7 +248,7 @@ function Client() {
       .then((data) => {
         console.log("Response data:", data);
         alert("New Client Created");
-        setShow(false);
+       
         resetForm();
       
         fetch(`${API_URL}/acc_list`, {
@@ -643,7 +643,7 @@ function Client() {
         <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : ""}</td>
         <td>
           <div className="client-info">
-            <h4 style={{ color: "black", fontWeight: "500" }}>
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
               INTER: <span>{row.amount ? parseFloat(row.amount).toFixed(2) : "0.00"}</span>
             </h4>
             <h4 style={{ color: "red", fontWeight: "500" }}>
@@ -670,9 +670,6 @@ function Client() {
 
 
         <td>{row.date}</td>
-
-
-
         <td>
           <div className="client-info">
             <h4 style={{ color: "blue", fontWeight: "500" }}>

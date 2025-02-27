@@ -12,27 +12,27 @@ function EmployeeForm() {
   const dispatch = useDispatch();
   const selectedEmployee = useSelector((state) => state.employees.selectedEmployee);
 
-  // Load employeeData from sessionStorage or Redux state
+  
   const [employeeData, setEmployeeData] = useState(() => {
     return JSON.parse(sessionStorage.getItem('employeeData')) || selectedEmployee || {};
   });
 
-  // Update sessionStorage whenever employeeData changes
+  
   useEffect(() => {
     if (employeeData) {
       sessionStorage.setItem('employeeData', JSON.stringify(employeeData));
     }
   }, [employeeData]);
 
-  // Remove sessionStorage on page unload (when leaving)
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      sessionStorage.removeItem('employeeData');
-    };
+  
+  // useEffect(() => {
+  //   const handleBeforeUnload = () => {
+  //     sessionStorage.removeItem('employeeData');
+  //   };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+  //   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  // }, []);
 
   useEffect(() => {
     if (!selectedEmployee) {
@@ -72,7 +72,7 @@ function EmployeeForm() {
       const updatedEmployee = await response.json();
       dispatch(setSelectedEmployee(updatedEmployee));
 
-      // Clear sessionStorage after update
+      
       sessionStorage.removeItem('employeeData');
 
       alert('Employee updated successfully');

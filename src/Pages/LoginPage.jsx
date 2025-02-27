@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -34,7 +32,7 @@ function LoginPage() {
       return;
     }
 
-    setLoading(true); // <-- Start Loading
+    setLoading(true); 
 
     try {
       const response = await fetch(`${API_URL}/login`, {
@@ -68,7 +66,7 @@ function LoginPage() {
       console.error("Login Error:", error.message);
       setError("Invalid email or password.");
     } finally {
-      setLoading(false); // <-- Stop Loading
+      setLoading(false);
     }
   };
 

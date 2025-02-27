@@ -9,11 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUsers, setSelectedClient } from "../Slicers/clientSlice";
 import { setEmployees } from "../Slicers/employeeSlice";
-
 import Assignemploye from "./Assignemploye";
 import PaymentChart from "./PaymentChart";
 import Todaycollection from "./Todaycollection";
-
 import {Mosaic } from "react-loading-indicators";
 
 
@@ -172,8 +170,6 @@ useEffect(() => {
       const clientRate = parseFloat(client.today_rate) || 1; 
       return total + (clientRate > 0 ? clientBalance / clientRate : 0);
     }, 0);
-
-  
     setOverallAmount(totalLocalCurrency.toFixed(3)); 
     setOverallPaidAmount(totalLocalPaid.toFixed(3)); 
     setTotalBalanceAmount(totalLocalBalance.toFixed(3));
@@ -201,12 +197,6 @@ useEffect(() => {
       setTotalPaidAmount(paidAmountTotal);
     }
   }, [users]);
-
- 
-
-  
-
-
   const handleUnauthorizedAccess = () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -215,9 +205,6 @@ useEffect(() => {
 
   
   return (
-
-
-
 <div>
   {loading ? (
     <div className="loadingscreen">  
@@ -284,11 +271,7 @@ useEffect(() => {
           <div className="card-progress">
             <small>CLIENT ORDER</small>
           </div>
-
-          
         </div>
-
-
         <div className="card" onClick={() => navigate("/employee")}> 
           <div className="card-head d-flex justify-content-between align-items-center">
             <h2>{collectionManagerCount}</h2>
@@ -300,8 +283,6 @@ useEffect(() => {
             <small>COLLECTION MANAGER</small>
           </div>
         </div>
-
-
         <div className="card" onClick={() => navigate("/employee")}> 
           <div className="card-head d-flex justify-content-between align-items-center">
             <h2>{collectionAgentCount}</h2>
@@ -343,13 +324,10 @@ useEffect(() => {
         <div  className="" style={{height:'100vh'}}>
           <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} />
         </div>
-       
       </div>
     </div>
   )}
 </div>
-
-
   )
 }
 

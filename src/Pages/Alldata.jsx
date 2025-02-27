@@ -4,11 +4,7 @@ import { InputGroup, FormControl } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { parse, subDays, format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import {
-  setUsers,
-  setSelectedClient,
-  setSearchQuery,
-} from "../Slicers/clientSlice";
+import {setUsers,setSelectedClient,setSearchQuery,} from "../Slicers/clientSlice";
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 import * as XLSX from "xlsx";
 
@@ -301,132 +297,6 @@ function Alldata() {
               </tr>
             </thead>
             <tbody>
-              {/* {filteredData.length > 0 ? (
-                filteredData.map((row, index) => {
-                  const paidAmount = Array.isArray(row.paid_amount_date)
-                    ? row.paid_amount_date.reduce(
-                        (sum, payment) => sum + parseFloat(payment.amount),
-                        0
-                      )
-                    : 0;
-                  const balanceAmount = row.amount - paidAmount;
-                  const paidAmountInRange = getPaidAmountInRange(
-                    row,
-                    startDate,
-                    endDate
-                  );
-                  return (
-                    <tr key={row.client_id}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div className="client d-flex align-items-center">
-                          <div
-                            className="client-img bg-img"
-                            style={{
-                              backgroundImage:
-                                "url(https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg)",
-                            }}
-                          ></div>
-                          <div className="client-info ms-2">
-                            <h4 onClick={() => handlenav1(row)}>
-                              {row.client_name.toUpperCase()}
-                            </h4>
-                            <small>{row.phone_number}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{row.client_city.toUpperCase()}</td>
-                    
-                      <td>{row.amount}</td>
-                      <td>
-            <p
-              className={`badge ${
-                row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"
-              }`}
-            >
-              {row.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
-            </p>
-          </td>
-                      <td>{paidAmountInRange}</td>
-                      <td>{paidAmount}</td>
-                      <td>{balanceAmount}</td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="9" className="text-center">
-                    No data found for the selected date range
-                  </td>
-                </tr>
-              )} */}
-
-              {/* {filteredDataToShow.length > 0 ? (
-  filteredDataToShow.map((row, index) => {
-    const paidAmount = Array.isArray(row.paid_amount_date)
-      ? row.paid_amount_date.reduce(
-          (sum, payment) => sum + parseFloat(payment.amount),
-          0
-        )
-      : 0;
-
-    const balanceAmount = row.amount - paidAmount;
-
-    return (
-      <tr key={`${row.client_id}-${index}`}>
-        <td>{index + 1}</td>
-        <td>{row.client_name.toUpperCase()}</td>
-        <td>{row.client_city.toUpperCase()}</td>
-        <td>
-          {row.paid_amount_date && row.paid_amount_date.length > 0
-            ? row.paid_amount_date.map((payment, i) => (
-            employees.map((eid) =>(
-              eid.user_id === payment.userID?(
-              <div key={i}>
-                  {eid.username}
-                </div>):("")
-            ))
-              ))
-            : "No Payments"}
-        </td>
-        
-        <td>
-          <p
-            className={`badge ${
-              row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
-            }`}
-          >
-            {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
-          </p>
-        </td>
-        <td>
-          {row.paid_amount_date && row.paid_amount_date.length > 0
-            ? row.paid_amount_date.map((payment, i) => (
-                <div key={i}>
-                  {payment.amount}
-                </div>
-              ))
-            : "No Payments"}
-        </td>
-        <td>
-          {row.paid_amount_date && row.paid_amount_date.length > 0
-            ? row.paid_amount_date.map((payment, i) => (
-                <div key={i}>
-                  {payment.date}  
-                </div>
-              ))
-            : "No Payments"}
-        </td>
-      </tr>
-    );
-  })
-) : (
-  <tr>
-    <td colSpan="9" className="text-center">
-      No data found for the selected date range
-    </td>
-  </tr>
-)} */}
 
 {filteredDataToShow.length > 0 ? (
   filteredDataToShow.flatMap((row, index) => 
@@ -435,7 +305,7 @@ function Alldata() {
           const agent = employees.find(e => e.user_id === payment.userID);
           return (
             <tr key={`${row.client_id}-${index}-${i}`}>
-              <td>{index + 1}</td>
+              <td>{row.client_id}</td>
               <td>{row.client_name.toUpperCase()}</td>
               <td>{row.client_city.toUpperCase()}</td>
               <td>{agent ? agent.username.toUpperCase()  : "Unknown"}</td>
