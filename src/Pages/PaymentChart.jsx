@@ -114,9 +114,9 @@ const PaymentChart = ({ selectedMonth, selectedYear }) => {
   };
 
   return (
-    <div style={{ width: '95%',height:'100%' }}>
+    <div style={{height:'100%',width:'99%',backgroundColor:'whitesmoke' }}>
       <style>
-        {`@media (max-width: 458px) { .chartup { height: 100vh; } }`}
+        {`@media (max-width: 458px) { .chartup { height: 100%;width:100% } }`}
       </style>
       <div className='text-center d-flex justify-content-center align-items-end'>
         <Button className="w-auto" onClick={() => setChartType(chartType === 'line' ? 'bar' : 'line')}>Toggle Chart</Button>

@@ -117,15 +117,10 @@ const [editableClient, setEditableClient] = useState(null);
     
         
         const ws = XLSX.utils.json_to_sheet(tableData);
-    
-       
         const csvOutput = XLSX.utils.sheet_to_csv(ws);
-    
-       
         const blob = new Blob([csvOutput], { type: "text/csv" });
         const link = document.createElement("a");
         const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0];
-    
         link.href = URL.createObjectURL(blob);
         link.download = `client_info_${timestamp}.csv`;
         document.body.appendChild(link);
@@ -297,7 +292,7 @@ const [editableClient, setEditableClient] = useState(null);
 
    
 
-    <div className="d-flex gap-4 justify-content-center align-items-center py-3 px-5">
+    <div className="d-flex gap-4   justify-content-center align-items-center py-3 px-5"  style={{flexWrap:'wrap'}}>
       <div className="d-flex">
         <h4 className='totalamount pt-2'>Total Amount :</h4>
         <div className='totalbox'><h4>{selectedClient.amount} </h4></div>
@@ -328,6 +323,7 @@ const [editableClient, setEditableClient] = useState(null);
       <th>#</th>
       <th>Collection Agent Name</th>
       <th>Date and Time</th>
+      <th>TOday Rate</th>
       <th>Amount</th>
     </tr>
   </thead>
@@ -345,13 +341,33 @@ const [editableClient, setEditableClient] = useState(null);
               {agent ? agent.username : "Unknown Agent"}
             </td>
             <td>{data.date || "N/A"}</td>
-            <td>{data.amount || "N/A"}</td>
+             
+            {/* <td>{data.amount || "N/A"}</td> */}
+              
+             <td>{selectedClient.today_rate}</td>
+            <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{data.amount ? parseFloat(data.amount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {data.amount && selectedClient.today_rate
+                  ? (parseFloat(data.amount) / parseFloat(selectedClient.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>
+
+           
           </tr>
         );
       })
   ) : (
     <tr>
-      <td colSpan="4" className="text-center">No data available</td>
+      <td colSpan="5" className="text-center">No data available</td>
     </tr>
   )}
 </tbody>

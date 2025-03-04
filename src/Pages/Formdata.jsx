@@ -28,11 +28,7 @@ function Formdata() {
   };
   
 
-  // useEffect(() => {
-  //   if (!selectedClient) {
-  //     navigate('/clientinfo');
-  //   }
-  // }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,7 +79,7 @@ function Formdata() {
   return (
     <div className="container mt-5">
       <div>
-        {/* <h2 style={{ textAlign: 'center', paddingTop: '20px', paddingBottom: '50px' }}>Edit Client</h2> */}
+        
         <h2 className="text-center pt-3 pb-5">Edit Client</h2>
         <Form onSubmit={handleSubmit}>
           <div className="d-flex justify-content-center flex-wrap justify-item-center w-100 p-1">

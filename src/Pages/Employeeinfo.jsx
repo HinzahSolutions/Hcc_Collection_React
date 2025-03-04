@@ -356,7 +356,7 @@ const EmployeeInfo = () => {
   
       const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
   
-      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${localAmount} | ${todayRate}\n`;
+      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${localAmount} | ${todayRate} |\n`;
     });
   
     const phone = selectedEmployee.phone_number;
@@ -431,6 +431,11 @@ const EmployeeInfo = () => {
 
   const totalbalanceAmount = overallAmount - thisAgentCollectionAmount;
 
+  const handlenav = (client) => {
+      dispatch(setSelectedClient(client));
+      navigate("/clientinfo");
+    };
+
 
   return (
     <div style={{ marginTop: '50px' }}>
@@ -484,7 +489,9 @@ const EmployeeInfo = () => {
 
       {selectedEmployee?.role === "Collection Agent" ? (
         <div>
-          <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
+
+
+          <div className='record-header d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
             <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
             <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
               <FormControl type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
@@ -496,7 +503,7 @@ const EmployeeInfo = () => {
           </div>
 
 
-          <div className="records table-responsive">
+         
 
 
             <table className="table table-striped">
@@ -505,6 +512,7 @@ const EmployeeInfo = () => {
                   <th>#</th>
                   <th>Client Name</th>
                    <th>date</th>
+                   <th>Today Rate</th>
                   <th>Total Amount</th>
                   <th>Collection Amount</th>
                   <th>Balance Amount</th>
@@ -535,7 +543,7 @@ const EmployeeInfo = () => {
                               }}
                             ></div>
                             <div className="client-info">
-                              <h4>
+                              <h4    onClick={() => handlenav(client)}>
                                 {(client.client_name || "Unknown Client").toUpperCase()}
                               </h4>
                               <small>
@@ -547,9 +555,59 @@ const EmployeeInfo = () => {
                           </div>
                         </td>
                          <td>{client.date}</td>
-                        <td>{client.amount}</td>
-                        <td>{collectedAmount}</td>
-                        <td>{client.amount - collectedAmount}</td>
+                         <td>{client.today_rate}</td>
+                         <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{client.amount ? parseFloat(client.amount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {client.amount && client.today_rate
+                  ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>
+                        {/* <td>{client.amount}</td> */}
+
+
+                        <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{client.amount ? parseFloat(collectedAmount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {collectedAmount && client.today_rate
+                  ? (parseFloat(collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>
+                        {/* {client.today_rate} */}
+                        {/* <td>{collectedAmount}</td> */}
+                         
+                        <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{client.amount ? parseFloat(client.amount - collectedAmount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {collectedAmount && client.today_rate
+                  ? (parseFloat(client.amount - collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>
+                       
                         {selectedDate?<td>{selectedDate}</td>:<></>}
                        
                       </tr>
@@ -584,7 +642,7 @@ const EmployeeInfo = () => {
                 </tr>
               </tfoot>
             </table>
-          </div>
+          
 
         </div>
       ) : selectedEmployee?.role === "Distributor" ? (
@@ -599,74 +657,9 @@ const EmployeeInfo = () => {
             <div>  <Button className='mB-3 w-auto' variant="success" onClick={sendDistributorCSVToWhatsApp} >
               Send to WhatsApp
             </Button></div>
-
           </div>
-
-
-          <div className="records table-responsive">
-
-
-           
-          </div>
-
+          
         </div>
-
-
-
-{/*                     
-          <table className="table table-striped w-70">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Client Name</th>
-                <th>date</th>
-                <th>Agent</th>
-                <th> Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              
-              {users.filter(eid => eid.Distributor_id === selectedEmployee.user_id).length > 0 ? (
-  users
-    .filter(eid => eid.Distributor_id === selectedEmployee.user_id)
-    .map((eid, index) => {
-    
-      const matchedEmployee = employees.find(ename => ename.user_id === eid.user_id);
-
-      return (
-        <tr key={index}>
-          <td>{index + 1}</td>
-          <td>
-            <div className="client">
-              <div
-                className="client-img bg-img"
-                style={{
-                  backgroundImage: eid.client_image
-                    ? `url(${eid.client_image})`
-                    : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-                }}
-              ></div>
-              <div className="client-info">
-                <h4 onClick={() => handleClientClick(eid)}>{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
-                <small>{eid.client_contact ? eid.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
-              </div>
-            </div>
-          </td>
-          <td>{eid.date}</td>
-          <td>{matchedEmployee ? matchedEmployee.username : '---'}</td>
-          <td>{eid.amount}</td>
-        </tr>
-      );
-    })
-) : (
-  <tr>
-    <td colSpan="5" style={{ textAlign: "center" }}>No data available</td>
-  </tr>
-)}
-
-            </tbody>
-          </table> */}
-
           <table className="table table-striped w-70">
         <thead>
           <tr>

@@ -103,7 +103,7 @@ function Todaycollection() {
     return (
         <div>
             <div className="today collection list">
-                <div className="records table-responsive">
+                <div className="">
                     <div className="record-header w-100 ">
                         <div className="add d-flex justify-content-start align-items-center p-1 gap-1 " >
                             <h4 className='w-auto mt-3 fs-5 '>Today Collection</h4>
@@ -129,6 +129,7 @@ function Todaycollection() {
       <th>AGENT NAME</th>
       <th>CITY</th>
       <th>AMOUNT</th>
+      <th>TODAY RATE</th>
       <th>DATE</th>
     </tr>
   </thead>
@@ -168,7 +169,28 @@ function Todaycollection() {
            }
         </td>
                 <td>{client.client_city ? client.client_city.toUpperCase() : "NULL"}</td>
-                <td>{parseFloat(payment.amount).toFixed(2)}</td>
+
+
+                
+
+
+                <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{client.amount ? parseFloat(payment.amount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {payment.amount && client.today_rate
+                  ? (parseFloat(payment.amount) / parseFloat(client.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>  
+        <td>{client.today_rate}</td>
+                
                 <td>{payment.date.toUpperCase()}</td>
               </tr>
             );
@@ -178,13 +200,13 @@ function Todaycollection() {
       )
     ) : (
       <tr>
-        <td colSpan="6" className="text-center">
+        <td colSpan="7" className="text-center">
           NO DATA FOUND FOR TODAY
         </td>
       </tr>
     )}
   </tbody>
-</table>
+</table> 
                         </div>
                     </div>
                 </div>

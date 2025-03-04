@@ -25,14 +25,7 @@ function EmployeeForm() {
   }, [employeeData]);
 
   
-  // useEffect(() => {
-  //   const handleBeforeUnload = () => {
-  //     sessionStorage.removeItem('employeeData');
-  //   };
-
-  //   window.addEventListener('beforeunload', handleBeforeUnload);
-  //   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  // }, []);
+  
 
   useEffect(() => {
     if (!selectedEmployee) {

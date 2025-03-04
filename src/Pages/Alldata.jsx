@@ -116,10 +116,7 @@ function Alldata() {
   const overallAmount = Array.isArray(users)
     ? users.reduce(
         (total, value) =>
-          total + (value.amount ? parseInt(value.amount, 10) : 0),
-        0
-      )
-    : 0;
+          total + (value.amount ? parseInt(value.amount, 10) : 0),0):0;
 
   const totalPaidAmountInRange = filteredData.reduce((sum, row) => {
     return sum + getPaidAmountInRange(row, startDate, endDate);
@@ -127,11 +124,13 @@ function Alldata() {
 
   const handlenav = (client) => {
     dispatch(setSelectedEmployee(client));
+    console.log("employee detail",client)
     navigate("/employeeinfo");
   };
 
   const handlenav1 = (client) => {
     dispatch(setSelectedClient(client));
+    console.log("client detail",client)
     navigate("/clientinfo");
   };
 
@@ -251,8 +250,8 @@ function Alldata() {
     
      
     </div>
-    <div className="records table-responsive">
-      <div className="d-flex justify-content-between">
+    <div className="">
+      <div className="record-header d-flex justify-content-between">
         <div className="add  pt-1">
         <div  className="m-0 p-0">  <button onClick={ exportToCSV} className="btn btn-primary w-auto">
           Export to Excel
@@ -296,7 +295,7 @@ function Alldata() {
               
               </tr>
             </thead>
-            <tbody>
+            {/* <tbody>
 
 {filteredDataToShow.length > 0 ? (
   filteredDataToShow.flatMap((row, index) => 
@@ -305,7 +304,7 @@ function Alldata() {
           const agent = employees.find(e => e.user_id === payment.userID);
           return (
             <tr key={`${row.client_id}-${index}-${i}`}>
-              <td>{row.client_id}</td>
+              <td>{index + 1}</td>
               <td>{row.client_name.toUpperCase()}</td>
               <td>{row.client_city.toUpperCase()}</td>
               <td>{agent ? agent.username.toUpperCase()  : "Unknown"}</td>
@@ -318,7 +317,26 @@ function Alldata() {
                   {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
                 </p>
               </td>
-              <td>{payment.amount}</td>
+
+
+          
+
+
+              <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{payment.amount ? parseFloat(payment.amount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {payment.amount && row.today_rate
+                  ? (parseFloat(payment.amount) / parseFloat(row.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>
               <td>{payment.date}</td>
             </tr>
           );
@@ -328,7 +346,7 @@ function Alldata() {
             <td>{index + 1}</td>
             <td>{row.client_name.toUpperCase()}</td>
             <td>{row.client_city.toUpperCase()}</td>
-            <td>—</td> {/* No agent if no payments */}
+            <td>—</td> 
             <td>
               <p
                 className={`badge ${
@@ -351,7 +369,85 @@ function Alldata() {
   </tr>
 )}
 
-            </tbody>
+            </tbody> */}
+            <tbody>
+  {filteredDataToShow.length > 0 ? (
+    filteredDataToShow
+      .flatMap((row) =>
+        row.paid_amount_date && row.paid_amount_date.length > 0
+          ? row.paid_amount_date.map((payment) => ({
+              ...payment,
+              client_name: row.client_name,
+              client_city: row.client_city,
+              paid_and_unpaid: row.paid_and_unpaid,
+              today_rate: row.today_rate,
+              user_id: payment.userID,
+            }))
+          : [
+              {
+                client_name: row.client_name,
+                client_city: row.client_city,
+                paid_and_unpaid: row.paid_and_unpaid,
+                today_rate: row.today_rate,
+                noPayment: true,
+              },
+            ]
+      )
+      .sort((a, b) => {
+        const dateA = new Date(a.date.split("-").reverse().join("-"));
+        const dateB = new Date(b.date.split("-").reverse().join("-"));
+        return dateA - dateB;
+      })
+      .map((payment, index) => {
+        const agent = employees.find((e) => e.user_id === payment.user_id);
+        return (
+          <tr key={`${payment.client_name}-${index}`}>
+            <td>{index + 1}</td>
+            <td  onClick={() => handlenav1(payment)} >{payment.client_name.toUpperCase()}</td>
+            <td>{payment.client_city.toUpperCase()}</td>
+            <td  onClick={() => handlenav(agent)}>{agent ? agent.username.toUpperCase() : "Unknown"}</td>
+            <td>
+              <p
+                className={`badge ${
+                  payment.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
+                }`}
+              >
+                {payment.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
+              </p>
+            </td>
+            <td>
+              <div className="client-info">
+                <h4 style={{ color: "blue", fontWeight: "500" }}>
+                  INTER:{" "}
+                  <span>
+                    {payment.amount
+                      ? parseFloat(payment.amount).toFixed(2)
+                      : "0.00"}
+                  </span>
+                </h4>
+                <h4 style={{ color: "red", fontWeight: "500" }}>
+                  LOCAL:{" "}
+                  <span>
+                    {payment.amount && payment.today_rate
+                      ? (parseFloat(payment.amount) / parseFloat(payment.today_rate)).toFixed(3)
+                      : "0.000"}
+                  </span>
+                </h4>
+              </div>
+            </td>
+            <td>{payment.date || "No Payment"}</td>
+          </tr>
+        );
+      })
+  ) : (
+    <tr>
+      <td colSpan="7" className="text-center">
+        No data found for the selected date range
+      </td>
+    </tr>
+  )}
+</tbody>
+
           </table>
           <div className="d-flex justify-content-end p-3">
             <p>

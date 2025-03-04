@@ -13,6 +13,8 @@ import Assignemploye from "./Assignemploye";
 import PaymentChart from "./PaymentChart";
 import Todaycollection from "./Todaycollection";
 import {Mosaic } from "react-loading-indicators";
+import { Button} from "react-bootstrap";
+import Modal from "react-bootstrap/Modal";
 
 
 
@@ -32,6 +34,7 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
   const [todayCollections, setTodayCollections] = useState([]);
   const [overallAmount, setOverallAmount] = useState(0);
   const [overallPaidAmount, setOverallPaidAmount] = useState(0); 
+  const [ratemodel,setRateModel] = useState(false)
 
 
   const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
@@ -94,6 +97,7 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
       }
       const data = await response.json();
       dispatch(setEmployees(data));
+      console.log(data)
     } catch (error) {
       console.error("Error fetching employee list:", error);
       handleUnauthorizedAccess();
@@ -176,6 +180,10 @@ useEffect(() => {
   }
 }, [users]);
 
+
+
+
+
   
   const clientCount = users.length;
   const collectionManagerCount = employees.filter((e) => e.role === "Collection Manager").length;
@@ -214,7 +222,11 @@ useEffect(() => {
     <div className="mt-5">
       <div className="page-header">
         <h1>Dashboard</h1>
-        <small>Employee/ Dashboard</small>
+        <div  className="d-flex  justify-content-between">
+        <small>Dashboard</small>
+        {/* <Button   onClick={() => setRateModel(1)}  className="w-auto">Add Today Rate</Button> */}
+        </div>
+        
       </div>
       <div className="analytics ">
         <div className="card" onClick={() => navigate("/alldata")}> 
@@ -321,12 +333,38 @@ useEffect(() => {
             </select>
           </div>
         </div>
-        <div  className="" style={{height:'100vh'}}>
-          <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} />
-        </div>
+        
+          <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} style={{height:'100%'}} />
+        
       </div>
     </div>
   )}
+
+
+
+  <Modal show={ratemodel} onHide={() => setRateModel(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Distributor Today Rate</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {employees
+      .filter((eid) => eid.role === "Distributor") // Correct filter function
+      .map((distributor) => (
+        <div>
+        <span  key={distributor.id} >{distributor.username}</span>
+        <input type="number" step="0.01" placeholder={` Entet today Rate`}  /> 
+        </div>
+      ))}
+  </Modal.Body>
+
+  <Modal.Footer className="d-flex justify-content-center">
+    <Button variant="secondary" onClick={() => setRateModel(false)}>
+      Close
+    </Button>
+    <Button variant="primary">OK</Button>
+  </Modal.Footer>
+</Modal>
+
 </div>
   )
 }

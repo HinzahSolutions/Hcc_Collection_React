@@ -65,6 +65,7 @@ function LoginPage() {
     } catch (error) {
       console.error("Login Error:", error.message);
       setError("Invalid email or password.");
+      alert("Internet Error ")
     } finally {
       setLoading(false);
     }

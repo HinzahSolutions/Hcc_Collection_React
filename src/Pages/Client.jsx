@@ -48,6 +48,9 @@ function Client() {
   const [clientNameToDelete, setClientNameToDelete] = useState('');
   const [navselectedBank, setNavSelectedBank] = useState(""); // Bank selection state
   const [distributorId, setDistributorId] = useState();
+  const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
+
+
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
     if (Authorization) {
@@ -150,10 +153,73 @@ function Client() {
     }
   };
 
- 
+
+  // const filteredData = useMemo(() => {
+  //   if (!Array.isArray(users)) return [];
+  
+  //   const today = format(new Date(), "dd-MM-yyyy"); // Format today's date
+  
+  //   return users.filter((row) => {
+  //     const clientName = row.client_name?.toLowerCase().trim() || "";
+  //     const clientContact = row.client_contact?.toLowerCase().trim() || "";
+  //     const employeeName = row.employee_name?.toLowerCase().trim() || "";
+  //     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+  //     const clientStatus = row.status?.toLowerCase().trim() || "";
+  //     const createdAt = row.date?.trim() || "";
+  //     const query = searchQuery?.toLowerCase().trim() || "";
+  //     const queryUpper = searchQuery?.toUpperCase().trim() || "";
+  //     const paidAndUnpaid = row.paid_and_unpaid;
+  
+  //     // Detect if searchQuery is a date
+  //     const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+  
+  //     // Query matches either a name/contact or a date
+  //     const matchesQuery = isQueryDate
+  //       ? createdAt === searchQuery // Compare with the entered date
+  //       : clientName.includes(query) ||
+  //         clientContact.includes(query) ||
+  //         employeeName.includes(query) ||
+  //         accountNumbers.includes(queryUpper);
+  
+  //     const matchesDashboardFilter =
+  //       dashboardNav === "client" ||
+  //       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+  //       (dashboardNav === "unpaid" && paidAndUnpaid === 0);
+  
+  //     const matchesStatusFilter = selectedStatus
+  //       ? clientStatus === selectedStatus.toLowerCase()
+  //       : true;
+  
+  //     // Apply date filter ONLY IF a date is selected or no searchQuery is provided
+  //     const matchesDateFilter =
+  //       selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+  //         ? createdAt === format(selectedDate, "dd-MM-yyyy")
+  //         : searchQuery
+  //         ? true // If searchQuery is used, ignore default date filtering
+  //         : createdAt === today; // Default to today’s data when no search is used
+  
+  //     const matchesBankFilter = navselectedBank
+  //       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+  //       : true;
+  
+  //     return (
+  //       matchesQuery &&
+  //       matchesDashboardFilter &&
+  //       matchesStatusFilter &&
+  //       matchesDateFilter &&
+  //       matchesBankFilter
+  //     );
+  //   });
+  // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
+  
+     
+
+
   const filteredData = useMemo(() => {
     if (!Array.isArray(users)) return [];
-
+  
+    const today = format(new Date(), "dd-MM-yyyy"); // Format today's date
+  
     return users.filter((row) => {
       const clientName = row.client_name?.toLowerCase().trim() || "";
       const clientContact = row.client_contact?.toLowerCase().trim() || "";
@@ -164,36 +230,43 @@ function Client() {
       const query = searchQuery?.toLowerCase().trim() || "";
       const queryUpper = searchQuery?.toUpperCase().trim() || "";
       const paidAndUnpaid = row.paid_and_unpaid;
-
-      
-      const matchesQuery =
-        clientName.includes(query) ||
-        clientContact.includes(query) ||
-        employeeName.includes(query) ||
-        accountNumbers.includes(queryUpper);
-
-      
+  
+      // Detect if searchQuery is a date
+      const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+  
+      // If searchQuery is empty, allow all records
+      const matchesQuery = !searchQuery
+        ? true
+        : isQueryDate
+        ? createdAt === searchQuery
+        : clientName.includes(query) ||
+          clientContact.includes(query) ||
+          employeeName.includes(query) ||
+          accountNumbers.includes(queryUpper);
+  
+      // Only filter for paid/unpaid when dashboardNav is "paid" or "unpaid"
       const matchesDashboardFilter =
         dashboardNav === "client" ||
         (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-        (dashboardNav === "unpaid" && paidAndUnpaid === 0);
-
-      
+        (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+        !dashboardNav;
+  
+      // Only filter by status when selectedStatus is set
       const matchesStatusFilter = selectedStatus
         ? clientStatus === selectedStatus.toLowerCase()
         : true;
-
-    
+  
+      // Apply date filter only when selectedDate is valid
       const matchesDateFilter =
         selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-          ? createdAt === format(selectedDate, "dd-MM-yyyy") // Ensures safe date comparison
+          ? createdAt === format(selectedDate, "dd-MM-yyyy")
           : true;
-
-     
+  
+      // Only filter by bank when navselectedBank is set
       const matchesBankFilter = navselectedBank
         ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
         : true;
-
+  
       return (
         matchesQuery &&
         matchesDashboardFilter &&
@@ -203,6 +276,7 @@ function Client() {
       );
     });
   }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -273,7 +347,7 @@ function Client() {
     setClientName("");
     setContactNumber("");
     setAmount("");
-    setTodayRate("");
+    
     setCity("");
     setMessage("");
     setBname("");
@@ -322,10 +396,10 @@ function Client() {
       })
       .then((data) => {
         console.log("Client deleted successfully:", data);
-        setShowConfirmModal(false); // Close the modal
+        setShowConfirmModal(false); 
         setToastMessage(`Client ${clientNameToDelete} deleted successfully!`);
-        setShowToast(true); // Show the success notification
-        // dispatch(setUsers(updatedData));
+        setShowToast(true);
+       
         fetch(`${API_URL}/acc_list`, {
           method: "GET",
           headers: {
@@ -335,7 +409,7 @@ function Client() {
         })
           .then((response) => response.json())
           .then((updatedData) => dispatch(setUsers(updatedData)))
-          .catch((error) => console.error("Error fetching updated data:", error)); // Update the list of clients
+          .catch((error) => console.error("Error fetching updated data:", error));
       })
       .catch((error) => {
         console.error("Error deleting client:", error);
@@ -351,10 +425,13 @@ function Client() {
 
 
   const handlesend = async (client_id) => {
+
+    const currentDate = format(new Date(), "dd-MM-yyyy");
     const sendData = {
       client_id,
       user_id: employeeId,
       sent: true,
+      assigned_date: currentDate,
     };
 
     try {
@@ -445,8 +522,8 @@ function Client() {
 
     const csvData = selectedRows.map((client) => {
       let clientData = {
-        " ACCOUNT NUMBER": `   ${client.accno}` || "UNKNOWN ACCOUNT",
-        " AMOUNT": `  ${client.amount}` || 0,
+        " ACCOUNT NUMBER":` ${client.accno}` || "UNKNOWN ACCOUNT",
+        " AMOUNT":` ${client.amount.toFixed(2)}` || 0,
        
       };
 
@@ -454,12 +531,12 @@ function Client() {
         clientData["NARRATION"] = `  ${client.narration}` || "UNKNOWN";
       } else if (selectedBank === "bank2") {
         clientData = {
-          " IFSC CODE": ` ${client.ifsc_code}`|| "UNKNOWN IFSC",
+          " IFSC CODE":` ${client.ifsc_code}`|| "UNKNOWN IFSC",
           " ACCOUNT TYPE":` ${client.accoun_type}`  || "UNKNOWN TYPE",
-          " ACCOUNT NUMBER": ` ${client.accno}` || "UNKNOWN ACCOUNT NUMBER",
-          " BENEFICIARY NAME":  ` ${ client.name_of_the_beneficiary.toUpperCase()}`  || "UNKNOWN BENEFICIARY NAME",
-          " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary.toUpperCase()}` || "UNKNOWN BENEFICIARY ADDRESS",
-          " SENDER INFORMATION": ` ${client.sender_information.toUpperCase()}` || "UNKNOWN SENDER INFORMATION",
+          " ACCOUNT NUMBER":` ${client.accno}` || "UNKNOWN ACCOUNT NUMBER",
+          " BENEFICIARY NAME":` ${ client.name_of_the_beneficiary.toUpperCase()}`  || "UNKNOWN BENEFICIARY NAME",
+          " BENEFICIARY ADDRESS":` ${client.address_of_the_beneficiary.toUpperCase()}` || "UNKNOWN BENEFICIARY ADDRESS",
+          " SENDER INFORMATION":` ${client.sender_information.toUpperCase()}` || "UNKNOWN SENDER INFORMATION",
           ...clientData,
         };
       }
@@ -487,6 +564,20 @@ function Client() {
   useEffect(() => {
     sessionStorage.clear(); 
   }, []);
+
+
+  const handleDistributorChange = (e) => {
+    const selectedId = e.target.value;
+    setDistributorId(selectedId);
+  
+    const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
+  
+    if (selectedDistributor) {
+      setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
+    } else {
+      setTodayRate(""); // Allow manual entry
+    }
+  };
   
   
   return (
@@ -543,7 +634,7 @@ function Client() {
           </div>
         </div>
       </div>
-<div className="records table-responsive  table-responsive-md table-responsive-sm">
+<div className="">
        
     
 <div className="record-header d-flex justify-content-between align-items-center flex-wrap gap-1">
@@ -582,14 +673,15 @@ function Client() {
 
    
     <InputGroup className="d-flex gap-2 flex-wrap align-items-center">
-    <DatePicker
+    <DatePicker   
         selected={selectedDate || null} // Ensures it's never undefined
         onChange={handleDateChange}
         placeholderText="Select Date"
         dateFormat="dd-MM-yyyy"
         className="form-control date-input w-auto"
+       
         isClearable
-        customInput={<button className="calendar-icon-btn"><FaRegCalendarAlt /></button>}
+        customInput={<button  style={{zIndex:'999'}} className="calendar-icon-btn"><FaRegCalendarAlt /></button>}
       />
       <FormControl
         placeholder="Name, phone number, Acc_number"
@@ -621,7 +713,9 @@ function Client() {
     </tr>
   </thead>
   <tbody>
-    {sortedData.map((row, index) => (
+    {
+       sortedData.length > 0 ?(
+      sortedData.map((row, index) => (
       <tr key={index}>
         <td>
           <input
@@ -630,7 +724,7 @@ function Client() {
             onChange={() => handleCheckboxChange(row)}
             checked={selectedRows.some((item) => item.client_id === row.client_id)}
           />
-          {row.client_id}
+          {index+1}
         </td>
         <td>
           <div className="client">
@@ -804,7 +898,11 @@ function Client() {
           </div>
         </td>
       </tr>
-    ))}
+    ))):(
+      <tr>
+      <td colSpan="11" className="text-center">No data available</td>
+    </tr>
+    )}
   </tbody>
 </table>
 
@@ -889,11 +987,44 @@ function Client() {
 
       <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
   <div className="dio" style={{ width: '70vw' }}>
-    <Modal.Header closeButton>
-      <Modal.Title>Add New Client</Modal.Title>
+    <Modal.Header closeButton   className="d-flex justify-content-between py-3">
+    <div  className="d-flex justify-content-between w-100" >
+      <Modal.Title>Add New Client</Modal.Title>     <h5  className="pt-2">Date : {AddNewClientDate}</h5></div>
     </Modal.Header>
     <Modal.Body>
       <form onSubmit={handleSubmit} className="custom-form">
+
+      <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12  "  style={{backgroundColor:"rgb(217, 227, 219)",borderRadius:'10px'}}>
+         
+          <div className="txt_field col-lg-5 col-md-10 col-sm-10 ">
+          <select 
+  value={distributorId}
+  onChange={handleDistributorChange}
+  style={{border:'none', background:'none',color:'black',fontWeight:'bold', outline: 'none',boxShadow: 'none',margin:'0px',padding:'0px',paddingTop:'20px'}}
+>
+  <option value="">Select Distributor</option>
+  {employees
+    .filter((emp) => emp.role === "Distributor")
+    .map((emp) => (
+      <option key={emp.user_id} value={emp.user_id}>
+        {emp.username}
+      </option>
+    ))}
+</select>
+               
+              </div>
+
+              <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+              <input
+  type="number"
+  value={todayrate}
+  step="0.01"
+  onChange={(e) => setTodayRate(parseFloat(e.target.value) || "")}
+  required
+/>
+            <label>Today Rate</label>
+          </div>
+        </div>
         <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
           <div className="txt_field col-lg-5 col-md-10 col-sm-10">
             <input
@@ -935,42 +1066,11 @@ function Client() {
             <label>Amount</label>
           </div>
         </div>
-        <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
-          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
-            <input
-              type="number"
-              value={todayrate}
-              step="0.01"
-              onChange={(e) => setTodayRate(parseFloat(e.target.value) || 0)}
-              required
-            />
-            <label>Today Rate</label>
-          </div>
-          <div className="txt_field col-lg-5 col-md-10 col-sm-10">
-                <select    style={{border:'none', outline: "none" }}
-                  value={distributorId}
-                  onChange={(e) => setDistributorId(e.target.value)}
-                  className="form-select"
-                 
-                >
-                  <option value="" >
-                    Select Distributor
-                  </option>
-                  {employees
-                    .filter((emp) => emp.role === "Distributor")
-                    .map((emp) => (
-                      <option key={emp.user_id} value={emp.user_id}>
-                        {emp.username}
-                      </option>
-                    ))}
-                </select>
-              </div>
-        </div>
         <Modal.Footer className="w-100 justify-content-center">
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}  className="w-15">
             Close
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit"  className="w-15" >
             Save Changes
           </Button>
         </Modal.Footer>
@@ -978,6 +1078,9 @@ function Client() {
     </Modal.Body>
   </div>
 </Modal>
+
+
+
       <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>

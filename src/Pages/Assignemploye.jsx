@@ -4,7 +4,7 @@ import { setUsers, setSelectedClient } from "../Slicers/clientSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { parse } from "date-fns";
+import { format, parse } from "date-fns";
 
 function Assignemploye() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -19,24 +19,26 @@ function Assignemploye() {
 
   useEffect(() => {
     const unassigned = users.filter((assigns) => assigns.sent == false);
-
     if (unassigned.length > 0) {
       setAssign(unassigned);
       console.log("Unassigned Users:", unassigned);
     }
   }, [users]);
-
+ 
 
   const handleClientClick = (client) => {
     dispatch(setSelectedClient(client));
     setSendModal(true);
   };
   const handlesend = async (client_id) => {
+
+       const currentDate = format(new Date(), "dd-MM-yyyy");
     console.log(employeeId)
     const sendData = {
       client_id,
       user_id: employeeId,
       sent: 1,
+      assigned_date: currentDate, 
     };
     try {
       const response = await fetch(`${API_URL}/client_IDupdated/${client_id}`, {
@@ -85,7 +87,7 @@ function Assignemploye() {
   }, [assign]);
   return (
     <div> {sortedData.length > 0 ? (
-      <div className="records table-responsive">
+      <div className=" ">
         <div className="record-header">
           <div className="add">
             <h4 style={{ textAlign: 'center', padding: '10px' }}>Assign Employee</h4>
@@ -98,6 +100,7 @@ function Assignemploye() {
               <th>CLIENT</th>
               <th>CITY</th>
               <th>AMOUNT</th>
+              <th>TODAY RATE</th>
               <th>DATE</th>
               <th>ACTIONS</th>
             </tr>
@@ -123,11 +126,23 @@ function Assignemploye() {
                   </div>
                 </td>
                 <td>{row.client_city ? row.client_city.toUpperCase() : "UNKNOWN CITY"}</td>
+
                 <td>
-                  {row.amount && row.amount !== "null"
-                    ? `${row.amount.toString().toUpperCase()}`
-                    : "0 KWD"}
-                </td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{row.amount ? parseFloat(row.amount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {row.amount && row.today_rate
+                  ? (parseFloat(row.amount) / parseFloat(row.today_rate)).toFixed(3)
+                  : "0.000"}
+              </span>
+            </h4>
+          </div>
+        </td>
+               <td>{parseFloat(row.today_rate).toFixed(2)}</td>
                 <td>{row.date ? row.date.toUpperCase() : "UNKNOWN DATE"}</td>
                 <td>
                   <div className="actions">

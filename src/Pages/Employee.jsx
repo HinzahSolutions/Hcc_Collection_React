@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Button, Modal, InputGroup, FormControl, Toast } from "react-bootstrap";
+import { Button, Modal, InputGroup, FormControl, Toast, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import "../Css/dashboard.css";
 import { FaUserTie } from "react-icons/fa";
@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
+import { parse, subDays, format } from "date-fns";
 
 function Employee() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -22,6 +23,7 @@ function Employee() {
   const [dashboardnav, setDashboardnav] = useState("All");
   const [role, setRole] = useState("");
   const [photo, setPhoto] = useState(null);
+ 
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +41,7 @@ function Employee() {
   const [toastMessage, setToastMessage] = useState('');
   const [employeeNameToDelete, setemployeeNameToDelete] = useState('');
 
-  // Fetch Employees function
+  
   const fetchEmployees = async () => {
     setLoading(true); 
     const Authorization = localStorage.getItem("authToken");
@@ -143,6 +145,7 @@ function Employee() {
       const data = await signupResponse.json();
       alert("New Employee successfully created");
       setShow(false);
+      fetchEmployees();
   
     } catch (error) {
       console.error("Error:", error);
@@ -155,6 +158,9 @@ function Employee() {
   const Dashboardunpaid = () => setDashboardnav("Collection Agent");
   const DashboardAll = () => setDashboardnav("All");
   const Dashboardother = () => setDashboardnav("Distributor");
+
+
+  // distributor_today_rate , today_rate_date
 
   const imageExists = (url) => {
     const img = new Image();
@@ -272,7 +278,79 @@ function Employee() {
  useEffect(() => {
     sessionStorage.clear(); 
   }, []);
+
+  const sortedData = useMemo(() => {
+      return [...filteredData].sort((a, b) => {
+        
+        if (b.client_id !== a.client_id) {
+          return b.client_id - a.client_id;
+        }
   
+      
+        return a.sent ? 1 : -1;
+      });
+    }, [filteredData]);
+
+    
+
+
+
+
+    const [todayRateModal, setTodayRateModal] = useState(false);
+  const [showData, setShowData] = useState(null);
+  const [amount, setAmount] = useState("");
+
+  const openTodayRateModal = (row) => {
+    setTodayRateModal(true);
+    setShowData(row);
+  };
+
+
+  const handleSubmitupdate = async () => {
+    if (!amount || !showData) {
+      alert("Please enter an amount");
+      return;
+    }
+  
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+  
+    const data = {
+      user_id: showData.user_id,
+      today_rate_date: currentDate,
+      Distributor_today_rate: amount,
+    };
+  
+    console.log("Sending data:", data);
+  
+    try {
+      const response = await fetch(
+        `${API_URL}/updatedistributoramount/${showData.user_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+  
+      if (response.ok) {
+        alert("Rate updated successfully!");
+        setTodayRateModal(false);
+        setAmount(""); // Reset input field
+      } else {
+        const errorText = await response.text();
+        console.error("Failed to update rate:", errorText);
+        alert(`Failed to update rate: ${errorText}`);
+      }
+    } catch (error) {
+      console.error("Error updating rate:", error);
+      alert("An error occurred.");
+    }
+  };
+  
+
+   
 
   return (
     <div style={{ marginTop: "50px" }}>
@@ -367,7 +445,7 @@ function Employee() {
          </div>
        </div>
 
-       <div className="records table-responsive">
+       <div className="">
          <div className="record-header">
            <div className="add">
              <Button className="w-auto" onClick={handleShow}>
@@ -507,9 +585,9 @@ function Employee() {
     </tr>
   </thead>
   <tbody>
-    {filteredData.map((row, index) => (
+    {sortedData.map((row, index) => (
       <tr key={index}>
-        <td>{row.user_id ? row.user_id.toString().toUpperCase() : "N/A"}</td>
+        <td>{index+1}</td>
         <td>
           <div className="client">
             <div
@@ -559,6 +637,24 @@ function Employee() {
             >
               DELETE
             </span>
+            {
+              row.role === "Distributor"?( <span
+              className=""
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#6957fc",
+                padding: "5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              // onClick={() => showConfirm(row.user_id, row.username)}
+                  onClick={() => openTodayRateModal(row)}
+            >
+              Today Rate
+            </span>):(<></>)
+            }
+           
           </div>
         </td>
       </tr>
@@ -593,8 +689,37 @@ function Employee() {
                 </Button>
               </Modal.Footer>
             </Modal>
-     
 
+            <Modal show={todayRateModal} onHide={() => setTodayRateModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Today's Rate</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="todayRateAmount">
+              <Form.Label>Enter Amount</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setTodayRateModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleSubmitupdate}>
+            Update
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+           
+     
+         
       
        <Toast
          style={{
