@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Css/info.css';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,8 +11,8 @@ import { Button, Modal, InputGroup, FormControl } from "react-bootstrap";
 
 function Clinentinfo() {
   const API_URL = import.meta.env.VITE_API_URL;
-  const [totalPaidAmount, setTotalPaidAmount] = useState(0);
-  const [balanceAmount, setBalanceAmount] = useState(0);
+  // const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+  // const [balanceAmount, setBalanceAmount] = useState(0);
   const selectedClient = useSelector((state) => state.clients.selectedClient);
   const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -28,16 +28,35 @@ const [editableClient, setEditableClient] = useState(null);
       }
     }, [dispatch]);
 
-  useEffect(() => {
-    if (selectedClient?.paid_amount_date) {
-      const totalPaid = selectedClient.paid_amount_date.reduce((sum, payment) => {
-        return sum + parseFloat(payment.amount || 0);
-      }, 0);
+  // useEffect(() => {
+  //   if (selectedClient?.paid_amount_date) {
+  //     const totalPaid = selectedClient.paid_amount_date.reduce((sum, payment) => {
+  //       return sum + parseFloat(payment.amount || 0);
+  //     }, 0);
 
-      setTotalPaidAmount(totalPaid);
-      setBalanceAmount(selectedClient.amount - totalPaid);
-    }
+  //     setTotalPaidAmount(totalPaid);
+  //     setBalanceAmount(selectedClient.amount - totalPaid);
+  //   }
+  // }, [selectedClient]);
+  
+  const totalPaidAmount = useMemo(() => {
+    if (!selectedClient?.paid_amount_date) return 0;
+  
+    return selectedClient.paid_amount_date.reduce((sum, payment) => {
+      const paymentAmount = parseFloat(payment.amount) || 0;
+      const clientRate = parseFloat(selectedClient.today_rate) || 1; // Avoid division by zero
+      return sum + (clientRate > 0 ? paymentAmount / clientRate : 0);
+    }, 0);
   }, [selectedClient]);
+  
+  const balanceAmount = useMemo(() => {
+    if (!selectedClient) return 0;
+    const clientAmount = parseFloat(selectedClient.amount) || 0;
+    const clientRate = parseFloat(selectedClient.today_rate) || 1; // Avoid division by zero
+    return clientAmount / clientRate - totalPaidAmount;
+  }, [selectedClient, totalPaidAmount]);
+  
+
 
   useEffect(() => {
    const fetchEmployeeList = async () => {
@@ -295,15 +314,15 @@ const [editableClient, setEditableClient] = useState(null);
     <div className="d-flex gap-4   justify-content-center align-items-center py-3 px-5"  style={{flexWrap:'wrap'}}>
       <div className="d-flex">
         <h4 className='totalamount pt-2'>Total Amount :</h4>
-        <div className='totalbox'><h4>{selectedClient.amount} </h4></div>
+        <div className='totalbox'><h4>{(selectedClient.amount/selectedClient.today_rate).toFixed(3)} </h4></div>
       </div>
       <div className="d-flex">
         <h4 className='totalamount pt-2'>Paid Amount :</h4>
-        <div className='totalbox'><h4>{totalPaidAmount.toFixed(2)|| "0.00"} </h4></div>
+        <div className='totalbox'><h4>{totalPaidAmount.toFixed(3)|| "0.00"} </h4></div>
       </div>
       <div className="d-flex">
         <h4 className='totalamount pt-2'>Balance Amount :</h4>
-        <div className='totalbox'><h4>{balanceAmount.toFixed(2)|| "0.00"}</h4></div>
+        <div className='totalbox'><h4>{balanceAmount.toFixed(3)|| "0.00"}</h4></div>
       </div>
     </div>
   </div>
@@ -321,10 +340,10 @@ const [editableClient, setEditableClient] = useState(null);
   <thead>
     <tr>
       <th>#</th>
-      <th>Collection Agent Name</th>
-      <th>Date and Time</th>
-      <th>TOday Rate</th>
-      <th>Amount</th>
+      <th>COLLECTION AGENT NAME</th>
+      <th>DATE</th>
+      <th>TODAY RATE</th>
+      <th>AMOUNT</th>
     </tr>
   </thead>
   <tbody>
@@ -338,7 +357,7 @@ const [editableClient, setEditableClient] = useState(null);
           <tr key={index}>
             <td>{index + 1}</td>
             <td onClick={() => agent && handlenav(agent)}>
-              {agent ? agent.username : "Unknown Agent"}
+              {agent ? agent.username.toUpperCase() : "Unknown Agent"}
             </td>
             <td>{data.date || "N/A"}</td>
              

@@ -20,7 +20,6 @@ const EmployeeInfo = () => {
   const navigate = useNavigate();
   const users = useSelector((state) => state.clients.users);
   const employees = useSelector((state) => state.employees.employees);
-
   const [employeeClients, setEmployeeClients] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
@@ -39,40 +38,33 @@ const EmployeeInfo = () => {
     if (storedEmployee) {
       setSelectedEmployee(JSON.parse(storedEmployee));
       fetchEmployees();
-      console.log( employees)
-      
+      console.log(employees)
+
     } else {
       navigate("/employee");
     }
   }, [navigate]);
 
-  // const handleDateChange = (e) => {
-  //   setSelectedClientDate(e.target.value);
-  //   console.log(selectedClientDate)
-  // };
+
 
   const handleDateChange = (e) => {
-    const selectedDate = e.target.value; // yyyy-MM-dd
+    const selectedDate = e.target.value;
     const formattedDate = formatDateToDDMMYYYY(selectedDate);
     setSelectedClientDate(formattedDate);
     console.log(formattedDate);
   };
-  
-  // Convert yyyy-MM-dd to dd-MM-yyyy
+
+
   const formatDateToDDMMYYYY = (dateString) => {
     if (!dateString) return "";
     const [year, month, day] = dateString.split("-");
     return `${day}-${month}-${year}`;
   };
-  
-   
 
-  // const filteredUsers = users.filter(
-  //   (eid) =>
-  //     eid.Distributor_id === selectedEmployee.user_id &&
-  //     (!selectedClientDate || eid.date === selectedClientDate) // Match formatted date
-  // );
-     
+
+
+
+
 
   const filteredUsers = users.filter(
     (eid) =>
@@ -80,72 +72,72 @@ const EmployeeInfo = () => {
       eid.Distributor_id === selectedEmployee.user_id &&
       (!selectedClientDate || eid.date === selectedClientDate) // Match formatted date
   );
-  
-
-
-   const fetchEmployees = async () => {
-       setLoading(true); 
-       const Authorization = localStorage.getItem("authToken");
-   
-       
-       if (Authorization) {
-         try {
-           const response = await fetch(`${API_URL}/list`, {
-             method: "GET", 
-             headers: {
-               "Content-Type": "application/json",
-               Authorization: Authorization, 
-             },
-             
-           });
-   
-           if (response.status === 401) {
-             console.error("Unauthorized access - redirecting to login");
-             handleUnauthorizedAccess();
-             return;
-           }
-           const data = await response.json();
-   
-           dispatch(setEmployees(data));
-         } catch (error) {
-           console.error("Fetch error:", error);
-          
-         } finally {
-           setLoading(false); 
-         }
-       } else {
-         console.error("No authorization token found in localStorage");
-         setLoading(false); 
-       }
-     };
 
 
 
-  useEffect(() => {
-      const Authorization = localStorage.getItem("authToken");
-      if (Authorization) {
-        fetch(`${API_URL}/acc_list`, {
+  const fetchEmployees = async () => {
+    setLoading(true);
+    const Authorization = localStorage.getItem("authToken");
+
+
+    if (Authorization) {
+      try {
+        const response = await fetch(`${API_URL}/list`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: Authorization,
           },
-        })
-          .then((response) => {
-            if (response.status === 401) {
-              console.error("Unauthorized access - redirecting to login");
-              handleUnauthorizedAccess();
-              return;
-            }
-            return response.json();
-          })
-          .then((data) => dispatch(setUsers(data)))
-          .then((data) => console.log(data))
-          .catch((error) => console.error("Fetch error:", error));
-      } else {
-        console.error("No authorization token found in localStorage");
+
+        });
+
+        if (response.status === 401) {
+          console.error("Unauthorized access - redirecting to login");
+          handleUnauthorizedAccess();
+          return;
+        }
+        const data = await response.json();
+
+        dispatch(setEmployees(data));
+      } catch (error) {
+        console.error("Fetch error:", error);
+
+      } finally {
+        setLoading(false);
       }
-    }, [dispatch]);
+    } else {
+      console.error("No authorization token found in localStorage");
+      setLoading(false);
+    }
+  };
+
+
+
+  useEffect(() => {
+    const Authorization = localStorage.getItem("authToken");
+    if (Authorization) {
+      fetch(`${API_URL}/acc_list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: Authorization,
+        },
+      })
+        .then((response) => {
+          if (response.status === 401) {
+            console.error("Unauthorized access - redirecting to login");
+            handleUnauthorizedAccess();
+            return;
+          }
+          return response.json();
+        })
+        .then((data) => dispatch(setUsers(data)))
+        .then((data) => console.log(data))
+        .catch((error) => console.error("Fetch error:", error));
+    } else {
+      console.error("No authorization token found in localStorage");
+    }
+  }, [dispatch]);
 
 
   const handleUnauthorizedAccess = () => {
@@ -299,7 +291,7 @@ const EmployeeInfo = () => {
 
       message += `${index + 1} | ${selectedEmployee?.username || 'Unknown'} | ${client.client_name || 'Unknown'} | ${totalAmount} | ${collectionAmount} | ${balance} | ${selectedDate}\n`;
     });
-  
+
 
     const phone = selectedEmployee.phone_number;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
@@ -331,7 +323,7 @@ const EmployeeInfo = () => {
 
   //     message += `${index + 1} |  ${client.client_name || 'Unknown'}| ${client.date} | ${localAmount} | ${client.today_date.toFixed(3)}\n`;
   //   });
-  
+
 
   //   const phone = selectedEmployee.phone_number;
   //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
@@ -344,27 +336,27 @@ const EmployeeInfo = () => {
       alert("No phone number available for the employee.");
       return;
     }
-  
+
     let message = "🔹 * Distributor Clients Report*\n\n";
     message += " #   | Client Name | Date  | Amount | Today Rate |\n";
     message += "---|--------------|---------|---------|------------\n";
-  
+
     filteredUsers.forEach((client, index) => {
       const localAmount = client.amount && client.today_rate
         ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
         : "N/A"; // Handle cases where amount or rate is missing
-  
+
       const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
-  
+
       message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${localAmount} | ${todayRate} |\n`;
     });
-  
+
     const phone = selectedEmployee.phone_number;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-  
+
     window.open(whatsappLink, "_blank");
   };
-  
+
 
 
   // const Distributor = () => {
@@ -416,25 +408,49 @@ const EmployeeInfo = () => {
     );
   }, 0);
 
+  // const thisAgentCollectionAmount = filteredClients.reduce((total, client) => {
+  //   return (
+  //     total +
+  //     (Array.isArray(client.paid_amount_date)
+  //       ? client.paid_amount_date
+  //         .filter((p) => p.userID === selectedEmployee.user_id)
+  //         .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+  //       : 0)
+  //   );
+  // }, 0);
+
   const thisAgentCollectionAmount = filteredClients.reduce((total, client) => {
     return (
       total +
       (Array.isArray(client.paid_amount_date)
         ? client.paid_amount_date
           .filter((p) => p.userID === selectedEmployee.user_id)
-          .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+          .reduce((sum, p) => {
+            const paidAmount = parseFloat(p.amount) || 0;
+            const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
+            return sum + (clientRate > 0 ? paidAmount / clientRate : 0);
+          }, 0)
         : 0)
     );
   }, 0);
+
+  const thisDistributorCollectionAmount = filteredUsers
+    .filter((client) => client.Distributor_id === selectedEmployee?.user_id)
+    .reduce((total, client) => {
+      const clientAmount = parseFloat(client.amount) || 0;
+      const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
+      return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+    }, 0);
+
 
   const otherAgentsCollectionAmount = overallCollectionAmount - thisAgentCollectionAmount;
 
   const totalbalanceAmount = overallAmount - thisAgentCollectionAmount;
 
   const handlenav = (client) => {
-      dispatch(setSelectedClient(client));
-      navigate("/clientinfo");
-    };
+    dispatch(setSelectedClient(client));
+    navigate("/clientinfo");
+  };
 
 
   return (
@@ -482,9 +498,25 @@ const EmployeeInfo = () => {
 
         </div>
       </div>
-        
-      <div className='d-flex justify-content-end px-2'> <h4 className='px-4 py-3' style={{ backgroundColor: '#1246ac', color: 'white' }}>COLLECTON AMOUNT
-        <span style={{ backgroundColor: 'white', color: 'black' }} className='px-2 py-2 mx-1'  >{thisAgentCollectionAmount}</span></h4></div>
+
+      {/* <div className='d-flex justify-content-end px-2'> <h4 className='px-4 py-3' style={{ backgroundColor: '#1246ac', color: 'white' }}>COLLECTON AMOUNT
+        <span style={{ backgroundColor: 'white', color: 'black' }} className='px-2 py-2 mx-1'  >{ selectedEmployee.role ==="Distributor"?(thisDistributorCollectionAmount):(thisAgentCollectionAmount)}</span></h4></div> */}
+
+
+      <div className="d-flex justify-content-end px-2">
+        <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
+          COLLECTION AMOUNT
+          <span
+            style={{ backgroundColor: "white", color: "black" }}
+            className="px-2 py-2 mx-1"
+          >
+            {selectedEmployee?.role === "Distributor"
+              ? thisDistributorCollectionAmount.toFixed(3)
+              : thisAgentCollectionAmount.toFixed(3)}
+          </span>
+        </h4>
+      </div>
+
 
 
       {selectedEmployee?.role === "Collection Agent" ? (
@@ -503,210 +535,200 @@ const EmployeeInfo = () => {
           </div>
 
 
-         
 
 
-            <table className="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Client Name</th>
-                   <th>date</th>
-                   <th>Today Rate</th>
-                  <th>Total Amount</th>
-                  <th>Collection Amount</th>
-                  <th>Balance Amount</th>
-                  {selectedDate ? <th>Collection Date</th> :<></>}
-                 
-                </tr>
-              </thead>
-              <tbody>
-                {filteredClients.length > 0 ? (
-                  filteredClients.map((client, index) => {
-                    const collectedAmount = Array.isArray(client.paid_amount_date)
-                      ? client.paid_amount_date
-                        .filter((p) => p.userID === selectedEmployee.user_id)
-                        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-                      : 0;
 
-                    return (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>
-                          <div className="client">
-                            <div
-                              className="client-img bg-img"
-                              style={{
-                                backgroundImage: client.client_image
-                                  ? `url(${client.client_image})`
-                                  : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-                              }}
-                            ></div>
-                            <div className="client-info">
-                              <h4    onClick={() => handlenav(client)}>
-                                {(client.client_name || "Unknown Client").toUpperCase()}
-                              </h4>
-                              <small>
-                                {client.client_contact
-                                  ? client.client_contact.toUpperCase()
-                                  : "NO CONTACT AVAILABLE"}
-                              </small>
-                            </div>
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>CLIENT NAME</th>
+                <th>DATE</th>
+                <th>TODAY RATE</th>
+                <th>TOTAL AMOUNT</th>
+                <th>COLLECTION AMOUNT</th>
+                <th>BALANCE AMOUNT</th>
+                {selectedDate ? <th>COLLECTION DATE</th> : <></>}
+
+              </tr>
+            </thead>
+            <tbody>
+              {filteredClients.length > 0 ? (
+                filteredClients.map((client, index) => {
+                  const collectedAmount = Array.isArray(client.paid_amount_date)
+                    ? client.paid_amount_date
+                      .filter((p) => p.userID === selectedEmployee.user_id)
+                      .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+                    : 0;
+
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>
+                        <div className="client">
+                          <div
+                            className="client-img bg-img"
+                            style={{
+                              backgroundImage: client.client_image
+                                ? `url(${client.client_image})`
+                                : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
+                            }}
+                          ></div>
+                          <div className="client-info">
+                            <h4 onClick={() => handlenav(client)}>
+                              {(client.client_name || "Unknown Client").toUpperCase()}
+                            </h4>
+                            <small>
+                              {client.client_contact
+                                ? client.client_contact.toUpperCase()
+                                : "NO CONTACT AVAILABLE"}
+                            </small>
                           </div>
-                        </td>
-                         <td>{client.date}</td>
-                         <td>{client.today_rate}</td>
-                         <td>
-          <div className="client-info">
-            <h4 style={{ color: "blue", fontWeight: "500" }}>
-              INTER: <span>{client.amount ? parseFloat(client.amount).toFixed(2) : "0.00"}</span>
-            </h4>
-            <h4 style={{ color: "red", fontWeight: "500" }}>
-              LOCAL:{" "}
-              <span>
-                {client.amount && client.today_rate
-                  ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
-                  : "0.000"}
-              </span>
-            </h4>
-          </div>
-        </td>
-                        {/* <td>{client.amount}</td> */}
+                        </div>
+                      </td>
+                      <td>{client.date}</td>
+                      <td>{client.today_rate}</td>
+                      <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER: <span>{client.amount ? parseFloat(client.amount).toFixed(2) : "0.00"}</span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {client.amount && client.today_rate
+                                ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER: <span>{client.amount ? parseFloat(collectedAmount).toFixed(2) : "0.00"}</span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {collectedAmount && client.today_rate
+                                ? (parseFloat(collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER: <span>{client.amount ? parseFloat(client.amount - collectedAmount).toFixed(2) : "0.00"}</span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {collectedAmount && client.today_rate
+                                ? (parseFloat(client.amount - collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td>
 
+                      {selectedDate ? <td>{selectedDate}</td> : <></>}
 
-                        <td>
-          <div className="client-info">
-            <h4 style={{ color: "blue", fontWeight: "500" }}>
-              INTER: <span>{client.amount ? parseFloat(collectedAmount).toFixed(2) : "0.00"}</span>
-            </h4>
-            <h4 style={{ color: "red", fontWeight: "500" }}>
-              LOCAL:{" "}
-              <span>
-                {collectedAmount && client.today_rate
-                  ? (parseFloat(collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
-                  : "0.000"}
-              </span>
-            </h4>
-          </div>
-        </td>
-                        {/* {client.today_rate} */}
-                        {/* <td>{collectedAmount}</td> */}
-                         
-                        <td>
-          <div className="client-info">
-            <h4 style={{ color: "blue", fontWeight: "500" }}>
-              INTER: <span>{client.amount ? parseFloat(client.amount - collectedAmount).toFixed(2) : "0.00"}</span>
-            </h4>
-            <h4 style={{ color: "red", fontWeight: "500" }}>
-              LOCAL:{" "}
-              <span>
-                {collectedAmount && client.today_rate
-                  ? (parseFloat(client.amount - collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
-                  : "0.000"}
-              </span>
-            </h4>
-          </div>
-        </td>
-                       
-                        {selectedDate?<td>{selectedDate}</td>:<></>}
-                       
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center">No Data Found</td>
-                  </tr>
-                )}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan="4" className="text-end">
-                    <strong>Total Collection:</strong>
-                  </td>
-                  <td>
-                    <strong>
-                      {filteredClients.reduce((total, client) => {
-                        return (
-                          total +
-                          (Array.isArray(client.paid_amount_date)
-                            ? client.paid_amount_date
-                              .filter((p) => p.userID === selectedEmployee.user_id)
-                              .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-                            : 0)
-                        );
-                      }, 0)}
-                    </strong>
-                  </td>
-                  <td colSpan="3"></td>
-                </tr>
-              </tfoot>
-            </table>
-          
+                    </tr>
+                  );
+                })
+              ):( <tr><td colSpan="7" className="text-center">No Data Found</td></tr>)}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="4" className="text-end">
+                  <strong>Total Collection:</strong>
+                </td>
+                <td>
+                  <strong>
+                    {filteredClients.reduce((total, client) => {
+                      return (
+                        total +
+                        (Array.isArray(client.paid_amount_date)
+                          ? client.paid_amount_date
+                            .filter((p) => p.userID === selectedEmployee.user_id)
+                            .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+                          : 0)
+                      );
+                    }, 0)}
+                  </strong>
+                </td>
+                <td colSpan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+
 
         </div>
       ) : selectedEmployee?.role === "Distributor" ? (
 
         <div>
-             <div>
-          <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
-            <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
-            <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
-              <FormControl type="date"   value={selectedClientDate} onChange={handleDateChange}  />
-            </InputGroup></div>
-            <div>  <Button className='mB-3 w-auto' variant="success" onClick={sendDistributorCSVToWhatsApp} >
-              Send to WhatsApp
-            </Button></div>
+          <div>
+            <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
+              <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
+              <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
+                <FormControl type="date" value={selectedClientDate} onChange={handleDateChange} />
+              </InputGroup></div>
+              <div>  <Button className='mB-3 w-auto' variant="success" onClick={sendDistributorCSVToWhatsApp} >
+                Send to WhatsApp
+              </Button></div>
+            </div>
+
           </div>
-          
-        </div>
           <table className="table table-striped w-70">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Client Name</th>
-            <th>Date</th>
-            <th>Agent</th>
-            <th>Amount</th>
-            <th>Today Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((eid, index) => {
-              const matchedEmployee = employees.find((ename) => ename.user_id === eid.user_id);
-              return (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</td>
-                  <td>{eid.date}</td>
-                  <td>{matchedEmployee ? matchedEmployee.username : "---"}</td>
-                  <td>
-          <div className="client-info">
-            <h4 style={{ color: "blue", fontWeight: "500" }}>
-              INTER: <span>{eid.amount ? parseFloat(eid.amount).toFixed(2) : "0.00"}</span>
-            </h4>
-            <h4 style={{ color: "red", fontWeight: "500" }}>
-              LOCAL:{" "}
-              <span>
-                {eid.amount && eid.today_rate
-                  ? (parseFloat(eid.amount) / parseFloat(eid.today_rate)).toFixed(3)
-                  : "0.000"}
-              </span>
-            </h4>
-          </div>
-        </td>
-                  <td>{eid.today_rate}</td>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>CLIENT NAME</th>
+                <th>DATE</th>
+                <th>AGENT</th>
+                <th>AMOUNT</th>
+                <th>TODAY RATE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((eid, index) => {
+                  const matchedEmployee = employees.find((ename) => ename.user_id === eid.user_id);
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</td>
+                      <td>{eid.date}</td>
+                      <td>{matchedEmployee ? matchedEmployee.username.toUpperCase() : "---"}</td>
+                      <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER: <span>{eid.amount ? parseFloat(eid.amount).toFixed(2) : "0.00"}</span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {eid.amount && eid.today_rate
+                                ? (parseFloat(eid.amount) / parseFloat(eid.today_rate)).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td>
+                      <td>{eid.today_rate}</td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center" }}>No data available</td>
                 </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan="5" style={{ textAlign: "center" }}>No data available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+              )}
+            </tbody>
+          </table>
 
         </div>
       ) : (

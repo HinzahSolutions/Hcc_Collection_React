@@ -444,7 +444,20 @@ Button:focus {
     border: none !important;  /* Remove the border */
     box-shadow: none;         /* Remove box-shadow if any */
   }
+   
 
+  .nextData{
+    width: fit-content;
+    padding: 10px;
+  }
+
+  .nextData:hover{
+      transition: 0.3s linear;
+      color:white;
+      background-color: #007bff;
+      border-radius: 10px;
+     
+  }
  
 
 

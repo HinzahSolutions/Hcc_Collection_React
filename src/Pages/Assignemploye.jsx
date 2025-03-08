@@ -108,7 +108,7 @@ function Assignemploye() {
           {sortedData.map((row, index) => (
             <tbody key={index}>
               <tr>
-                <td>{row.client_id ? row.client_id.toString().toUpperCase() : "N/A"}</td>
+                <td>{index +1}</td>
                 <td>
                   <div className="client">
                     <div

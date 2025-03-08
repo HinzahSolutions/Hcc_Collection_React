@@ -1,3 +1,112 @@
+// import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { useDispatch } from "react-redux";
+// import { login } from "../Slicers/authSlice";
+// import "../Css/loginpage.css";
+
+// function LoginPage() {
+//   const API_URL = import.meta.env.VITE_API_URL;
+//   console.log("API_URL:", API_URL);
+
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [error, setError] = useState("");
+//   const [loading, setLoading] = useState(false); 
+
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+
+//   useEffect(() => {
+//     localStorage.removeItem("authToken");
+//     localStorage.removeItem("role");
+//     localStorage.removeItem("userName");
+//     localStorage.clear()
+//     sessionStorage.clear();
+//   }, []);
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (!email.trim() || !password.trim()) {
+//       setError("Please provide both email and password.");
+//       return;
+//     }
+
+//     setLoading(true); 
+
+//     try {
+//       const response = await fetch(`${API_URL}/login`, {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ email, password }),
+//       });
+
+//       if (!response.ok) {
+//         throw new Error("Invalid email or password.");
+//       }
+
+//       const data = await response.json();
+//       const { token, user } = data;
+//       const role = user.role;
+
+//       localStorage.setItem("userName", user.username);
+
+//       if (role === "Admin") {
+//         dispatch(login({ token, role }));
+//         localStorage.setItem("authToken", token);
+//         localStorage.setItem("role", role);
+//         navigate("/dashboard");
+//       } else {
+//         setError("Wrong user login.");
+//         alert("Wrong User Login");
+//       }
+//     } catch (error) {
+//       console.error("Login Error:", error.message);
+//       setError("Invalid email or password.");
+//       alert("Internet Error ")
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <>
+//       <div className="mainbody">
+//         <div className="center">
+//           <h1>Login</h1>
+//           {error && (
+//             <div style={{ textAlign: "center", color: "red" }} className="error-message">
+//               {error}
+//             </div>
+//           )}
+//           <form onSubmit={handleSubmit}>
+//             <div className="txt_field">
+//               <input type="text" required value={email} onChange={(e) => setEmail(e.target.value)} />
+//               <span></span>
+//               <label>Email</label>
+//             </div>
+//             <div className="txt_field">
+//               <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+//               <span></span>
+//               <label>Password</label>
+//             </div>
+//             <div>
+//             <button className="inputs" type="submit" disabled={loading}>
+//   {loading ? <span className="spinner"></span> : "Login"}
+// </button>
+//             </div>
+//           </form>
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
+
+// export default LoginPage;
+
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -17,29 +126,25 @@ function LoginPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("role");
-    localStorage.removeItem("userName");
-    localStorage.clear()
+    localStorage.clear();
     sessionStorage.clear();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
 
     if (!email.trim() || !password.trim()) {
       setError("Please provide both email and password.");
       return;
     }
 
-    setLoading(true); 
+    setLoading(true);
 
     try {
       const response = await fetch(`${API_URL}/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -49,58 +154,54 @@ function LoginPage() {
 
       const data = await response.json();
       const { token, user } = data;
-      const role = user.role;
 
-      localStorage.setItem("userName", user.username);
-
-      if (role === "Admin") {
-        dispatch(login({ token, role }));
-        localStorage.setItem("authToken", token);
-        localStorage.setItem("role", role);
-        navigate("/dashboard");
-      } else {
+      if (user.role !== "Admin") {
         setError("Wrong user login.");
         alert("Wrong User Login");
+        return;
       }
+
+      dispatch(login({ token, role: user.role }));
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("userName", user.username);
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login Error:", error.message);
-      setError("Invalid email or password.");
-      alert("Internet Error ")
+      if (error.message === "Failed to fetch") {
+        setError("No internet connection. Please check your network.");
+      } else {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="mainbody">
-        <div className="center">
-          <h1>Login</h1>
-          {error && (
-            <div style={{ textAlign: "center", color: "red" }} className="error-message">
-              {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit}>
-            <div className="txt_field">
-              <input type="text" required value={email} onChange={(e) => setEmail(e.target.value)} />
-              <span></span>
-              <label>Email</label>
-            </div>
-            <div className="txt_field">
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-              <span></span>
-              <label>Password</label>
-            </div>
-            <div>
+    <div className="mainbody">
+      <div className="center">
+        <h1>Login</h1>
+        {error && <div className="error-message" style={{ textAlign: "center", color: "red" }}>{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="txt_field">
+            <input type="text" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <span></span>
+            <label>Email</label>
+          </div>
+          <div className="txt_field">
+            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <span></span>
+            <label>Password</label>
+          </div>
+          <div>
             <button className="inputs" type="submit" disabled={loading}>
-  {loading ? <span className="spinner"></span> : "Login"}
-</button>
-            </div>
-          </form>
-        </div>
+              {loading ? <span className="spinner"></span> : "Login"}
+            </button>
+          </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 }
 

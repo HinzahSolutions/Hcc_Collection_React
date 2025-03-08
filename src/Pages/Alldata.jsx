@@ -113,14 +113,32 @@ function Alldata() {
     return users;
   }, [users, startDate, endDate]);
 
-  const overallAmount = Array.isArray(users)
-    ? users.reduce(
-        (total, value) =>
-          total + (value.amount ? parseInt(value.amount, 10) : 0),0):0;
-
-  const totalPaidAmountInRange = filteredData.reduce((sum, row) => {
-    return sum + getPaidAmountInRange(row, startDate, endDate);
-  }, 0);
+  const overallAmount = useMemo(() => {
+    return Array.isArray(users)
+      ? users.reduce((total, value) => {
+          const clientAmount = parseFloat(value.amount) || 0;
+          const clientRate = parseFloat(value.today_rate) || 1; // Avoid division by zero
+          return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+        }, 0)
+      : 0;
+  }, [users]);
+  
+  console.log(overallAmount);
+  
+  const totalPaidAmountInRange = useMemo(() => {
+    return Array.isArray(filteredData)
+      ? filteredData.reduce((sum, row) => {
+          const totalPaid = getPaidAmountInRange(row, startDate, endDate);
+          const clientRate = parseFloat(row.today_rate) || 1;
+          return sum + (clientRate > 0 ? totalPaid / clientRate : 0);
+        }, 0)
+      : 0;
+  }, [filteredData, startDate, endDate]);
+  
+ 
+  const roundedTotalPaidAmount = useMemo(() => {
+    return Math.round((totalPaidAmountInRange + Number.EPSILON) * 1000) / 1000;
+  }, [totalPaidAmountInRange]);
 
   const handlenav = (client) => {
     dispatch(setSelectedEmployee(client));
@@ -198,13 +216,13 @@ function Alldata() {
 
   const filterDataByDateRange = (data, startDate, endDate) => {
     if (!startDate || !endDate) {
-      return data; // Show all data if no date range is selected
+      return data; 
     }
   
     return data.map((row) => {
       if (Array.isArray(row.paid_amount_date)) {
         const filteredPayments = row.paid_amount_date.filter((payment) => {
-          const paymentDate = new Date(payment.date.split("-").reverse().join("-")); // Convert to Date object
+          const paymentDate = new Date(payment.date.split("-").reverse().join("-")); 
           return paymentDate >= new Date(startDate) && paymentDate <= new Date(endDate);
         });
   
@@ -230,14 +248,14 @@ function Alldata() {
   
   <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
     <span className="fw-semibold text-muted">Overall Amount</span>
-    <span className="fw-bold fs-5 text-success">{overallAmount} KWD</span>
+    <span className="fw-bold fs-5 text-success">{overallAmount.toFixed(3)}</span>
   </div>
   
   <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
     <span className="fw-semibold text-muted">
       Paid Amount ({startDate} to {endDate})
     </span>
-    <span className="fw-bold fs-5 text-primary">{totalPaidAmountInRange} KWD</span>
+    <span className="fw-bold fs-5 text-primary">{ roundedTotalPaidAmount.toFixed(3)}</span>
   </div>
 
   <div className="py-3 px-4 bg-light rounded-2 d-flex justify-content-between align-items-center">
@@ -286,90 +304,17 @@ function Alldata() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Client Name</th>
-                <th>City</th>
-                <th>Agent Name</th>               
-                <th>Status</th>
-                <th>Paid Amount</th>
-                <th>paid date </th>
+                <th>CLIENT NAME</th>
+                <th>CITY</th>
+                <th>AGENT NAME</th>               
+                <th>STATUS</th>
+                <th>RATE</th>
+                <th>PAID AMOUNT</th>
+                <th>PAID DATE</th>
               
               </tr>
             </thead>
-            {/* <tbody>
-
-{filteredDataToShow.length > 0 ? (
-  filteredDataToShow.flatMap((row, index) => 
-    row.paid_amount_date && row.paid_amount_date.length > 0
-      ? row.paid_amount_date.map((payment, i) => {
-          const agent = employees.find(e => e.user_id === payment.userID);
-          return (
-            <tr key={`${row.client_id}-${index}-${i}`}>
-              <td>{index + 1}</td>
-              <td>{row.client_name.toUpperCase()}</td>
-              <td>{row.client_city.toUpperCase()}</td>
-              <td>{agent ? agent.username.toUpperCase()  : "Unknown"}</td>
-              <td>
-                <p
-                  className={`badge ${
-                    row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
-                  }`}
-                >
-                  {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
-                </p>
-              </td>
-
-
-          
-
-
-              <td>
-          <div className="client-info">
-            <h4 style={{ color: "blue", fontWeight: "500" }}>
-              INTER: <span>{payment.amount ? parseFloat(payment.amount).toFixed(2) : "0.00"}</span>
-            </h4>
-            <h4 style={{ color: "red", fontWeight: "500" }}>
-              LOCAL:{" "}
-              <span>
-                {payment.amount && row.today_rate
-                  ? (parseFloat(payment.amount) / parseFloat(row.today_rate)).toFixed(3)
-                  : "0.000"}
-              </span>
-            </h4>
-          </div>
-        </td>
-              <td>{payment.date}</td>
-            </tr>
-          );
-        })
-      : [
-          <tr key={`${row.client_id}-${index}`}>
-            <td>{index + 1}</td>
-            <td>{row.client_name.toUpperCase()}</td>
-            <td>{row.client_city.toUpperCase()}</td>
-            <td>—</td> 
-            <td>
-              <p
-                className={`badge ${
-                  row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
-                }`}
-              >
-                {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
-              </p>
-            </td>
-            <td>No Payments</td>
-            <td>No Payments</td>
-          </tr>
-        ]
-  )
-) : (
-  <tr>
-    <td colSpan="7" className="text-center">
-      No data found for the selected date range
-    </td>
-  </tr>
-)}
-
-            </tbody> */}
+         
             <tbody>
   {filteredDataToShow.length > 0 ? (
     filteredDataToShow
@@ -415,6 +360,7 @@ function Alldata() {
                 {payment.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
               </p>
             </td>
+            <td>{payment.today_rate}</td>
             <td>
               <div className="client-info">
                 <h4 style={{ color: "blue", fontWeight: "500" }}>
@@ -441,7 +387,7 @@ function Alldata() {
       })
   ) : (
     <tr>
-      <td colSpan="7" className="text-center">
+      <td colSpan="8" className="text-center">
         No data found for the selected date range
       </td>
     </tr>
@@ -452,7 +398,7 @@ function Alldata() {
           <div className="d-flex justify-content-end p-3">
             <p>
               <strong>Total Paid Amount for the selected range: </strong>
-              {totalPaidAmountInRange}
+              {totalPaidAmountInRange.toFixed(3)}
             </p>
           </div>
         </div>

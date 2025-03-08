@@ -23,6 +23,7 @@ function Employee() {
   const [dashboardnav, setDashboardnav] = useState("All");
   const [role, setRole] = useState("");
   const [photo, setPhoto] = useState(null);
+ const [distributormodal,setDistributormodal]  = useState(false)
  
 
   const [email, setEmail] = useState("");
@@ -144,13 +145,81 @@ function Employee() {
   
       const data = await signupResponse.json();
       alert("New Employee successfully created");
+      setUsername("");
+      setPhone_number("");
+      setCity("");
+      setPassword("");
+      setEmail("");
+      setConfirmpassword("")
       setShow(false);
       fetchEmployees();
+
   
     } catch (error) {
       console.error("Error:", error);
     }
   };
+
+
+  const handleDistributorSubmit = async (event) => {
+    event.preventDefault(); 
+  
+    const Authorization = localStorage.getItem("authToken");
+  
+    if (!Authorization) {
+      console.error("Authorization token is missing");
+      return;
+    }
+  
+    try {
+      // First API call (if needed, similar to employee list fetch)
+      const response = await fetch(`${API_URL}/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: Authorization,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch distributor list");
+      }
+  
+      // Creating FormData for distributor
+      const distributorData = new FormData();
+      distributorData.append("username", username);
+      distributorData.append("phone_number", phone_number);
+      distributorData.append("role", "Distributor"); // Default role
+  
+      // Sending request to the Distributor API
+      const signupResponse = await fetch(
+      `${API_URL}/distrbutorCreated`,
+        {
+          method: "POST",
+          body: distributorData,
+          headers: {
+            Authorization: Authorization,
+          },
+        }
+      );
+  
+      if (!signupResponse.ok) {
+        throw new Error("Something went wrong while adding the distributor!");
+      }
+  
+      const data = await signupResponse.json();
+      alert("New Distributor successfully created!");
+       setDebouncedSearchQuery(false)
+      setUsername("");
+      setPhone_number("");
+      fetchEmployees();
+      setDistributormodal(false) // Refresh the list
+  
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
   
 
   const Dashboardclient = () => setDashboardnav("Admin");
@@ -259,6 +328,12 @@ function Employee() {
       sessionStorage.removeItem("selectedEmployee");
     }
   };
+
+
+
+
+  
+  
   
 
   const showConfirm = (clientId, clientName) => {
@@ -448,11 +523,15 @@ function Employee() {
        <div className="">
          <div className="record-header">
            <div className="add">
-             <Button className="w-auto" onClick={handleShow}>
+           <Button className="w-auto"  onClick={handleShow} >
               Add New Employee
             </Button>
+             <Button className="w-auto text-white" variant="info" onClick={() => setDistributormodal(!distributormodal)} >
+              Add New Distributor
+            </Button>
+            
 
-            <Modal show={show} onHide={handleClose}    dialogClassName="custom-modal1"  >
+            <Modal show={show} onHide={() =>setShow(!show)}    dialogClassName="custom-modal1"  >
             <div className="dio" style={{ width: '70vw',}}>
                <Modal.Header closeButton>
                  <Modal.Title>Add New Employee</Modal.Title>
@@ -503,7 +582,6 @@ function Employee() {
                          Collection Manager
                        </option>
                        <option value="Collection Agent">Collection Agent</option>
-                       <option value="Distributor">Distributor</option>
                      </select>
                    </div>
                    </div>  
@@ -544,6 +622,91 @@ function Employee() {
 
                   <Modal.Footer  className=" w-100 justify-content-center">
                     <Button variant="secondary" onClick={handleClose}>
+                       Close
+                     </Button>
+                     <Button variant="primary" type="submit">
+                       Save
+                     </Button>
+                   </Modal.Footer>
+                 </form>
+               </Modal.Body>
+               </div>
+             </Modal>
+
+             {/* <Modal show={show} onHide={handleClose} dialogClassName="custom-modal1">
+  <div className="dio" style={{ width: '70vw' }}>
+    <Modal.Header closeButton>
+      <Modal.Title>Add New Distributor</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <form onSubmit={handleDistributorSubmit}>
+        <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+          <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <label>Distributor Name</label>
+          </div>
+
+          <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="text"
+              value={phone_number}
+              onChange={(e) => setPhone_number(e.target.value)}
+              required
+            />
+            <label>Distributor Contact Number</label>
+          </div>
+        </div>
+
+        <Modal.Footer className="w-100 justify-content-center">
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" type="submit">
+            Save
+          </Button>
+        </Modal.Footer>
+      </form>
+    </Modal.Body>
+  </div>
+</Modal> */}
+
+
+
+             <Modal show={distributormodal} onHide={() => setDistributormodal(!distributormodal)}    dialogClassName="custom-modal1"  >
+            <div className="dio" style={{ width: '70vw',}}>
+               <Modal.Header closeButton>
+                 <Modal.Title>Add New Distributor</Modal.Title>
+               </Modal.Header>
+              <Modal.Body>
+                 <form onSubmit={handleDistributorSubmit}>
+                 <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                       type="text"
+                       value={username}
+                       onChange={(e) => setUsername(e.target.value)}
+                       required
+                     />
+                     <label>Employee Name</label>
+                   </div>
+
+                  <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                      type="text"
+                       value={phone_number}
+                       onChange={(e) => setPhone_number(e.target.value)}
+                       required
+                     />
+                    <label>Employee Contact Number</label>
+                   </div>
+                   </div>
+                  <Modal.Footer  className=" w-100 justify-content-center">
+                    <Button variant="secondary" onClick={() => setDistributormodal(!distributormodal)}>
                        Close
                      </Button>
                      <Button variant="primary" type="submit">

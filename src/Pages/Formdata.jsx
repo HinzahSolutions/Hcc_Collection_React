@@ -32,8 +32,8 @@ function Formdata() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setClientData({ ...clientData, [name]: value });
-  };
+    setClientData({ ...clientData, [name]: value.toUpperCase() });
+  };  
 
    const handleSubmit = async (e) => {
     e.preventDefault();

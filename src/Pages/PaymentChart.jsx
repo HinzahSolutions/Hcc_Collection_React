@@ -109,7 +109,7 @@ const PaymentChart = ({ selectedMonth, selectedYear }) => {
     },
     scales: {
       x: { title: { display: true, text: "Days/Months" } },
-      y: { title: { display: true, text: "Amount (in KWD)" }, beginAtZero: true },
+      y: { title: { display: true, text: "Amount" }, beginAtZero: true },
     },
   };
 
