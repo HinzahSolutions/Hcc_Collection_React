@@ -351,12 +351,19 @@ function Alldata() {
             <td  onClick={() => handlenav(agent)}>{agent ? agent.username.toUpperCase() : "Unknown"}</td>
             <td>
               <p
+<<<<<<< HEAD
                 className={`badge ${payment.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"}`}
+=======
+                className={`badge ${
+                  payment.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
+                }`}
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
               >
                 {payment.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
               </p>
             </td>
             <td>{payment.today_rate}</td>
+<<<<<<< HEAD
            
             <td>
   <div className="client-info">
@@ -378,6 +385,28 @@ function Alldata() {
     </h4>
   </div>
 </td>
+=======
+            <td>
+              <div className="client-info">
+                <h4 style={{ color: "blue", fontWeight: "500" }}>
+                  INTER:{" "}
+                  <span>
+                    {payment.amount
+                      ? parseFloat(payment.amount).toFixed(2)
+                      : "0.00"}
+                  </span>
+                </h4>
+                <h4 style={{ color: "red", fontWeight: "500" }}>
+                  LOCAL:{" "}
+                  <span>
+                    {payment.amount && payment.today_rate
+                      ? (parseFloat(payment.amount) / parseFloat(payment.today_rate)).toFixed(3)
+                      : "0.000"}
+                  </span>
+                </h4>
+              </div>
+            </td>
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
             <td>{payment.date || "No Payment"}</td>
           </tr>
         );
@@ -390,6 +419,10 @@ function Alldata() {
     </tr>
   )}
 </tbody>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           </table>
           <div className="d-flex justify-content-end p-3">
             <p>

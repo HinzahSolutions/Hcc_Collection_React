@@ -23,8 +23,13 @@ function Employee() {
   const [dashboardnav, setDashboardnav] = useState("All");
   const [role, setRole] = useState("");
   const [photo, setPhoto] = useState(null);
+<<<<<<< HEAD
   const [distributormodal, setDistributormodal] = useState(false)
 
+=======
+ const [distributormodal,setDistributormodal]  = useState(false)
+ 
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,6 +40,7 @@ function Employee() {
   const [users, setUsers] = useState([]);
 
   const employees = useSelector((state) => state.employees.employees);
+<<<<<<< HEAD
   const [loading, setLoading] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [employeeIdToDelete, setemployeeIdToDelete] = useState(null);
@@ -55,6 +61,28 @@ function Employee() {
           headers: {
             "Content-Type": "application/json",
             Authorization: Authorization,
+=======
+  const [loading, setLoading] = useState(false); 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [employeeIdToDelete, setemployeeIdToDelete] = useState(null);
+  const [showToast, setShowToast] = useState(false); 
+  const [toastMessage, setToastMessage] = useState('');
+  const [employeeNameToDelete, setemployeeNameToDelete] = useState('');
+
+  
+  const fetchEmployees = async () => {
+    setLoading(true); 
+    const Authorization = localStorage.getItem("authToken");
+
+    
+    if (Authorization) {
+      try {
+        const response = await fetch(`${API_URL}/list`, {
+          method: "GET", 
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: Authorization, 
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           },
 
         });
@@ -71,6 +99,7 @@ function Employee() {
         console.error("Fetch error:", error);
 
       } finally {
+<<<<<<< HEAD
         setLoading(false);
       }
     } else {
@@ -80,11 +109,26 @@ function Employee() {
   };
 
 
+=======
+        setLoading(false); 
+      }
+    } else {
+      console.error("No authorization token found in localStorage");
+      setLoading(false); 
+    }
+  };
+
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   useEffect(() => {
     fetchEmployees();
   }, [dispatch]);
 
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   useEffect(() => {
     if (employees.length > 0) {
       dispatch(setEmployees(employees));
@@ -101,8 +145,13 @@ function Employee() {
 
 
   const handleSubmit = async (event) => {
+<<<<<<< HEAD
     event.preventDefault();
 
+=======
+    event.preventDefault(); 
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     const Authorization = localStorage.getItem("authToken");
 
     if (!Authorization) {
@@ -111,7 +160,11 @@ function Employee() {
     }
 
     try {
+<<<<<<< HEAD
 
+=======
+     
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       const response = await fetch(`${API_URL}/list`, {
         method: "GET",
         headers: {
@@ -123,8 +176,13 @@ function Employee() {
       if (!response.ok) {
         throw new Error("Failed to fetch employee list");
       }
+<<<<<<< HEAD
 
 
+=======
+  
+      
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       const employeeData = new FormData();
       employeeData.append("username", username);
       employeeData.append("email", email);
@@ -154,7 +212,11 @@ function Employee() {
       setShow(false);
       fetchEmployees();
 
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     } catch (error) {
       console.error("Error:", error);
     }
@@ -162,15 +224,26 @@ function Employee() {
 
 
   const handleDistributorSubmit = async (event) => {
+<<<<<<< HEAD
     event.preventDefault();
 
     const Authorization = localStorage.getItem("authToken");
 
+=======
+    event.preventDefault(); 
+  
+    const Authorization = localStorage.getItem("authToken");
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     if (!Authorization) {
       console.error("Authorization token is missing");
       return;
     }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     try {
       // First API call (if needed, similar to employee list fetch)
       const response = await fetch(`${API_URL}/list`, {
@@ -180,20 +253,35 @@ function Employee() {
           Authorization: Authorization,
         },
       });
+<<<<<<< HEAD
 
       if (!response.ok) {
         throw new Error("Failed to fetch distributor list");
       }
 
+=======
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch distributor list");
+      }
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       // Creating FormData for distributor
       const distributorData = new FormData();
       distributorData.append("username", username);
       distributorData.append("phone_number", phone_number);
       distributorData.append("role", "Distributor"); // Default role
+<<<<<<< HEAD
 
       // Sending request to the Distributor API
       const signupResponse = await fetch(
         `${API_URL}/distrbutorCreated`,
+=======
+  
+      // Sending request to the Distributor API
+      const signupResponse = await fetch(
+      `${API_URL}/distrbutorCreated`,
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
         {
           method: "POST",
           body: distributorData,
@@ -202,6 +290,7 @@ function Employee() {
           },
         }
       );
+<<<<<<< HEAD
 
       if (!signupResponse.ok) {
         throw new Error("Something went wrong while adding the distributor!");
@@ -210,17 +299,36 @@ function Employee() {
       const data = await signupResponse.json();
       alert("New Distributor successfully created!");
       setDebouncedSearchQuery(false)
+=======
+  
+      if (!signupResponse.ok) {
+        throw new Error("Something went wrong while adding the distributor!");
+      }
+  
+      const data = await signupResponse.json();
+      alert("New Distributor successfully created!");
+       setDebouncedSearchQuery(false)
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       setUsername("");
       setPhone_number("");
       fetchEmployees();
       setDistributormodal(false) // Refresh the list
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     } catch (error) {
       console.error("Error:", error);
     }
   };
+<<<<<<< HEAD
 
 
+=======
+  
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
   const Dashboardclient = () => setDashboardnav("Admin");
   const Dashboardpaid = () => setDashboardnav("Collection Manager");
@@ -332,9 +440,15 @@ function Employee() {
 
 
 
+<<<<<<< HEAD
 
 
 
+=======
+  
+  
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
   const showConfirm = (clientId, clientName) => {
     setemployeeIdToDelete(clientId);
@@ -355,6 +469,7 @@ function Employee() {
   }, []);
 
   const sortedData = useMemo(() => {
+<<<<<<< HEAD
     return [...filteredData].sort((a, b) => {
 
       if (b.client_id !== a.client_id) {
@@ -365,13 +480,31 @@ function Employee() {
       return a.sent ? 1 : -1;
     });
   }, [filteredData]);
+=======
+      return [...filteredData].sort((a, b) => {
+        
+        if (b.client_id !== a.client_id) {
+          return b.client_id - a.client_id;
+        }
+  
+      
+        return a.sent ? 1 : -1;
+      });
+    }, [filteredData]);
+
+    
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
 
 
 
+<<<<<<< HEAD
 
 
   const [todayRateModal, setTodayRateModal] = useState(false);
+=======
+    const [todayRateModal, setTodayRateModal] = useState(false);
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   const [showData, setShowData] = useState(null);
   const [amount, setAmount] = useState("");
 
@@ -386,17 +519,29 @@ function Employee() {
       alert("Please enter an amount");
       return;
     }
+<<<<<<< HEAD
 
     const currentDate = format(new Date(), "dd-MM-yyyy");
 
+=======
+  
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     const data = {
       user_id: showData.user_id,
       today_rate_date: currentDate,
       Distributor_today_rate: amount,
     };
+<<<<<<< HEAD
 
     console.log("Sending data:", data);
 
+=======
+  
+    console.log("Sending data:", data);
+  
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     try {
       const response = await fetch(
         `${API_URL}/updatedistributoramount/${showData.user_id}`,
@@ -408,11 +553,19 @@ function Employee() {
           body: JSON.stringify(data),
         }
       );
+<<<<<<< HEAD
 
       if (response.ok) {
         alert("Rate updated successfully!");
         setTodayRateModal(false);
         setAmount("");
+=======
+  
+      if (response.ok) {
+        alert("Rate updated successfully!");
+        setTodayRateModal(false);
+        setAmount(""); // Reset input field
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       } else {
         const errorText = await response.text();
         console.error("Failed to update rate:", errorText);
@@ -423,9 +576,15 @@ function Employee() {
       alert("An error occurred.");
     }
   };
+<<<<<<< HEAD
 
 
 
+=======
+  
+
+   
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
   return (
     <div style={{ marginTop: "50px" }}>
@@ -439,7 +598,324 @@ function Employee() {
             <small>Employee / Dash</small>
           </div>
 
+<<<<<<< HEAD
           <div className="analytics">
+=======
+      <div className="analytics">
+        <div
+          className={dashboardnav === "All" ? "cardAction" : "card"}
+           onClick={DashboardAll}
+         >
+           <div className="card-head">
+             <h2>{allEmployeeCount}</h2>
+             <span className="las la-user-friends">
+              <FaUserTie />
+             </span>
+           </div>
+           <div className="card-progress">
+             <small>ALL</small>
+           </div>
+         </div>
+
+        <div
+           className={dashboardnav === "Admin" ? "cardAction" : "card"}
+           onClick={Dashboardclient}
+         >
+           <div className="card-head">
+            <h2>{adminCount}</h2>
+            <span className="las la-user-friends">
+               <FaUserTie />
+             </span>
+           </div>
+          <div className="card-progress">
+            <small>ADMIN</small>
+           </div>
+        </div>
+
+         <div
+           className={
+             dashboardnav === "Collection Manager" ? "cardAction" : "card"
+           }
+          onClick={Dashboardpaid}
+        >
+           <div className="card-head">
+            <h2>{collectionManagerCount}</h2>
+             <span className="las la-user-friends">
+               <FaUserTie />
+             </span>
+           </div>
+          <div className="card-progress">
+             <small>COLLECTION MANAGER</small>
+           </div>
+         </div>
+
+       <div
+           className={
+             dashboardnav === "Collection Agent" ? "cardAction" : "card"
+          }
+           onClick={Dashboardunpaid}
+         >
+           <div className="card-head">
+             <h2>{collectionAgentCount}</h2>
+            <span className="las la-user-friends">
+              <FaUserTie />
+            </span>
+           </div>
+           <div className="card-progress">
+             <small>COLLECTION AGENT</small>
+           </div>
+         </div>
+
+        <div
+         className={dashboardnav === "Distributor" ? "cardAction" : "card"}
+           onClick={Dashboardother}
+         >
+           <div className="card-head">
+            <h2>{Distributor}</h2>
+             <span className="las la-user-friends">
+               <FaUserTie />
+             </span>
+           </div>
+           <div className="card-progress">
+             <small>DISTRIBUTOR</small>
+           </div>
+         </div>
+       </div>
+
+       <div className="">
+         <div className="record-header">
+           <div className="add">
+           <Button className="w-auto"  onClick={handleShow} >
+              Add New Employee
+            </Button>
+             <Button className="w-auto text-white" variant="info" onClick={() => setDistributormodal(!distributormodal)} >
+              Add New Distributor
+            </Button>
+            
+
+            <Modal show={show} onHide={() =>setShow(!show)}    dialogClassName="custom-modal1"  >
+            <div className="dio" style={{ width: '70vw',}}>
+               <Modal.Header closeButton>
+                 <Modal.Title>Add New Employee</Modal.Title>
+               </Modal.Header>
+              <Modal.Body>
+                 <form onSubmit={handleSubmit}>
+                 <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                       type="text"
+                       value={username}
+                       onChange={(e) => setUsername(e.target.value)}
+                       required
+                     />
+                     <label>Employee Name</label>
+                   </div>
+
+                  <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                      type="text"
+                       value={phone_number}
+                       onChange={(e) => setPhone_number(e.target.value)}
+                       required
+                     />
+                    <label>Employee Contact Number</label>
+                   </div>
+                   </div>
+                   <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                       type="text"
+                       value={city}
+                       onChange={(e) => setCity(e.target.value)}
+                       required
+                     />
+                     <label>City</label>
+                   </div>
+
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <select
+                       value={role}
+                       onChange={(e) => setRole(e.target.value)}
+                       style={{ border: "none" }}
+                     >
+                       <option value="">Employee Role</option>
+                       <option value="Admin">Admin</option>
+                       <option value="Collection Manager">
+                         Collection Manager
+                       </option>
+                       <option value="Collection Agent">Collection Agent</option>
+                     </select>
+                   </div>
+                   </div>  
+
+                 
+                   <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                       type="text"
+                       value={email}
+                       onChange={(e) => setEmail(e.target.value)}
+                       required
+                     />
+                     <label>Enter The Email</label>
+                   </div>
+
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                       type="password"
+                      value={password}
+                       onChange={(e) => setPassword(e.target.value)}
+                       required
+                     />
+                     <label>Enter the Password</label>
+                   </div>
+                   </div>
+                   <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                  <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                    <input
+                       type="password"
+                       value={Confirmpassword}
+                       onChange={(e) => setConfirmpassword(e.target.value)}
+                       required
+                     />
+                     <label>Confirm the Password</label>
+                  </div>
+                  </div>
+
+                  <Modal.Footer  className=" w-100 justify-content-center">
+                    <Button variant="secondary" onClick={handleClose}>
+                       Close
+                     </Button>
+                     <Button variant="primary" type="submit">
+                       Save
+                     </Button>
+                   </Modal.Footer>
+                 </form>
+               </Modal.Body>
+               </div>
+             </Modal>
+
+             {/* <Modal show={show} onHide={handleClose} dialogClassName="custom-modal1">
+  <div className="dio" style={{ width: '70vw' }}>
+    <Modal.Header closeButton>
+      <Modal.Title>Add New Distributor</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <form onSubmit={handleDistributorSubmit}>
+        <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+          <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <label>Distributor Name</label>
+          </div>
+
+          <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+            <input
+              type="text"
+              value={phone_number}
+              onChange={(e) => setPhone_number(e.target.value)}
+              required
+            />
+            <label>Distributor Contact Number</label>
+          </div>
+        </div>
+
+        <Modal.Footer className="w-100 justify-content-center">
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" type="submit">
+            Save
+          </Button>
+        </Modal.Footer>
+      </form>
+    </Modal.Body>
+  </div>
+</Modal> */}
+
+
+
+             <Modal show={distributormodal} onHide={() => setDistributormodal(!distributormodal)}    dialogClassName="custom-modal1"  >
+            <div className="dio" style={{ width: '70vw',}}>
+               <Modal.Header closeButton>
+                 <Modal.Title>Add New Distributor</Modal.Title>
+               </Modal.Header>
+              <Modal.Body>
+                 <form onSubmit={handleDistributorSubmit}>
+                 <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
+                   <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                       type="text"
+                       value={username}
+                       onChange={(e) => setUsername(e.target.value)}
+                       required
+                     />
+                     <label>Employee Name</label>
+                   </div>
+
+                  <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
+                     <input
+                      type="text"
+                       value={phone_number}
+                       onChange={(e) => setPhone_number(e.target.value)}
+                       required
+                     />
+                    <label>Employee Contact Number</label>
+                   </div>
+                   </div>
+                  <Modal.Footer  className=" w-100 justify-content-center">
+                    <Button variant="secondary" onClick={() => setDistributormodal(!distributormodal)}>
+                       Close
+                     </Button>
+                     <Button variant="primary" type="submit">
+                       Save
+                     </Button>
+                   </Modal.Footer>
+                 </form>
+               </Modal.Body>
+               </div>
+             </Modal>
+           </div>
+
+          <div className="browse">
+             <div style={{ paddingTop: "15px" }}>
+               <InputGroup className="mb-3">
+                <FormControl
+                   placeholder="Name OR phoneNumber"
+                   aria-label="Search"
+                   className="record-search"
+                   value={searchQuery}
+                   onChange={handleSearchChange}
+                 />
+               </InputGroup>
+            </div>
+           </div>
+         </div>
+
+         <div>
+         <div className="table-responsive-md table-responsive-sm">
+         <table className="table table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>EMPLOYEE NAME</th>
+      <th>ROLE</th>
+      <th>CITY</th>
+      <th>EMAIL</th>
+      <th>ACTIONS</th>
+    </tr>
+  </thead>
+  <tbody>
+    {sortedData.map((row, index) => (
+      <tr key={index}>
+        <td>{index+1}</td>
+        <td>
+          <div className="client">
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
             <div
               className={dashboardnav === "All" ? "cardAction" : "card"}
               onClick={DashboardAll}
@@ -519,6 +995,7 @@ function Employee() {
               </div>
             </div>
           </div>
+<<<<<<< HEAD
 
           <div className="">
             <div className="record-header">
@@ -784,9 +1261,64 @@ function Employee() {
 
               </div>
             </div>
+=======
+        </td>
+        <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
+        <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
+        <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
+        <td>
+          <div className="actions d-flex justify-content-start align-items-center pt-2">
+            <span
+              className=""
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#42b883",
+                padding: "5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              onClick={() => handlenav(row)}
+            >
+              VIEW
+            </span>
+            <span
+              className=""
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#dc2f2f",
+                padding: "5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              onClick={() => showConfirm(row.user_id, row.username)}
+            >
+              DELETE
+            </span>
+            {
+              row.role === "Distributor"?( <span
+              className=""
+              style={{
+                cursor: "pointer",
+                fontSize: "11px",
+                backgroundColor: "#6957fc",
+                padding: "5px 10px",
+                color: "white",
+                borderRadius: "10px",
+              }}
+              // onClick={() => showConfirm(row.user_id, row.username)}
+                  onClick={() => openTodayRateModal(row)}
+            >
+              Today Rate
+            </span>):(<></>)
+            }
+           
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           </div>
 
 
+<<<<<<< HEAD
           <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
             <Modal.Header closeButton>
               <Modal.Title>Confirm Deletion</Modal.Title>
@@ -857,6 +1389,78 @@ function Employee() {
             <Toast.Body>{toastMessage}</Toast.Body>
           </Toast>
         </div>
+=======
+        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+             <Modal.Header closeButton>
+                <Modal.Title>Confirm Deletion</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+               Are you sure you want to delete the client "<span className="fw-bold">{employeeNameToDelete}</span>"?              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+                 Cancel
+                </Button>
+                <Button
+                 variant="danger"
+                  onClick={() => {
+                   if (employeeIdToDelete) {
+                      handleDelete(employeeIdToDelete);
+                    }
+                  }}
+                >
+                  Delete
+                </Button>
+              </Modal.Footer>
+            </Modal>
+
+            <Modal show={todayRateModal} onHide={() => setTodayRateModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Today's Rate</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="todayRateAmount">
+              <Form.Label>Enter Amount</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setTodayRateModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleSubmitupdate}>
+            Update
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+           
+     
+         
+      
+       <Toast
+         style={{
+           position: 'fixed',
+          top: 20,
+          right: 20,
+           zIndex: 9999,
+           backgroundColor:" #1246ac",
+           color:"white",
+         }}
+         show={showToast}         onClose={() => setShowToast(false)}
+         delay={3000}
+        autohide
+       >
+         <Toast.Body>{toastMessage}</Toast.Body>
+       </Toast>
+     </div>
+>>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       )}
 
 
