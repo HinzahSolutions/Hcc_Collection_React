@@ -4,13 +4,8 @@ import { InputGroup, FormControl } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { parse, subDays, format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import {
-  setUsers,
-  setSelectedClient,
-  setSearchQuery,
-} from "../Slicers/clientSlice";
+import {setUsers,setSelectedClient,setSearchQuery,} from "../Slicers/clientSlice";
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
-import * as XLSX from "xlsx";
 
 function Alldata() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -117,25 +112,42 @@ function Alldata() {
     return users;
   }, [users, startDate, endDate]);
 
-  const overallAmount = Array.isArray(users)
-    ? users.reduce(
-        (total, value) =>
-          total + (value.amount ? parseInt(value.amount, 10) : 0),
-        0
-      )
-    : 0;
-
-  const totalPaidAmountInRange = filteredData.reduce((sum, row) => {
-    return sum + getPaidAmountInRange(row, startDate, endDate);
-  }, 0);
+  const overallAmount = useMemo(() => {
+    return Array.isArray(users)
+      ? users.reduce((total, value) => {
+          const clientAmount = parseFloat(value.amount) || 0;
+          const clientRate = parseFloat(value.today_rate) || 1; // Avoid division by zero
+          return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+        }, 0)
+      : 0;
+  }, [users]);
+  
+  console.log(overallAmount);
+  
+  const totalPaidAmountInRange = useMemo(() => {
+    return Array.isArray(filteredData)
+      ? filteredData.reduce((sum, row) => {
+          const totalPaid = getPaidAmountInRange(row, startDate, endDate);
+          const clientRate = parseFloat(row.today_rate) || 1;
+          return sum + (clientRate > 0 ? totalPaid / clientRate : 0);
+        }, 0)
+      : 0;
+  }, [filteredData, startDate, endDate]);
+  
+ 
+  const roundedTotalPaidAmount = useMemo(() => {
+    return Math.round((totalPaidAmountInRange + Number.EPSILON) * 1000) / 1000;
+  }, [totalPaidAmountInRange]);
 
   const handlenav = (client) => {
     dispatch(setSelectedEmployee(client));
+    console.log("employee detail",client)
     navigate("/employeeinfo");
   };
 
   const handlenav1 = (client) => {
     dispatch(setSelectedClient(client));
+    console.log("client detail",client)
     navigate("/clientinfo");
   };
 
@@ -189,7 +201,6 @@ function Alldata() {
           const paymentDateParsed = parse(payment.date, "dd-MM-yyyy", new Date());
           const startParsed = parse(startDate, "yyyy-MM-dd", new Date());
           const endParsed = parse(endDate, "yyyy-MM-dd", new Date());
-  
           return paymentDateParsed >= startParsed && paymentDateParsed <= endParsed;
         });
       }
@@ -203,13 +214,13 @@ function Alldata() {
 
   const filterDataByDateRange = (data, startDate, endDate) => {
     if (!startDate || !endDate) {
-      return data; // Show all data if no date range is selected
+      return data; 
     }
   
     return data.map((row) => {
       if (Array.isArray(row.paid_amount_date)) {
         const filteredPayments = row.paid_amount_date.filter((payment) => {
-          const paymentDate = new Date(payment.date.split("-").reverse().join("-")); // Convert to Date object
+          const paymentDate = new Date(payment.date.split("-").reverse().join("-")); 
           return paymentDate >= new Date(startDate) && paymentDate <= new Date(endDate);
         });
   
@@ -235,14 +246,14 @@ function Alldata() {
   
   <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
     <span className="fw-semibold text-muted">Overall Amount</span>
-    <span className="fw-bold fs-5 text-success">{overallAmount} KWD</span>
+    <span className="fw-bold fs-5 text-success">{overallAmount.toFixed(3)}</span>
   </div>
   
   <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
     <span className="fw-semibold text-muted">
       Paid Amount ({startDate} to {endDate})
     </span>
-    <span className="fw-bold fs-5 text-primary">{totalPaidAmountInRange} KWD</span>
+    <span className="fw-bold fs-5 text-primary">{ roundedTotalPaidAmount.toFixed(3)}</span>
   </div>
 
   <div className="py-3 px-4 bg-light rounded-2 d-flex justify-content-between align-items-center">
@@ -255,8 +266,8 @@ function Alldata() {
     
      
     </div>
-    <div className="records table-responsive">
-      <div className="d-flex justify-content-between">
+    <div className="">
+      <div className="record-header d-flex justify-content-between">
         <div className="add  pt-1">
         <div  className="m-0 p-0">  <button onClick={ exportToCSV} className="btn btn-primary w-auto">
           Export to Excel
@@ -291,210 +302,105 @@ function Alldata() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Client Name</th>
-                <th>City</th>
-                <th>Agent Name</th>               
-                <th>Status</th>
-                <th>Paid Amount</th>
-                <th>paid date </th>
+                <th>CLIENT NAME</th>
+                <th>CITY</th>
+                <th>AGENT NAME</th>               
+                <th>STATUS</th>
+                <th>RATE</th>
+                <th>PAID AMOUNT</th>
+                <th>PAID DATE</th>
               
               </tr>
             </thead>
+         
             <tbody>
-              {/* {filteredData.length > 0 ? (
-                filteredData.map((row, index) => {
-                  const paidAmount = Array.isArray(row.paid_amount_date)
-                    ? row.paid_amount_date.reduce(
-                        (sum, payment) => sum + parseFloat(payment.amount),
-                        0
-                      )
-                    : 0;
-                  const balanceAmount = row.amount - paidAmount;
-                  const paidAmountInRange = getPaidAmountInRange(
-                    row,
-                    startDate,
-                    endDate
-                  );
-                  return (
-                    <tr key={row.client_id}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div className="client d-flex align-items-center">
-                          <div
-                            className="client-img bg-img"
-                            style={{
-                              backgroundImage:
-                                "url(https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg)",
-                            }}
-                          ></div>
-                          <div className="client-info ms-2">
-                            <h4 onClick={() => handlenav1(row)}>
-                              {row.client_name.toUpperCase()}
-                            </h4>
-                            <small>{row.phone_number}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{row.client_city.toUpperCase()}</td>
-                    
-                      <td>{row.amount}</td>
-                      <td>
-            <p
-              className={`badge ${
-                row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"
-              }`}
-            >
-              {row.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
-            </p>
-          </td>
-                      <td>{paidAmountInRange}</td>
-                      <td>{paidAmount}</td>
-                      <td>{balanceAmount}</td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="9" className="text-center">
-                    No data found for the selected date range
-                  </td>
-                </tr>
-              )} */}
-
-              {/* {filteredDataToShow.length > 0 ? (
-  filteredDataToShow.map((row, index) => {
-    const paidAmount = Array.isArray(row.paid_amount_date)
-      ? row.paid_amount_date.reduce(
-          (sum, payment) => sum + parseFloat(payment.amount),
-          0
-        )
-      : 0;
-
-    const balanceAmount = row.amount - paidAmount;
-
-    return (
-      <tr key={`${row.client_id}-${index}`}>
-        <td>{index + 1}</td>
-        <td>{row.client_name.toUpperCase()}</td>
-        <td>{row.client_city.toUpperCase()}</td>
-        <td>
-          {row.paid_amount_date && row.paid_amount_date.length > 0
-            ? row.paid_amount_date.map((payment, i) => (
-            employees.map((eid) =>(
-              eid.user_id === payment.userID?(
-              <div key={i}>
-                  {eid.username}
-                </div>):("")
-            ))
-              ))
-            : "No Payments"}
-        </td>
-        
-        <td>
-          <p
-            className={`badge ${
-              row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
-            }`}
-          >
-            {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
-          </p>
-        </td>
-        <td>
-          {row.paid_amount_date && row.paid_amount_date.length > 0
-            ? row.paid_amount_date.map((payment, i) => (
-                <div key={i}>
-                  {payment.amount}
-                </div>
-              ))
-            : "No Payments"}
-        </td>
-        <td>
-          {row.paid_amount_date && row.paid_amount_date.length > 0
-            ? row.paid_amount_date.map((payment, i) => (
-                <div key={i}>
-                  {payment.date}  
-                </div>
-              ))
-            : "No Payments"}
-        </td>
-      </tr>
-    );
-  })
-) : (
-  <tr>
-    <td colSpan="9" className="text-center">
-      No data found for the selected date range
-    </td>
-  </tr>
-)} */}
-
-{filteredDataToShow.length > 0 ? (
-  filteredDataToShow.flatMap((row, index) => 
-    row.paid_amount_date && row.paid_amount_date.length > 0
-      ? row.paid_amount_date.map((payment, i) => {
-          const agent = employees.find(e => e.user_id === payment.userID);
-          return (
-            <tr key={`${row.client_id}-${index}-${i}`}>
-              <td>{index + 1}</td>
-              <td>{row.client_name.toUpperCase()}</td>
-              <td>{row.client_city.toUpperCase()}</td>
-              <td>{agent ? agent.username.toUpperCase()  : "Unknown"}</td>
-              <td>
-                <p
-                  className={`badge ${
-                    row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
-                  }`}
-                >
-                  {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
-                </p>
-              </td>
-              <td>{payment.amount}</td>
-              <td>{payment.date}</td>
-            </tr>
-          );
-        })
-      : [
-          <tr key={`${row.client_id}-${index}`}>
+  {filteredDataToShow.length > 0 ? (
+    filteredDataToShow
+      .flatMap((row) =>
+        row.paid_amount_date && row.paid_amount_date.length > 0
+          ? row.paid_amount_date.map((payment) => ({
+              ...payment,
+              client_name: row.client_name,
+              client_city: row.client_city,
+              paid_and_unpaid: row.paid_and_unpaid,
+              today_rate: row.today_rate,
+              user_id: payment.userID,
+            }))
+          : [
+              {
+                client_name: row.client_name,
+                client_city: row.client_city,
+                paid_and_unpaid: row.paid_and_unpaid,
+                today_rate: row.today_rate,
+                noPayment: true,
+              },
+            ]
+      )
+      .sort((a, b) => {
+        const dateA = new Date(a.date.split("-").reverse().join("-"));
+        const dateB = new Date(b.date.split("-").reverse().join("-"));
+        return dateA - dateB;
+      })
+      .map((payment, index) => {
+        const agent = employees.find((e) => e.user_id === payment.user_id);
+        return (
+          <tr key={`${payment.client_name}-${index}`}>
             <td>{index + 1}</td>
-            <td>{row.client_name.toUpperCase()}</td>
-            <td>{row.client_city.toUpperCase()}</td>
-            <td>—</td> {/* No agent if no payments */}
+            <td  onClick={() => handlenav1(payment)} >{payment.client_name.toUpperCase()}</td>
+            <td>{payment.client_city.toUpperCase()}</td>
+            <td  onClick={() => handlenav(agent)}>{agent ? agent.username.toUpperCase() : "Unknown"}</td>
             <td>
               <p
-                className={`badge ${
-                  row.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"
-                }`}
+                className={`badge ${payment.paid_and_unpaid === 1 ? "bg-success" : "bg-danger"}`}
               >
-                {row.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
+                {payment.paid_and_unpaid === 1 ? "Paid" : "Unpaid"}
               </p>
             </td>
-            <td>No Payments</td>
-            <td>No Payments</td>
+            <td>{payment.today_rate}</td>
+           
+            <td>
+  <div className="client-info">
+    <h4 style={{ color: "blue", fontWeight: "500" }}>
+      INTER:{" "}
+      <span>
+        {payment.amount
+          ? Math[parseFloat(payment.amount) % 1 >= 0.5 ? "ceil" : "floor"](parseFloat(payment.amount)).toFixed(2)
+          : "0.00"}
+      </span>
+    </h4>
+    <h4 style={{ color: "red", fontWeight: "500" }}>
+      LOCAL:{" "}
+      <span>
+        {payment.amount && payment.today_rate
+          ? (parseFloat(payment.amount) / parseFloat(payment.today_rate)).toFixed(3)
+          : "0.000"}
+      </span>
+    </h4>
+  </div>
+</td>
+            <td>{payment.date || "No Payment"}</td>
           </tr>
-        ]
-  )
-) : (
-  <tr>
-    <td colSpan="7" className="text-center">
-      No data found for the selected date range
-    </td>
-  </tr>
-)}
-
-            </tbody>
+        );
+      })
+  ) : (
+    <tr>
+      <td colSpan="8" className="text-center">
+        No data found for the selected date range
+      </td>
+    </tr>
+  )}
+</tbody>
           </table>
           <div className="d-flex justify-content-end p-3">
             <p>
               <strong>Total Paid Amount for the selected range: </strong>
-              {totalPaidAmountInRange}
+              {totalPaidAmountInRange.toFixed(3)}
             </p>
           </div>
         </div>
       )}
     </div>
   </div>
-
-
   );
 }
 

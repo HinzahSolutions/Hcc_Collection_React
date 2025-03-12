@@ -29,9 +29,6 @@ const clientSlice = createSlice({
   },
 });
 
-// Export actions
 export const { setUsers, setSelectedClient, setSearchQuery, setSelectedClientId } = clientSlice.actions;
-
-// Reducer
 export default clientSlice.reducer;
 

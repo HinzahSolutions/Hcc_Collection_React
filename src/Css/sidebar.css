@@ -11,6 +11,21 @@
   display: flex;
   flex-direction: row;
 }
+
+/* .sidebar .nav-link.active {
+  background-color: #007bff;
+  color: white;
+} 
+ 
+
+
+.nav-link.active {
+  background-color: #007bff; 
+  color: #fff !important;
+  font-weight: bold;
+} */
+
+
 .head {
   display: flex;
   gap: 20px;

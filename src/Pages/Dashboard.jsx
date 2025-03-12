@@ -9,12 +9,12 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUsers, setSelectedClient } from "../Slicers/clientSlice";
 import { setEmployees } from "../Slicers/employeeSlice";
-
 import Assignemploye from "./Assignemploye";
 import PaymentChart from "./PaymentChart";
 import Todaycollection from "./Todaycollection";
-
 import {Mosaic } from "react-loading-indicators";
+import { Button} from "react-bootstrap";
+import Modal from "react-bootstrap/Modal";
 
 
 
@@ -34,6 +34,7 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
   const [todayCollections, setTodayCollections] = useState([]);
   const [overallAmount, setOverallAmount] = useState(0);
   const [overallPaidAmount, setOverallPaidAmount] = useState(0); 
+  const [ratemodel,setRateModel] = useState(false)
 
 
   const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
@@ -96,6 +97,7 @@ const [employeesLoaded, setEmployeesLoaded] = useState(false);
       }
       const data = await response.json();
       dispatch(setEmployees(data));
+      console.log(data)
     } catch (error) {
       console.error("Error fetching employee list:", error);
       handleUnauthorizedAccess();
@@ -172,13 +174,15 @@ useEffect(() => {
       const clientRate = parseFloat(client.today_rate) || 1; 
       return total + (clientRate > 0 ? clientBalance / clientRate : 0);
     }, 0);
-
-  
     setOverallAmount(totalLocalCurrency.toFixed(3)); 
     setOverallPaidAmount(totalLocalPaid.toFixed(3)); 
     setTotalBalanceAmount(totalLocalBalance.toFixed(3));
   }
 }, [users]);
+
+
+
+
 
   
   const clientCount = users.length;
@@ -201,12 +205,6 @@ useEffect(() => {
       setTotalPaidAmount(paidAmountTotal);
     }
   }, [users]);
-
- 
-
-  
-
-
   const handleUnauthorizedAccess = () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -215,9 +213,6 @@ useEffect(() => {
 
   
   return (
-
-
-
 <div>
   {loading ? (
     <div className="loadingscreen">  
@@ -227,7 +222,11 @@ useEffect(() => {
     <div className="mt-5">
       <div className="page-header">
         <h1>Dashboard</h1>
-        <small>Employee/ Dashboard</small>
+        <div  className="d-flex  justify-content-between">
+        <small>Dashboard</small>
+        {/* <Button   onClick={() => setRateModel(1)}  className="w-auto">Add Today Rate</Button> */}
+        </div>
+        
       </div>
       <div className="analytics ">
         <div className="card" onClick={() => navigate("/alldata")}> 
@@ -284,11 +283,7 @@ useEffect(() => {
           <div className="card-progress">
             <small>CLIENT ORDER</small>
           </div>
-
-          
         </div>
-
-
         <div className="card" onClick={() => navigate("/employee")}> 
           <div className="card-head d-flex justify-content-between align-items-center">
             <h2>{collectionManagerCount}</h2>
@@ -300,8 +295,6 @@ useEffect(() => {
             <small>COLLECTION MANAGER</small>
           </div>
         </div>
-
-
         <div className="card" onClick={() => navigate("/employee")}> 
           <div className="card-head d-flex justify-content-between align-items-center">
             <h2>{collectionAgentCount}</h2>
@@ -340,16 +333,39 @@ useEffect(() => {
             </select>
           </div>
         </div>
-        <div  className="" style={{height:'100vh'}}>
-          <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} />
-        </div>
-       
+        
+          <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} style={{height:'100%'}} />
+        
       </div>
     </div>
   )}
+
+
+
+  <Modal show={ratemodel} onHide={() => setRateModel(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Distributor Today Rate</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {employees
+      .filter((eid) => eid.role === "Distributor") // Correct filter function
+      .map((distributor) => (
+        <div>
+        <span  key={distributor.id} >{distributor.username}</span>
+        <input type="number" step="0.01" placeholder={` Entet today Rate`}  /> 
+        </div>
+      ))}
+  </Modal.Body>
+
+  <Modal.Footer className="d-flex justify-content-center">
+    <Button variant="secondary" onClick={() => setRateModel(false)}>
+      Close
+    </Button>
+    <Button variant="primary">OK</Button>
+  </Modal.Footer>
+</Modal>
+
 </div>
-
-
   )
 }
 

@@ -1,42 +1,44 @@
-import React,{useEffect,useState,useMemo} from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { setUsers, setSelectedClient } from "../Slicers/clientSlice";
 
 import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { parse } from "date-fns";
+import { format, parse } from "date-fns";
 
 function Assignemploye() {
-    const API_URL = import.meta.env.VITE_API_URL;
-    const dispatch = useDispatch();
-    const users = useSelector((state) => state.clients.users);
-     const employees = useSelector((state) => state.employees.employees);
-    const [assign, setAssign] = useState([]);
-    const [employeeId, setEmployeeId] = useState("");
-    const [sendModal, setSendModal] = useState(false);
-    const selectedClient = useSelector((state) => state.clients.selectedClient);
-  
+  const API_URL = import.meta.env.VITE_API_URL;
+  const dispatch = useDispatch();
+  const users = useSelector((state) => state.clients.users);
+  const employees = useSelector((state) => state.employees.employees);
+  const [assign, setAssign] = useState([]);
+  const [employeeId, setEmployeeId] = useState("");
+  const [sendModal, setSendModal] = useState(false);
+  const selectedClient = useSelector((state) => state.clients.selectedClient);
 
-     useEffect(() => {
-          const unassigned = users.filter((assigns) => assigns.sent == false);
-        
-          if (unassigned.length > 0) {
-            setAssign(unassigned); 
-            console.log("Unassigned Users:", unassigned); 
-          }
-        }, [users]);
 
-        
-          const handleClientClick = (client) => {
-            dispatch(setSelectedClient(client));
-            setSendModal(true);
-          };
-const handlesend = async (client_id) => {
-  console.log(employeeId)
+  useEffect(() => {
+    const unassigned = users.filter((assigns) => assigns.sent == false);
+    if (unassigned.length > 0) {
+      setAssign(unassigned);
+      console.log("Unassigned Users:", unassigned);
+    }
+  }, [users]);
+ 
+
+  const handleClientClick = (client) => {
+    dispatch(setSelectedClient(client));
+    setSendModal(true);
+  };
+  const handlesend = async (client_id) => {
+
+       const currentDate = format(new Date(), "dd-MM-yyyy");
+    console.log(employeeId)
     const sendData = {
       client_id,
       user_id: employeeId,
-      sent:1,
+      sent: 1,
+      assigned_date: currentDate, 
     };
     try {
       const response = await fetch(`${API_URL}/client_IDupdated/${client_id}`, {
@@ -46,11 +48,11 @@ const handlesend = async (client_id) => {
         },
         body: JSON.stringify(sendData),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to update client");
       }
-  
+
       const result = await response.json();
       console.log("Updated client response:", result);
       setSendModal(false);
@@ -65,7 +67,7 @@ const handlesend = async (client_id) => {
         .then((response) => response.json())
         .then((updatedData) => dispatch(setUsers(updatedData)))
         .catch((error) => console.error("Error fetching updated data:", error));
-        
+
     } catch (error) {
       console.error("Fetch error:", error);
     }
@@ -85,156 +87,154 @@ const handlesend = async (client_id) => {
   }, [assign]);
   return (
     <div> {sortedData.length > 0 ? (
-        <div className="records table-responsive">
+      <div className=" ">
         <div className="record-header">
-        <div className="add">
-        <h4  style={{textAlign:'center',padding:'10px'}}>Assign Employee</h4>
-        </div>
+          <div className="add">
+            <h4 style={{ textAlign: 'center', padding: '10px' }}>Assign Employee</h4>
+          </div>
         </div>
         <table className="table table-striped">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>CLIENT</th>
-      <th>CITY</th>
-      <th>AMOUNT</th>
-      <th>DATE</th>
-      <th>ACTIONS</th>
-    </tr>
-  </thead>
-  { sortedData.map((row, index) => (
-    <tbody key={index}>
-      <tr>
-        <td>{row.client_id ? row.client_id.toString().toUpperCase() : "N/A"}</td>
-        <td>
-          <div className="client">
-            <div
-              className="client-img bg-img"
-              style={{
-                backgroundImage: row.client_image
-                  ? `url(${row.client_image})`
-                  : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-              }}
-            ></div>
-            <div className="client-info">
-              <h4>{row.client_name ? row.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
-              <small>{row.client_contact ? row.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
-            </div>
-          </div>
-        </td>
-        <td>{row.client_city ? row.client_city.toUpperCase() : "UNKNOWN CITY"}</td>
-        <td>
-          {row.amount && row.amount !== "null"
-            ? `${row.amount.toString().toUpperCase()}`
-            : "0 KWD"}
-        </td>
-        <td>{row.date ? row.date.toUpperCase() : "UNKNOWN DATE"}</td>
-        <td>
-          <div className="actions">
-            <span
-                className=""
-                style={{
-                  cursor: "pointer",
-                  fontSize: "11px",
-                  backgroundColor: "#00bbf0",
-                  padding: "5px 10px 5px 10px",
-                  color: "white",
-                  borderRadius: "10px",
-                }}
-                onClick={() => handleClientClick(row)}
-              >
-                SEND
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>CLIENT</th>
+              <th>CITY</th>
+              <th>AMOUNT</th>
+              <th>TODAY RATE</th>
+              <th>DATE</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          {sortedData.map((row, index) => (
+            <tbody key={index}>
+              <tr>
+                <td>{index +1}</td>
+                <td>
+                  <div className="client">
+                    <div
+                      className="client-img bg-img"
+                      style={{
+                        backgroundImage: row.client_image
+                          ? `url(${row.client_image})`
+                          : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
+                      }}
+                    ></div>
+                    <div className="client-info">
+                      <h4>{row.client_name ? row.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
+                      <small>{row.client_contact ? row.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{row.client_city ? row.client_city.toUpperCase() : "UNKNOWN CITY"}</td>
+
+                <td>
+          <div className="client-info">
+            <h4 style={{ color: "blue", fontWeight: "500" }}>
+              INTER: <span>{row.amount ? parseFloat(row.amount).toFixed(2) : "0.00"}</span>
+            </h4>
+            <h4 style={{ color: "red", fontWeight: "500" }}>
+              LOCAL:{" "}
+              <span>
+                {row.amount && row.today_rate
+                  ? (parseFloat(row.amount) / parseFloat(row.today_rate)).toFixed(3)
+                  : "0.000"}
               </span>
-           
+            </h4>
           </div>
         </td>
-      </tr>
-    </tbody>
-  ))}
-</table>
+               <td>{parseFloat(row.today_rate).toFixed(2)}</td>
+                <td>{row.date ? row.date.toUpperCase() : "UNKNOWN DATE"}</td>
+                <td>
+                  <div className="actions">
+                    <span className=""
+                      style={{cursor: "pointer",fontSize: "11px",backgroundColor: "#00bbf0",padding: "5px 10px 5px 10px",color: "white",borderRadius: "10px",}}
+                      onClick={() => handleClientClick(row)}
+                    >
+                      SEND
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          ))}
+        </table>
 
-        </div>
-      ) : (
-        <span></span>
-      )}
-      
+      </div>
+    ) : (
+      <span></span>
+    )}
+
       <Modal show={sendModal} onHide={() => setSendModal(false)}>
-              <Modal.Header closeButton>
-                <Modal.Title>Assign Employee</Modal.Title>
-              </Modal.Header>
-              {selectedClient ? (
-                <Modal.Body>
-                  <form>
-                    <div className="txt_field">
-                      <h4>Client Name</h4>
-                      <input
-                        type="text"
-                        value={
-                          selectedClient.client_name
-                            ? selectedClient.client_name.replace(/"/g, "")
-                            : ""
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="txt_field">
-                      <h4>Client Contact Number</h4>
-                      <input
-                        type="text"
-                        value={
-                          selectedClient.client_contact
-                            ? selectedClient.client_contact.replace(/"/g, "")
-                            : ""
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="txt_field">
-                      <h4>Amount</h4>
-                      <input type="number" value={selectedClient.amount} readOnly />
-                    </div>
-                    <div>
-                      <h4>Assign Employee</h4>
-                    
-                      <select
-  value={employeeId}
-  onChange={(e) => setEmployeeId(e.target.value)}
-  style={{ padding: "0px", border: "none" }}
->
- 
-  <option value="" disabled>
-    Select Employee
-  </option>
-
-  
-  {employees
-    .filter((emp) => emp.role === "Collection Agent")
-    .map((emp) => (
-      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
-        {emp.username}
-      </option>
-    ))}
-</select>
-
-
-                    </div>
-                  </form>
-                </Modal.Body>
-              ) : (
-                <p>No client selected</p>
-              )}
-              <Modal.Footer>
-                <Button variant="secondary" onClick={() => setSendModal(false)}>
-                  Close
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => handlesend(selectedClient.client_id)}
+        <Modal.Header closeButton>
+          <Modal.Title>Assign Employee</Modal.Title>
+        </Modal.Header>
+        {selectedClient ? (
+          <Modal.Body>
+            <form>
+              <div className="txt_field">
+                <h4>Client Name</h4>
+                <input
+                  type="text"
+                  value={
+                    selectedClient.client_name
+                      ? selectedClient.client_name.replace(/"/g, "")
+                      : ""
+                  }
+                  readOnly
+                />
+              </div>
+              <div className="txt_field">
+                <h4>Client Contact Number</h4>
+                <input
+                  type="text"
+                  value={
+                    selectedClient.client_contact
+                      ? selectedClient.client_contact.replace(/"/g, "")
+                      : ""
+                  }
+                  readOnly
+                />
+              </div>
+              <div className="txt_field">
+                <h4>Amount</h4>
+                <input type="number" value={selectedClient.amount} readOnly />
+              </div>
+              <div>
+                <h4>Assign Employee</h4>
+                <select
+                  value={employeeId}
+                  onChange={(e) => setEmployeeId(e.target.value)}
+                  style={{ padding: "0px", border: "none" }}
                 >
-                  Assign
-                </Button>
-              </Modal.Footer>
-            </Modal></div>
+                  <option value="" disabled>
+                    Select Employee
+                  </option>
+                  {employees
+                    .filter((emp) => emp.role === "Collection Agent")
+                    .map((emp) => (
+                      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
+                        {emp.username}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </form>
+          </Modal.Body>
+        ) : (
+          <p>No client selected</p>
+        )}
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setSendModal(false)}>
+            Close
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => handlesend(selectedClient.client_id)}
+          >
+            Assign
+          </Button>
+        </Modal.Footer>
+      </Modal></div>
   )
 }
 

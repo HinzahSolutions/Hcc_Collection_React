@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -9,13 +6,16 @@ import * as XLSX from 'xlsx';
 import { MdEmail } from "react-icons/md";
 import { IoMdCall } from "react-icons/io";
 import { setUsers, setSelectedClient } from '../Slicers/clientSlice';
+import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
+import { format } from "date-fns";
 import '../Css/info.css';
 
 const EmployeeInfo = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const users = useSelector((state) => state.clients.users);
-
+  const employees = useSelector((state) => state.employees.employees);
   const [employeeClients, setEmployeeClients] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
@@ -26,22 +26,84 @@ const EmployeeInfo = () => {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedClientDate, setSelectedClientDate] = useState("");
 
 
   useEffect(() => {
     const storedEmployee = sessionStorage.getItem('selectedEmployee');
     if (storedEmployee) {
       setSelectedEmployee(JSON.parse(storedEmployee));
+      fetchEmployees();
+      console.log(employees)
     } else {
       navigate("/employee");
     }
   }, [navigate]);
 
 
-  useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL;
+
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value;
+    const formattedDate = formatDateToDDMMYYYY(selectedDate);
+    setSelectedClientDate(formattedDate);
+    console.log(formattedDate);
+  };
+
+
+  const formatDateToDDMMYYYY = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}-${month}-${year}`;
+  };
+  const filteredUsers = users.filter(
+    (eid) =>
+      selectedEmployee?.user_id && 
+      eid.Distributor_id === selectedEmployee.user_id &&
+      (!selectedClientDate || eid.date === selectedClientDate) 
+  );
+
+
+
+  const fetchEmployees = async () => {
+    setLoading(true);
     const Authorization = localStorage.getItem("authToken");
 
+
+    if (Authorization) {
+      try {
+        const response = await fetch(`${API_URL}/list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: Authorization,
+          },
+
+        });
+
+        if (response.status === 401) {
+          console.error("Unauthorized access - redirecting to login");
+          handleUnauthorizedAccess();
+          return;
+        }
+        const data = await response.json();
+
+        dispatch(setEmployees(data));
+      } catch (error) {
+        console.error("Fetch error:", error);
+
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      console.error("No authorization token found in localStorage");
+      setLoading(false);
+    }
+  };
+
+
+
+  useEffect(() => {
+    const Authorization = localStorage.getItem("authToken");
     if (Authorization) {
       fetch(`${API_URL}/acc_list`, {
         method: "GET",
@@ -52,12 +114,14 @@ const EmployeeInfo = () => {
       })
         .then((response) => {
           if (response.status === 401) {
+            console.error("Unauthorized access - redirecting to login");
             handleUnauthorizedAccess();
-            throw new Error("Unauthorized access - 401");
+            return;
           }
           return response.json();
         })
         .then((data) => dispatch(setUsers(data)))
+        .then((data) => console.log(data))
         .catch((error) => console.error("Fetch error:", error));
     } else {
       console.error("No authorization token found in localStorage");
@@ -82,25 +146,19 @@ const EmployeeInfo = () => {
         client.paid_amount_date?.some(payment => payment.userID === selectedEmployee.user_id)
       );
       setEmployeeClients(clients);
-
       const totalAmount = clients.reduce((sum, client) => sum + parseFloat(client.amount || 0), 0);
-
       const totalCollection = clients.reduce((sum, client) => {
-
         const paidAmountDate = Array.isArray(client.paid_amount_date) ? client.paid_amount_date : [];
-
         return sum + paidAmountDate.reduce((innerSum, payment) =>
           innerSum + parseFloat(payment?.amount || 0), 0
         );
       }, 0);
-
       setOverallAmount(totalAmount);
       setOverallCollection(totalCollection);
       setBalanceAmount(totalAmount - totalCollection);
     }
   }, [selectedEmployee, users]);
 
-  // Filter Clients Based on Selected Date
   const filteredClients = selectedDate
     ? employeeClients.map(client => ({
       ...client,
@@ -225,6 +283,30 @@ const EmployeeInfo = () => {
     window.open(whatsappLink, "_blank");
   };
 
+  const sendDistributorCSVToWhatsApp = () => {
+    if (!selectedEmployee?.phone_number) {
+      alert("No phone number available for the employee.");
+      return;
+    }
+
+    let message = "🔹 * Distributor Clients Report*\n\n";
+    message += " #   | Client Name | Date  | Amount | Today Rate |\n";
+    message += "---|--------------|---------|---------|------------\n";
+
+    filteredUsers.forEach((client, index) => {
+      const localAmount = client.amount && client.today_rate
+        ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
+        : "N/A";
+      const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
+
+      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${localAmount} | ${todayRate} |\n`;
+    });
+
+    const phone = selectedEmployee.phone_number;
+    const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappLink, "_blank");
+  };
   const overallamount = filteredClients.reduce((total, client) => {
     return (
       total +
@@ -251,15 +333,38 @@ const EmployeeInfo = () => {
       (Array.isArray(client.paid_amount_date)
         ? client.paid_amount_date
           .filter((p) => p.userID === selectedEmployee.user_id)
-          .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+          .reduce((sum, p) => {
+            const paidAmount = parseFloat(p.amount) || 0;
+            const clientRate = parseFloat(client.today_rate) || 1;
+            return sum + (clientRate > 0 ? paidAmount / clientRate : 0);
+          }, 0)
         : 0)
     );
   }, 0);
+
+  const thisDistributorCollectionAmount = filteredUsers
+    .filter((client) => client.Distributor_id === selectedEmployee?.user_id)
+    .reduce((total, client) => {
+      const clientAmount = parseFloat(client.amount) || 0;
+      const clientRate = parseFloat(client.today_rate) || 1;
+      return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+    }, 0);
+
 
   const otherAgentsCollectionAmount = overallCollectionAmount - thisAgentCollectionAmount;
 
   const totalbalanceAmount = overallAmount - thisAgentCollectionAmount;
 
+  const handlenav = (client) => {
+    dispatch(setSelectedClient(client));
+    navigate("/clientinfo");
+  };
+       
+
+  const customRound = (value) => {
+    const decimalPart = value % 1; // Extract decimal part
+    return decimalPart >= 0.50 ? Math.ceil(value) : Math.floor(value);
+  };
 
   return (
     <div style={{ marginTop: '50px' }}>
@@ -275,12 +380,10 @@ const EmployeeInfo = () => {
             alt="Employee"
           />
         </div>
-
         <div className="d-flex flex-column gap-2">
           <h2 className="fw-bold">
             {selectedEmployee?.username || 'No Employee Selected'}
           </h2>
-
           <div className="d-flex flex-column pb-3 gap-3">
             <small className="fs-5">
               <span className="text-primary fs-3 me-3">
@@ -302,18 +405,21 @@ const EmployeeInfo = () => {
             <Button className="w-auto btn btn-primary" onClick={handlenavform}>Edit The Employee</Button>
             <Button className="w-auto btn btn-danger" onClick={() => setShowPasswordModal(true)} >Password Change</Button>
           </div>
-
-
         </div>
       </div>
-
-      <div className='d-flex justify-content-end px-2'> <h4 className='px-4 py-3' style={{ backgroundColor: '#1246ac', color: 'white' }}>COLLECTON AMOUNT
-        <span style={{ backgroundColor: 'white', color: 'black' }} className='px-2 py-2 mx-1'  >{thisAgentCollectionAmount}</span></h4></div>
-
-
+      <div className="d-flex justify-content-end px-2">
+        <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
+          COLLECTION AMOUNT
+          <span style={{ backgroundColor: "white", color: "black" }} className="px-2 py-2 mx-1">
+            {selectedEmployee?.role === "Distributor"
+              ? thisDistributorCollectionAmount.toFixed(3)
+              : thisAgentCollectionAmount.toFixed(3)}
+          </span>
+        </h4>
+      </div>
       {selectedEmployee?.role === "Collection Agent" ? (
         <div>
-          <div className='d-flex justify-content-end align-items-center  ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
+          <div className='record-header d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
             <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
             <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
               <FormControl type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
@@ -321,115 +427,29 @@ const EmployeeInfo = () => {
             <div>  <Button onClick={sendCSVToWhatsApp} className='mB-3 w-auto' variant="success">
               Send to WhatsApp
             </Button></div>
-
           </div>
-
-
-          <div className="records table-responsive">
-
-
-            <table className="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Client Name</th>
-                  <th>Total Amount</th>
-                  <th>Collection Amount</th>
-                  <th>Balance Amount</th>
-                  {selectedDate ? <th>Collection Date</th> :<></>}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredClients.length > 0 ? (
-                  filteredClients.map((client, index) => {
-                    const collectedAmount = Array.isArray(client.paid_amount_date)
-                      ? client.paid_amount_date
-                        .filter((p) => p.userID === selectedEmployee.user_id)
-                        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-                      : 0;
-
-                    return (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>
-                          <div className="client">
-                            <div
-                              className="client-img bg-img"
-                              style={{
-                                backgroundImage: client.client_image
-                                  ? `url(${client.client_image})`
-                                  : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-                              }}
-                            ></div>
-                            <div className="client-info">
-                              <h4>
-                                {(client.client_name || "Unknown Client").toUpperCase()}
-                              </h4>
-                              <small>
-                                {client.client_contact
-                                  ? client.client_contact.toUpperCase()
-                                  : "NO CONTACT AVAILABLE"}
-                              </small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{client.amount}</td>
-                        <td>{collectedAmount}</td>
-                        <td>{client.amount - collectedAmount}</td>
-                        {selectedDate?<td>{selectedDate}</td>:<></>}
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="text-center">No Data Found</td>
-                  </tr>
-                )}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan="3" className="text-end">
-                    <strong>Total Collection:</strong>
-                  </td>
-                  <td>
-                    <strong>
-                      {filteredClients.reduce((total, client) => {
-                        return (
-                          total +
-                          (Array.isArray(client.paid_amount_date)
-                            ? client.paid_amount_date
-                              .filter((p) => p.userID === selectedEmployee.user_id)
-                              .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-                            : 0)
-                        );
-                      }, 0)}
-                    </strong>
-                  </td>
-                  <td colSpan="3"></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-
-        </div>
-      ) : selectedEmployee?.role === "Distributor" ? (
-
-        <div>
-          <h4>Distributor Dashboard</h4>
-
-          <table className="table table-striped w-70">
+          <table className="table table-striped">
             <thead>
               <tr>
                 <th>#</th>
-                <th>Client Name</th>
-                <th> Amount</th>
+                <th>CLIENT NAME</th>
+                <th>DATE</th>
+                <th>TODAY RATE</th>
+                <th>TOTAL AMOUNT</th>
+                <th>COLLECTION AMOUNT</th>
+                <th>BALANCE AMOUNT</th>
+                {selectedDate ? <th>COLLECTION DATE</th> : <></>}
               </tr>
             </thead>
             <tbody>
-              {users.filter(eid => eid.Distributor_id === selectedEmployee.user_id).length > 0 ? (
-                users
-                  .filter(eid => eid.Distributor_id === selectedEmployee.user_id)
-                  .map((eid, index) => (
+              {filteredClients.length > 0 ? (
+                filteredClients.map((client, index) => {
+                  const collectedAmount = Array.isArray(client.paid_amount_date)
+                    ? client.paid_amount_date
+                      .filter((p) => p.userID === selectedEmployee.user_id)
+                      .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+                    : 0;
+                  return (
                     <tr key={index}>
                       <td>{index + 1}</td>
                       <td>
@@ -437,23 +457,230 @@ const EmployeeInfo = () => {
                           <div
                             className="client-img bg-img"
                             style={{
-                              backgroundImage: eid.client_image
-                                ? `url(${eid.client_image})`
+                              backgroundImage: client.client_image
+                                ? `url(${client.client_image})`
                                 : "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
                             }}
                           ></div>
                           <div className="client-info">
-                            <h4 onClick={() => handleClientClick(eid)} >{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
-                            <small>{eid.client_contact ? eid.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
+                            <h4 onClick={() => handlenav(client)}>
+                              {(client.client_name || "Unknown Client").toUpperCase()}
+                            </h4>
+                            <small>
+                              {client.client_contact
+                                ? client.client_contact.toUpperCase()
+                                : "NO CONTACT AVAILABLE"}
+                            </small>
                           </div>
                         </div>
                       </td>
-                      <td>{eid.amount}</td>
+                      <td>{client.date}</td>
+                      <td>{client.today_rate}</td>
+                      <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER: <span>{client.amount ? parseFloat(client.amount).toFixed(2) : "0.00"}</span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {client.amount && client.today_rate
+                                ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td>
+
+
+                      {/* <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER:{" "}
+                            <span>
+                              {client.amount
+                                ? Math.ceil(parseFloat(collectedAmount)).toFixed(2)
+                                : "0.00"}
+                            </span>
+                          </h4>
+
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {collectedAmount && client.today_rate
+                                ? (
+                                  Math.ceil(parseFloat(collectedAmount)) /
+                                  parseFloat(client.today_rate)
+                                ).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td> */}
+
+
+                      <td>
+  <div className="client-info">
+    <h4 style={{ color: "blue", fontWeight: "500" }}>
+      INTER:{" "}
+      <span>
+        {client.amount
+          ? parseFloat(collectedAmount).toFixed(2)
+          : "0.00"}
+      </span>
+    </h4>
+
+    <h4 style={{ color: "red", fontWeight: "500" }}>
+      LOCAL:{" "}
+      <span>
+        {collectedAmount && client.today_rate
+          ? (
+              parseFloat(collectedAmount) /
+              parseFloat(client.today_rate)
+            ).toFixed(3)
+          : "0.000"}
+      </span>
+    </h4>
+  </div>
+</td>
+
+
+                      {/* <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER:{" "}
+                            <span>
+                              {client.amount
+                                ? parseFloat(client.amount - collectedAmount) >= 0.50
+                                  ? Math.ceil(parseFloat(client.amount - collectedAmount)).toFixed(2)
+                                  : "0.00"
+                                : "0.00"}
+                            </span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {collectedAmount && client.today_rate
+                                ? (
+                                  (parseFloat(client.amount - collectedAmount) /
+                                    parseFloat(client.today_rate)) || 0
+                                ).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td> */}
+
+                    
+
+<td>
+  <div className="client-info">
+    <h4 style={{ color: "blue", fontWeight: "500" }}>
+      INTER:{" "}
+      <span>
+        {client.amount
+          ? parseFloat(client.amount - collectedAmount) >= 0.50
+            ? customRound(parseFloat(client.amount - collectedAmount)).toFixed(2)
+            : "0.00"
+          : "0.00"}
+      </span>
+    </h4>
+
+    <h4 style={{ color: "red", fontWeight: "500" }}>
+      LOCAL:{" "}
+      <span>
+        {collectedAmount && client.today_rate
+          ? (
+              parseFloat(client.amount - collectedAmount) /
+              parseFloat(client.today_rate)
+            ).toFixed(3)
+          : "0.000"}
+      </span>
+    </h4>
+  </div>
+</td>
+
+
+                      <td>
+                        {selectedDate ? format(new Date(selectedDate), "dd-MM-yyyy") : <></>}
+                      </td>
                     </tr>
-                  ))
+                  );
+                })
+              ) : (<tr><td colSpan="7" className="text-center">No Data Found</td></tr>)}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="4" className="text-end">
+                  <strong>Total Collection:</strong>
+                </td>
+                <td>
+                  <strong>
+                    {thisAgentCollectionAmount.toFixed(3)}
+                  </strong>
+                </td>
+                <td colSpan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      ) : selectedEmployee?.role === "Distributor" ? (
+        <div>
+          <div>
+            <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
+              <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
+              <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
+                <FormControl type="date" value={selectedClientDate} onChange={handleDateChange} />
+              </InputGroup></div>
+              <div>  <Button className='mB-3 w-auto' variant="success" onClick={sendDistributorCSVToWhatsApp} >
+                Send to WhatsApp
+              </Button></div>
+            </div>
+
+          </div>
+          <table className="table table-striped w-70">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>CLIENT NAME</th>
+                <th>DATE</th>
+                <th>AGENT</th>
+                <th>AMOUNT</th>
+                <th>TODAY RATE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((eid, index) => {
+                  const matchedEmployee = employees.find((ename) => ename.user_id === eid.user_id);
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</td>
+                      <td>{eid.date}</td>
+                      <td>{matchedEmployee ? matchedEmployee.username.toUpperCase() : "---"}</td>
+                      <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER: <span>{eid.amount ? parseFloat(eid.amount).toFixed(2) : "0.00"}</span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {eid.amount && eid.today_rate
+                                ? (parseFloat(eid.amount) / parseFloat(eid.today_rate)).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td>
+                      <td>{eid.today_rate}</td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="3" className="text-center">No Data Found</td>
+                  <td colSpan="5" style={{ textAlign: "center" }}>No data available</td>
                 </tr>
               )}
             </tbody>
@@ -492,12 +719,6 @@ const EmployeeInfo = () => {
           </Form>
         </Modal.Body>
       </Modal>
-
-
-      {/* <h1> overall collection amount {overallCollectionAmount}</h1>
-       <h1> this Agent collection amount {thisAgentCollectionAmount}</h1>
-       <h1> Other agent  collection amount {otherAgentsCollectionAmount}</h1>
-       <h1> balance  collection amount {totalbalanceAmount}</h1> */}
     </div>
   );
 };

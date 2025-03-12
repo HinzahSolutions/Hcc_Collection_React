@@ -1,7 +1,4 @@
-
-
 import { createSlice } from '@reduxjs/toolkit';
-
 const initialState = {
   isAuthenticated: !!localStorage.getItem('authToken'), 
   role: localStorage.getItem('role') || 'user', 
