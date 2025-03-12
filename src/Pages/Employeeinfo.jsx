@@ -7,12 +7,7 @@ import { MdEmail } from "react-icons/md";
 import { IoMdCall } from "react-icons/io";
 import { setUsers, setSelectedClient } from '../Slicers/clientSlice';
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
-<<<<<<< HEAD
 import { format } from "date-fns";
-=======
-
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 import '../Css/info.css';
 
 const EmployeeInfo = () => {
@@ -40,10 +35,6 @@ const EmployeeInfo = () => {
       setSelectedEmployee(JSON.parse(storedEmployee));
       fetchEmployees();
       console.log(employees)
-<<<<<<< HEAD
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     } else {
       navigate("/employee");
     }
@@ -64,25 +55,11 @@ const EmployeeInfo = () => {
     const [year, month, day] = dateString.split("-");
     return `${day}-${month}-${year}`;
   };
-<<<<<<< HEAD
   const filteredUsers = users.filter(
     (eid) =>
       selectedEmployee?.user_id && 
       eid.Distributor_id === selectedEmployee.user_id &&
       (!selectedClientDate || eid.date === selectedClientDate) 
-=======
-
-
-
-
-
-
-  const filteredUsers = users.filter(
-    (eid) =>
-      selectedEmployee?.user_id &&  // Ensure selectedEmployee exists
-      eid.Distributor_id === selectedEmployee.user_id &&
-      (!selectedClientDate || eid.date === selectedClientDate) // Match formatted date
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   );
 
 
@@ -306,41 +283,6 @@ const EmployeeInfo = () => {
     window.open(whatsappLink, "_blank");
   };
 
-<<<<<<< HEAD
-=======
-
-  // const sendDistributorCSVToWhatsApp = () => {
-  //   if (!selectedEmployee?.phone_number) {
-  //     alert("No phone number available for the employee.");
-  //     return;
-  //   }
-
-
-  //   let message = "🔹 *Clients Report*\n\n";
-  //   message += " #   | Client Name | Date  |  Amount | Today Rate |  \n";
-  //   message += "---|-----------|---------|--------------|-------------|----------\n";
-
-  //   filteredUsers.forEach((client, index) => {
-  //     // const totalAmount = parseFloat(client.amount || 0);
-  //     // const collectionAmount = (client.paid_amount_date || []).reduce(
-  //     //   (sum, payment) => sum + parseFloat(payment.amount || 0),
-  //     //   0
-  //     // );
-  //     // const balance = totalAmount - collectionAmount;
-
-  //     const localAmount = (parseFloat(eid.amount) / parseFloat(eid.today_rate)).toFixed(3)
-
-  //     message += `${index + 1} |  ${client.client_name || 'Unknown'}| ${client.date} | ${localAmount} | ${client.today_date.toFixed(3)}\n`;
-  //   });
-
-
-  //   const phone = selectedEmployee.phone_number;
-  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-
-  //   window.open(whatsappLink, "_blank");
-  // };
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   const sendDistributorCSVToWhatsApp = () => {
     if (!selectedEmployee?.phone_number) {
       alert("No phone number available for the employee.");
@@ -354,12 +296,7 @@ const EmployeeInfo = () => {
     filteredUsers.forEach((client, index) => {
       const localAmount = client.amount && client.today_rate
         ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
-<<<<<<< HEAD
         : "N/A";
-=======
-        : "N/A"; // Handle cases where amount or rate is missing
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
 
       message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${localAmount} | ${todayRate} |\n`;
@@ -370,41 +307,6 @@ const EmployeeInfo = () => {
 
     window.open(whatsappLink, "_blank");
   };
-<<<<<<< HEAD
-=======
-
-
-
-  // const Distributor = () => {
-  //   if (!selectedEmployee?.phone_number) {
-  //     alert("No phone number available for the employee.");
-  //     return;
-  //   }
-
-
-  //   let message = "🔹 *Clients Report*\n\n";
-  //   message += " # | Distributor Name | Client |  Amount | Today | Balance | Date \n";
-  //   message += "---|-----------|---------|--------------|-------------|----------\n";
-
-  //   filteredClients.forEach((client, index) => {
-  //     const totalAmount = parseFloat(client.amount || 0);
-  //     const collectionAmount = (client.paid_amount_date || []).reduce(
-  //       (sum, payment) => sum + parseFloat(payment.amount || 0),
-  //       0
-  //     );
-  //     const balance = totalAmount - collectionAmount;
-
-  //     message += `${index + 1} | ${selectedEmployee?.username || 'Unknown'} | ${client.client_name || 'Unknown'} | ${totalAmount} | ${collectionAmount} | ${balance} | ${selectedDate}\n`;
-  //   });
-  //  c
-
-  //   const phone = selectedEmployee.phone_number;
-  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-
-  //   window.open(whatsappLink, "_blank");
-  // };
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   const overallamount = filteredClients.reduce((total, client) => {
     return (
       total +
@@ -425,17 +327,6 @@ const EmployeeInfo = () => {
     );
   }, 0);
 
-  // const thisAgentCollectionAmount = filteredClients.reduce((total, client) => {
-  //   return (
-  //     total +
-  //     (Array.isArray(client.paid_amount_date)
-  //       ? client.paid_amount_date
-  //         .filter((p) => p.userID === selectedEmployee.user_id)
-  //         .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-  //       : 0)
-  //   );
-  // }, 0);
-
   const thisAgentCollectionAmount = filteredClients.reduce((total, client) => {
     return (
       total +
@@ -444,11 +335,7 @@ const EmployeeInfo = () => {
           .filter((p) => p.userID === selectedEmployee.user_id)
           .reduce((sum, p) => {
             const paidAmount = parseFloat(p.amount) || 0;
-<<<<<<< HEAD
             const clientRate = parseFloat(client.today_rate) || 1;
-=======
-            const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
             return sum + (clientRate > 0 ? paidAmount / clientRate : 0);
           }, 0)
         : 0)
@@ -459,11 +346,7 @@ const EmployeeInfo = () => {
     .filter((client) => client.Distributor_id === selectedEmployee?.user_id)
     .reduce((total, client) => {
       const clientAmount = parseFloat(client.amount) || 0;
-<<<<<<< HEAD
       const clientRate = parseFloat(client.today_rate) || 1;
-=======
-      const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       return total + (clientRate > 0 ? clientAmount / clientRate : 0);
     }, 0);
 
@@ -476,16 +359,12 @@ const EmployeeInfo = () => {
     dispatch(setSelectedClient(client));
     navigate("/clientinfo");
   };
-<<<<<<< HEAD
        
 
   const customRound = (value) => {
     const decimalPart = value % 1; // Extract decimal part
     return decimalPart >= 0.50 ? Math.ceil(value) : Math.floor(value);
   };
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
   return (
     <div style={{ marginTop: '50px' }}>
@@ -528,43 +407,18 @@ const EmployeeInfo = () => {
           </div>
         </div>
       </div>
-<<<<<<< HEAD
       <div className="d-flex justify-content-end px-2">
         <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
           COLLECTION AMOUNT
           <span style={{ backgroundColor: "white", color: "black" }} className="px-2 py-2 mx-1">
-=======
-
-      {/* <div className='d-flex justify-content-end px-2'> <h4 className='px-4 py-3' style={{ backgroundColor: '#1246ac', color: 'white' }}>COLLECTON AMOUNT
-        <span style={{ backgroundColor: 'white', color: 'black' }} className='px-2 py-2 mx-1'  >{ selectedEmployee.role ==="Distributor"?(thisDistributorCollectionAmount):(thisAgentCollectionAmount)}</span></h4></div> */}
-
-
-      <div className="d-flex justify-content-end px-2">
-        <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
-          COLLECTION AMOUNT
-          <span
-            style={{ backgroundColor: "white", color: "black" }}
-            className="px-2 py-2 mx-1"
-          >
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
             {selectedEmployee?.role === "Distributor"
               ? thisDistributorCollectionAmount.toFixed(3)
               : thisAgentCollectionAmount.toFixed(3)}
           </span>
         </h4>
       </div>
-<<<<<<< HEAD
       {selectedEmployee?.role === "Collection Agent" ? (
         <div>
-=======
-
-
-
-      {selectedEmployee?.role === "Collection Agent" ? (
-        <div>
-
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           <div className='record-header d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
             <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
             <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
@@ -574,14 +428,6 @@ const EmployeeInfo = () => {
               Send to WhatsApp
             </Button></div>
           </div>
-<<<<<<< HEAD
-=======
-
-
-
-
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           <table className="table table-striped">
             <thead>
               <tr>
@@ -593,10 +439,6 @@ const EmployeeInfo = () => {
                 <th>COLLECTION AMOUNT</th>
                 <th>BALANCE AMOUNT</th>
                 {selectedDate ? <th>COLLECTION DATE</th> : <></>}
-<<<<<<< HEAD
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
               </tr>
             </thead>
             <tbody>
@@ -607,10 +449,6 @@ const EmployeeInfo = () => {
                       .filter((p) => p.userID === selectedEmployee.user_id)
                       .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
                     : 0;
-<<<<<<< HEAD
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                   return (
                     <tr key={index}>
                       <td>{index + 1}</td>
@@ -653,7 +491,6 @@ const EmployeeInfo = () => {
                           </h4>
                         </div>
                       </td>
-<<<<<<< HEAD
 
 
                       {/* <td>
@@ -719,30 +556,19 @@ const EmployeeInfo = () => {
                                   : "0.00"
                                 : "0.00"}
                             </span>
-=======
-                      <td>
-                        <div className="client-info">
-                          <h4 style={{ color: "blue", fontWeight: "500" }}>
-                            INTER: <span>{client.amount ? parseFloat(collectedAmount).toFixed(2) : "0.00"}</span>
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                           </h4>
                           <h4 style={{ color: "red", fontWeight: "500" }}>
                             LOCAL:{" "}
                             <span>
                               {collectedAmount && client.today_rate
-<<<<<<< HEAD
                                 ? (
                                   (parseFloat(client.amount - collectedAmount) /
                                     parseFloat(client.today_rate)) || 0
                                 ).toFixed(3)
-=======
-                                ? (parseFloat(collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                                 : "0.000"}
                             </span>
                           </h4>
                         </div>
-<<<<<<< HEAD
                       </td> */}
 
                     
@@ -782,31 +608,6 @@ const EmployeeInfo = () => {
                   );
                 })
               ) : (<tr><td colSpan="7" className="text-center">No Data Found</td></tr>)}
-=======
-                      </td>
-                      <td>
-                        <div className="client-info">
-                          <h4 style={{ color: "blue", fontWeight: "500" }}>
-                            INTER: <span>{client.amount ? parseFloat(client.amount - collectedAmount).toFixed(2) : "0.00"}</span>
-                          </h4>
-                          <h4 style={{ color: "red", fontWeight: "500" }}>
-                            LOCAL:{" "}
-                            <span>
-                              {collectedAmount && client.today_rate
-                                ? (parseFloat(client.amount - collectedAmount) / parseFloat(client.today_rate)).toFixed(3)
-                                : "0.000"}
-                            </span>
-                          </h4>
-                        </div>
-                      </td>
-
-                      {selectedDate ? <td>{selectedDate}</td> : <></>}
-
-                    </tr>
-                  );
-                })
-              ):( <tr><td colSpan="7" className="text-center">No Data Found</td></tr>)}
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
             </tbody>
             <tfoot>
               <tr>
@@ -815,36 +616,15 @@ const EmployeeInfo = () => {
                 </td>
                 <td>
                   <strong>
-<<<<<<< HEAD
                     {thisAgentCollectionAmount.toFixed(3)}
-=======
-                    {filteredClients.reduce((total, client) => {
-                      return (
-                        total +
-                        (Array.isArray(client.paid_amount_date)
-                          ? client.paid_amount_date
-                            .filter((p) => p.userID === selectedEmployee.user_id)
-                            .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-                          : 0)
-                      );
-                    }, 0)}
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                   </strong>
                 </td>
                 <td colSpan="3"></td>
               </tr>
             </tfoot>
           </table>
-<<<<<<< HEAD
         </div>
       ) : selectedEmployee?.role === "Distributor" ? (
-=======
-
-
-        </div>
-      ) : selectedEmployee?.role === "Distributor" ? (
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
         <div>
           <div>
             <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>

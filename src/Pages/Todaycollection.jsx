@@ -39,47 +39,11 @@ function Todaycollection() {
     }
   }, [dispatch]);
 
-<<<<<<< HEAD
  
   useEffect(() => {
     const today = format(new Date(), "dd-MM-yyyy");
 
     
-=======
-  // useEffect(() => {
-  //   const today = format(new Date(), "dd-MM-yyyy");
-
-
-  //   const filteredCollections = users
-  //     .filter((client) =>
-  //       client.paid_amount_date?.some((payment) => payment.date === today)
-  //     )
-  //     .map((client) => ({
-  //       ...client,
-  //       latestPaidTime: new Date(client.paid_amount_time || "1970-01-01T00:00:00Z"),
-  //     }));
-
-
-  //   filteredCollections.sort((a, b) => b.latestPaidTime - a.latestPaidTime);
-
-
-  //   const totalAmount = filteredCollections.reduce((sum, client) => {
-  //     const clientTotal = client.paid_amount_date.reduce((clientSum, payment) => {
-  //       return payment.date === today ? clientSum + parseFloat(payment.amount || 0) : clientSum;
-  //     }, 0);
-  //     return sum + clientTotal;
-  //   }, 0);
-
-  //   setTodayCollections(filteredCollections);
-  //   setTodayOverallAmount(totalAmount);
-  // }, [users]);
-
-
-  useEffect(() => {
-    const today = format(new Date(), "dd-MM-yyyy");
-
-    // Filter clients with payments made today and extract latest payment time
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     const filteredCollections = users
       .filter((client) =>
         client.paid_amount_date?.some((payment) => payment.date === today)
@@ -89,26 +53,15 @@ function Todaycollection() {
         latestPaidTime: new Date(client.paid_amount_time || "1970-01-01T00:00:00Z"),
       }));
 
-<<<<<<< HEAD
     
     filteredCollections.sort((a, b) => b.latestPaidTime - a.latestPaidTime);
 
     
-=======
-    // Sort by latest payment time (most recent first)
-    filteredCollections.sort((a, b) => b.latestPaidTime - a.latestPaidTime);
-
-    // Calculate total amount using today_rate conversion
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     const totalAmount = filteredCollections.reduce((sum, client) => {
       const clientTotal = client.paid_amount_date.reduce((clientSum, payment) => {
         if (payment.date === today) {
           const paymentAmount = parseFloat(payment.amount) || 0;
-<<<<<<< HEAD
           const clientRate = parseFloat(client.today_rate) || 1; 
-=======
-          const clientRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           return clientSum + (clientRate > 0 ? paymentAmount / clientRate : 0);
         }
         return clientSum;
@@ -188,7 +141,6 @@ function Todaycollection() {
                     <th>DATE</th>
                   </tr>
                 </thead>
-<<<<<<< HEAD
                 <tbody>
   {todayCollections.length > 0 ? (
     todayCollections.flatMap((client, clientIndex) => {
@@ -201,93 +153,6 @@ function Todaycollection() {
           return (
             <tr key={`${clientIndex}-${rowIndex}`}>
               <td>{rowIndex}</td>
-=======
-                {/* <tbody>
-                  {todayCollections.length > 0 ? (
-                    todayCollections.map((client, index) =>
-                      client.paid_amount_date.map((payment, pIndex) => {
-                        if (payment.date === format(new Date(), "dd-MM-yyyy")) {
-                          return (
-                            <tr key={pIndex}>
-                              <td>{index + 1}</td>
-
-                              <td>
-                                <div className="client">
-                                  <div
-                                    className="client-img bg-img"
-                                    style={{
-                                      backgroundImage:
-                                        "url(https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg)",
-                                    }}
-                                  ></div>
-                                  <div className="client-info">
-                                    <h4>{client.client_name ? client.client_name.toUpperCase() : "NULL"}</h4>
-                                    <small>{client.client_contact}</small>
-                                  </div>
-                                </div>
-                              </td>
-                              <td>
-                                {
-                                  employees.map((eid) => (
-                                    eid.user_id === payment.userID ? (
-                                      <div >
-                                        {eid.username}
-                                      </div>) : ("")
-                                  ))
-
-                                }
-                              </td>
-                              <td>{client.client_city ? client.client_city.toUpperCase() : "NULL"}</td>
-
-
-
-
-
-                              <td>
-                                <div className="client-info">
-                                  <h4 style={{ color: "blue", fontWeight: "500" }}>
-                                    INTER: <span>{client.amount ? parseFloat(payment.amount).toFixed(2) : "0.00"}</span>
-                                  </h4>
-                                  <h4 style={{ color: "red", fontWeight: "500" }}>
-                                    LOCAL:{" "}
-                                    <span>
-                                      {payment.amount && client.today_rate
-                                        ? (parseFloat(payment.amount) / parseFloat(client.today_rate)).toFixed(3)
-                                        : "0.000"}
-                                    </span>
-                                  </h4>
-                                </div>
-                              </td>
-                              <td>{client.today_rate}</td>
-
-                              <td>{payment.date.toUpperCase()}</td>
-                            </tr>
-                          );
-                        }
-                        return null;
-                      })
-                    )
-                  ) : (
-                    <tr>
-                      <td colSpan="7" className="text-center">
-                        NO DATA FOUND FOR TODAY
-                      </td>
-                    </tr>
-                  )}
-                </tbody> */}
-                <tbody>
-  {todayCollections.length > 0 ? (
-    todayCollections.flatMap((client, clientIndex) => {
-      let rowIndex = 0; // Declare a counter for correct numbering
-      return client.paid_amount_date
-        .filter((payment) => payment.date === format(new Date(), "dd-MM-yyyy"))
-        .map((payment) => {
-          rowIndex++; // Increment the counter
-
-          return (
-            <tr key={`${clientIndex}-${rowIndex}`}>
-              <td>{rowIndex}</td> {/* Correct numbering across all rows */}
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
               <td>
                 <div className="client">
                   <div

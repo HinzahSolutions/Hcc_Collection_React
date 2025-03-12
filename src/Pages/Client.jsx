@@ -50,11 +50,8 @@ function Client() {
   const [distributorId, setDistributorId] = useState();
   const [selectAmount, setSelectAmount] = useState()
   const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
-<<<<<<< HEAD
   const [showBankModal, setShowBankModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
-=======
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
 
   useEffect(() => {
@@ -215,7 +212,6 @@ function Client() {
     });
   }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
 
-<<<<<<< HEAD
 
 
 
@@ -225,17 +221,6 @@ function Client() {
   };
 
 
-=======
-  
-
-  const [visibleCount, setVisibleCount] = useState(20);
-
-const handleShowMore = () => {
-  setVisibleCount((prevCount) => prevCount + 20); 
-};
-
-       
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
   const totalLocalPaid = useMemo(() => {
     return filteredData.reduce((total, client) => {
@@ -265,13 +250,8 @@ const handleShowMore = () => {
         0
       );
       const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
-<<<<<<< HEAD
       const clientRate = parseFloat(client.today_rate) || 1;
 
-=======
-      const clientRate = parseFloat(client.today_rate) || 1; 
-  
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       return total + (clientRate > 0 ? clientBalance / clientRate : 0);
     }, 0);
   }, [filteredData]);
@@ -281,33 +261,7 @@ const handleShowMore = () => {
     e.preventDefault();
     const currentDate = format(new Date(), "dd-MM-yyyy");
     const selectedDistributor = employees.find(emp => emp.user_id === distributorId);
-<<<<<<< HEAD
 
-=======
-    // const clientData = {
-    //   client_name: clientName || "UNKNOWN",
-    //   client_contact: contactNumber || "UNKNOWN",
-    //   client_city: city || "UNKNOWN",
-    //   amount: amount || 0,
-    //   today_rate: todayrate || 0,
-    //   date: currentDate || new Date().toISOString(),
-    //   sent: false,
-    //   message: message || "",
-    //   paid_and_unpaid: false,
-    //   success_and_unsuccess: false,
-    //   bank_name: bname || "UNKNOWN",
-    //   accno: anumber || "UNKNOWN",
-    //   ifsc_code: ifsc || "UNKNOWN",
-    //   accoun_type: type || "10",
-    //   Distributor_id: distributorId || null,
-    //   name_of_the_beneficiary: holdername || "UNKNOWN",
-    //   address_of_the_beneficiary: holderaddress || "Chennai",
-    //   sender_information: senderinfo || "STOCK",
-    //   bank_type: clientType || "UNKNOWN",
-    //   narration: narration || "STOCK",
-    // };
-   
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     const clientData = {
       client_name: (clientName || "UNKNOWN").toUpperCase(),
       client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
@@ -330,11 +284,7 @@ const handleShowMore = () => {
       bank_type: (clientType || "").toUpperCase(),
       narration: (narration || "STOCK").toUpperCase(),
     };
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     console.log(clientData)
 
     fetch(`${API_URL}/acc_insertarrays`, {
@@ -378,10 +328,6 @@ const handleShowMore = () => {
     setClientName("");
     setContactNumber("");
     setAmount("");
-<<<<<<< HEAD
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     setCity("");
     setMessage("");
     setBname("");
@@ -394,24 +340,11 @@ const handleShowMore = () => {
   };
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
-<<<<<<< HEAD
       if (b.client_id !== a.client_id) {
         return b.client_id - a.client_id;
       }
       const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
       const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
-=======
-
-      if (b.client_id !== a.client_id) {
-        return b.client_id - a.client_id;
-      }
-
-
-      const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
-      const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
-
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       if (a.sent === b.sent) {
         return dateB - dateA;
       }
@@ -464,20 +397,8 @@ const handleShowMore = () => {
     setShowConfirmModal(true);
   };
   const handlesend = async (client_id) => {
-<<<<<<< HEAD
     const currentDate = format(new Date(), "dd-MM-yyyy");
     const sendData = { client_id, user_id: employeeId, sent: true, assigned_date: currentDate, };
-=======
-
-    const currentDate = format(new Date(), "dd-MM-yyyy");
-    const sendData = {
-      client_id,
-      user_id: employeeId,
-      sent: true,
-      assigned_date: currentDate,
-    };
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     try {
       const response = await fetch(`${API_URL}/client_IDupdated/${client_id}`, {
         method: "PUT",
@@ -511,10 +432,6 @@ const handleShowMore = () => {
 
 
   const [selectedRows, setSelectedRows] = useState([]);
-<<<<<<< HEAD
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   const [showModal, setShowModal] = useState(false);
   const [selectedBank, setSelectedBank] = useState("");
   const [selectAll, setSelectAll] = useState(false);
@@ -584,35 +501,20 @@ const handleShowMore = () => {
 
     const csvData = filteredRows.map((client) => {
       let clientData = {
-<<<<<<< HEAD
         " ACCOUNT NUMBER": ` ${client.accno}`,
         " AMOUNT": ` ${client.amount.toFixed(2)}`,
-=======
-        " ACCOUNT NUMBER": ` ${client.accno}` || "UNKNOWN ACCOUNT",
-        " AMOUNT": ` ${client.amount.toFixed(2)}` || 0,
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
       };
 
       if (selectedBank === "bank1") {
         clientData["NARRATION"] = ` ${client.narration || ""}`;
       } else if (selectedBank === "bank2") {
         clientData = {
-<<<<<<< HEAD
           " IFSC CODE": ` ${client.ifsc_code}`,
           " ACCOUNT TYPE": ` ${client.accoun_type || ""}`,
           " ACCOUNT NUMBER": ` ${client.accno}`,
           " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
           " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}`,
           " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}`,
-=======
-          " IFSC CODE": ` ${client.ifsc_code}` || "UNKNOWN IFSC",
-          " ACCOUNT TYPE": ` ${client.accoun_type}` || "UNKNOWN TYPE",
-          " ACCOUNT NUMBER": ` ${client.accno}` || "UNKNOWN ACCOUNT NUMBER",
-          " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary.toUpperCase()}` || "UNKNOWN BENEFICIARY NAME",
-          " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary.toUpperCase()}` || "UNKNOWN BENEFICIARY ADDRESS",
-          " SENDER INFORMATION": ` ${client.sender_information.toUpperCase()}` || "UNKNOWN SENDER INFORMATION",
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           ...clientData,
         };
       }
@@ -642,13 +544,7 @@ const handleShowMore = () => {
   const handleDistributorChange = (e) => {
     const selectedId = e.target.value;
     setDistributorId(selectedId);
-<<<<<<< HEAD
     const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
-=======
-
-    const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
     if (selectedDistributor) {
       setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
     } else {
@@ -656,17 +552,6 @@ const handleShowMore = () => {
     }
   };
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
   return (
     <div style={{ marginTop: "50px", width: '100%' }}>
       <div className="page-header">
@@ -721,14 +606,7 @@ const handleShowMore = () => {
         </div>
 
 
-<<<<<<< HEAD
         <div className="cardAction  bg-warning Cardyellow">
-=======
-        <div
-          className="cardAction"
-       
-        >
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           <div className="card-head">
             <h2>{totalLocalCurrency.toFixed(3)}</h2>
             <span className="las la-user-friends">
@@ -737,7 +615,6 @@ const handleShowMore = () => {
             </span>
           </div>
           <div className="card-progress">
-<<<<<<< HEAD
             <small> TOTAL AMOUNT</small>
           </div>
         </div>
@@ -788,80 +665,13 @@ const handleShowMore = () => {
             </Button>
           </div>
 
-=======
-            <small>SELECT TOTAL AMOUNT</small>
-          </div>
-        </div>
-
-        <div
-          className="cardAction"
-        
-        >
-          <div className="card-head">
-            <h2>{totalLocalPaid.toFixed(3)}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small>SELECT PAID AMOUNT</small>
-          </div>
-        </div>
-
-
-        <div
-          className="cardAction"
-        
-        >
-          <div className="card-head">
-            <h2>{totalLocalBalance.toFixed(3)}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small>BALANCE PAID AMOUNT</small>
-          </div>
-        </div>
-
-
-      </div>
-      <div className="">
-
-
-        <div className="record-header d-flex justify-content-between align-items-center flex-wrap gap-1 py-2 px-1">
-
-          <div className="d-flex align-items-center gap-2 ">
-
-            <button
-              onClick={handleSelectAll}
-              className={`btn ${selectAll ? "btn-danger" : "btn-success"} btn-sm`}
-              style={{ minWidth: "100px" }}
-            >
-              {selectAll ? "Deselect All" : "Select All"}
-            </button>
-
-
-            <Button className="btn btn-primary btn-sm" style={{ minWidth: "80px" }} onClick={handleShow}>
-              Add New
-            </Button>
-          </div>
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
           <div className="d-flex align-items-center gap-2 ">
 
             <Button
               onClick={exportToCSV}
               className="btn btn-primary position-relative text-nowrap"
-<<<<<<< HEAD
               style={{ minWidth: "120px" }} >
-=======
-              style={{ minWidth: "120px" }}
-            >
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
               Export to CSV
               {selectedRows.length > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -873,19 +683,11 @@ const handleShowMore = () => {
 
             <InputGroup className="d-flex gap-2 flex-wrap align-items-center">
               <DatePicker
-<<<<<<< HEAD
                 selected={selectedDate || null}
-=======
-                selected={selectedDate || null} // Ensures it's never undefined
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                 onChange={handleDateChange}
                 placeholderText="Select Date"
                 dateFormat="dd-MM-yyyy"
                 className="form-control date-input w-auto"
-<<<<<<< HEAD
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                 isClearable
                 customInput={<button style={{ zIndex: '999' }} className="calendar-icon-btn"><FaRegCalendarAlt /></button>}
               />
@@ -956,7 +758,6 @@ const handleShowMore = () => {
                           </h4>
                         </div>
                       </td>
-<<<<<<< HEAD
                       <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "0.000"}</td>
                       <td>
                         <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
@@ -981,8 +782,6 @@ const handleShowMore = () => {
                                 : "0.00"}
                             </span>
                           </h4>
-=======
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
                           <h4 style={{ color: "red", fontWeight: "500" }}>
                             LOCAL:{" "}
@@ -1028,7 +827,6 @@ const handleShowMore = () => {
                             </span>
                           </h4>
 
-<<<<<<< HEAD
                           <h4 style={{ color: "red", fontWeight: "500" }}>
                             LOCAL:{" "}
                             <span>
@@ -1052,9 +850,6 @@ const handleShowMore = () => {
                           </h4>
                         </div>
                       </td>
-=======
-                      <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "0.000"}</td>
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
                       <td>
                         {employees.length > 0 && row.user_id ? (
@@ -1089,123 +884,6 @@ const handleShowMore = () => {
                             SEND
                           </span>
 
-<<<<<<< HEAD
-=======
-                      <td>
-                        <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
-                          {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
-                        </p>
-                      </td>
-
-
-
-                      <td>{row.date}</td>
-                      <td>
-                        <div className="client-info">
-                          <h4 style={{ color: "blue", fontWeight: "500" }}>
-                            INTER:{" "}
-                            <span>
-                              {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0
-                                ? row.paid_amount_date
-                                  .reduce((total, entry) => total + parseFloat(entry.amount || 0), 0)
-                                  .toFixed(2)
-                                : "0.00"}
-                            </span>
-                          </h4>
-                          <h4 style={{ color: "red", fontWeight: "500" }}>
-                            LOCAL:{" "}
-                            <span>
-                              {Array.isArray(row.paid_amount_date) &&
-                                row.paid_amount_date.length > 0 &&
-                                row.today_rate
-                                ? (
-                                  row.paid_amount_date.reduce(
-                                    (total, entry) => total + parseFloat(entry.amount || 0),
-                                    0
-                                  ) / parseFloat(row.today_rate)
-                                ).toFixed(3)
-                                : "0.000"}
-                            </span>
-                          </h4>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="client-info">
-
-                          <h4 style={{ color: "blue", fontWeight: "500" }}>
-                            INTER:{" "}
-                            <span>
-                              {Array.isArray(row.paid_amount_date) && row.paid_amount_date.length > 0
-                                ? (
-                                  (parseFloat(row.amount || 0) -
-                                    row.paid_amount_date.reduce(
-                                      (total, entry) => total + parseFloat(entry.amount || 0),
-                                      0
-                                    )) || 0
-                                ).toFixed(2)
-                                : parseFloat(row.amount || 0) === 0
-                                  ? "0.00"
-                                  : parseFloat(row.amount || 0).toFixed(2)}
-                            </span>
-                          </h4>
-
-
-                          <h4 style={{ color: "red", fontWeight: "500" }}>
-                            LOCAL:{" "}
-                            <span>
-                              {Array.isArray(row.paid_amount_date) &&
-                                row.paid_amount_date.length > 0 &&
-                                row.today_rate
-                                ? (
-                                  ((parseFloat(row.amount || 0) -
-                                    row.paid_amount_date.reduce(
-                                      (total, entry) => total + parseFloat(entry.amount || 0),
-                                      0
-                                    )) /
-                                    parseFloat(row.today_rate)) || 0
-                                ).toFixed(3)
-                                : parseFloat(row.amount || 0) === 0
-                                  ? "0.00"
-                                  : (parseFloat(row.amount || 0) / parseFloat(row.today_rate || 1)).toFixed(3)}
-                            </span>
-                          </h4>
-                        </div>
-                      </td>
-                      <td>
-                        {employees.length > 0 && row.user_id ? (
-                          employees.some((eid) => eid.user_id === row.user_id) ? (
-                            employees
-                              .filter((eid) => eid.user_id === row.user_id)
-                              .map((eid, idx) => (
-                                <span key={idx} onClick={() => handlenav1(eid)}>
-                                  {eid.username.toUpperCase()}
-                                </span>
-                              ))
-                          ) : (
-                            <span>NO AGENT ASSIGNED</span>
-                          )
-                        ) : (
-                          <span style={{ textAlign: "center" }}>------</span>
-                        )}
-                      </td>
-                      <td>
-                        <div className="actions d-flex justify-content-start align-items-center pt-3 gap-1">
-
-                          <span
-                            style={{
-                              cursor: "pointer",
-                              fontSize: "11px",
-                              backgroundColor: "#00bbf0",
-                              padding: "3px 5px",
-                              color: "white",
-                              borderRadius: "4px",
-                            }}
-                            onClick={() => handleClientClick(row)}
-                          >
-                            SEND
-                          </span>
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                           <span
                             style={{
                               cursor: "pointer",
@@ -1242,24 +920,9 @@ const handleShowMore = () => {
                 )}
             </tbody>
           </table>
-<<<<<<< HEAD
           {visibleCount < sortedData.length && (
             <div className="d-flex  justify-content-end  mt-3 px-2"><p onClick={handleShowMore} className="nextData">Show More {">>"}</p></div>
           )}
-=======
-            
-
-       
-
-    {visibleCount < sortedData.length && (
-      <div className="d-flex  justify-content-end  mt-3 px-2">
-      <p onClick={handleShowMore} className="nextData">
-  Show More {">>"}
-</p>
-      </div>
-    )}
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
         </div>
       </div>
 
@@ -1298,25 +961,10 @@ const handleShowMore = () => {
               </div>
               <div>
                 <h4>Assign Employee</h4>
-<<<<<<< HEAD
                 <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} style={{ padding: "0px", border: "none" }} >
                   <option value="" disabled>
                     Select Employee
                   </option>
-=======
-
-                <select
-                  value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
-                  style={{ padding: "0px", border: "none" }}
-                >
-
-                  <option value="" disabled>
-                    Select Employee
-                  </option>
-
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                   {employees
                     .filter((emp) => emp.role === "Collection Agent")
                     .map((emp) => (
@@ -1348,24 +996,14 @@ const handleShowMore = () => {
 
       <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
         <div className="dio" style={{ width: '70vw' }}>
-<<<<<<< HEAD
           <Modal.Header closeButton className="d-flex justify-content-between py-3 ">
             <div className="d-flex justify-content-between w-100" >
               <Modal.Title  >Add New Client</Modal.Title>     <h5 className="pt-2">Date : {AddNewClientDate}</h5></div>
-=======
-          <Modal.Header closeButton className="d-flex justify-content-between py-3">
-            <div className="d-flex justify-content-between w-100" >
-              <Modal.Title>Add New Client</Modal.Title>     <h5 className="pt-2">Date : {AddNewClientDate}</h5></div>
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
           </Modal.Header>
           <Modal.Body>
             <form onSubmit={handleSubmit} className="custom-form">
 
-<<<<<<< HEAD
               <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12  " style={{ backgroundColor: "rgb(251, 243, 243)", borderRadius: '10px' }}>
-=======
-              <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12  " style={{ backgroundColor: "rgb(217, 227, 219)", borderRadius: '10px' }}>
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
 
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10 ">
                   <select
@@ -1382,13 +1020,7 @@ const handleShowMore = () => {
                         </option>
                       ))}
                   </select>
-<<<<<<< HEAD
                 </div>
-=======
-
-                </div>
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                   <input
                     type="number"
@@ -1422,16 +1054,7 @@ const handleShowMore = () => {
               </div>
               <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
-<<<<<<< HEAD
                   <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
-=======
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    required
-                  />
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                   <label>City</label>
                 </div>
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
@@ -1445,7 +1068,6 @@ const handleShowMore = () => {
                   <label>Amount</label>
                 </div>
               </div>
-<<<<<<< HEAD
               <div className="row d-flex  justify-content-end col-12">
                 <Button className={!showBankModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={() => setShowBankModal(!showBankModal)}>{showBankModal ? "Clear" : "Add Bank"} </Button>
               </div>
@@ -1515,8 +1137,6 @@ const handleShowMore = () => {
                 ) : (<></>)}
 
 
-=======
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
               <Modal.Footer className="w-100 justify-content-center">
                 <Button variant="secondary" onClick={handleClose} className="w-15">
                   Close

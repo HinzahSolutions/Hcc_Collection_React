@@ -146,29 +146,12 @@ function Assignemploye() {
                 <td>{row.date ? row.date.toUpperCase() : "UNKNOWN DATE"}</td>
                 <td>
                   <div className="actions">
-<<<<<<< HEAD
                     <span className=""
                       style={{cursor: "pointer",fontSize: "11px",backgroundColor: "#00bbf0",padding: "5px 10px 5px 10px",color: "white",borderRadius: "10px",}}
-=======
-                    <span
-                      className=""
-                      style={{
-                        cursor: "pointer",
-                        fontSize: "11px",
-                        backgroundColor: "#00bbf0",
-                        padding: "5px 10px 5px 10px",
-                        color: "white",
-                        borderRadius: "10px",
-                      }}
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                       onClick={() => handleClientClick(row)}
                     >
                       SEND
                     </span>
-<<<<<<< HEAD
-=======
-
->>>>>>> 1417db9a4452ca8493c93a158eccf617932b5f4d
                   </div>
                 </td>
               </tr>
