@@ -52,8 +52,9 @@ function Client() {
   const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
   const [showBankModal, setShowBankModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
-
-
+  const [sentAgent,setSentAgent] = useState(false)
+  const [allClient,setAllClient] = useState(false)
+ 
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
     if (Authorization) {
@@ -137,7 +138,7 @@ function Client() {
 
   const handlenav1 = (client) => {
     dispatch(setSelectedEmployee(client));
-    navigate("/employeeinfo");
+    navigate("/employee/employeeinfo");
   };
 
   const DashboardClient = () => setDashboardNav("client");
@@ -506,7 +507,7 @@ function Client() {
       };
 
       if (selectedBank === "bank1") {
-        clientData["NARRATION"] = ` ${client.narration || ""}`;
+        clientData[" NARRATION"] = ` ${client.narration || ""}`;
       } else if (selectedBank === "bank2") {
         clientData = {
           " IFSC CODE": ` ${client.ifsc_code}`,
@@ -550,7 +551,56 @@ function Client() {
     } else {
       setTodayRate("");
     }
-  };
+  };   
+
+
+
+  const handleAssignsend = async () => {
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+
+    const sendData = selectedRows.map((client) => ({
+        client_id: client.client_id,
+        user_id: employeeId,
+        assigned_date: currentDate,
+        sent: true
+    }));
+
+    try {
+        const response = await fetch(`${API_URL}/client_IDupdated`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(sendData),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to update client");
+        }
+
+        const result = await response.json();
+        console.log("Updated client response:", result);
+        setSendModal(false);
+        alert("Employee assignment successful");
+
+        fetch(`${API_URL}/acc_list`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: localStorage.getItem("authToken"),
+            },
+        })
+        .then((response) => response.json())
+        .then((updatedData) => dispatch(setUsers(updatedData)))
+        .catch((error) => console.error("Error fetching updated data:", error));
+
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+};
+
+
+
 
   return (
     <div style={{ marginTop: "50px", width: '100%' }}>
@@ -663,6 +713,16 @@ function Client() {
             <Button className="btn btn-primary btn-sm" style={{ minWidth: "80px" }} onClick={handleShow}>
               Add New
             </Button>
+
+            <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }}  onClick={() => setAllClient(true)} >
+               Assign{selectedRows.length > 0 && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {selectedRows.length}
+                </span>
+              )}
+            </Button>
+
+
           </div>
 
 
@@ -826,8 +886,7 @@ function Client() {
                                   : Math.ceil(parseFloat(row.amount || 0)).toFixed(2)}
                             </span>
                           </h4>
-
-                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                          {/* <h4 style={{ color: "red", fontWeight: "500" }}>
                             LOCAL:{" "}
                             <span>
                               {Array.isArray(row.paid_amount_date) &&
@@ -847,10 +906,37 @@ function Client() {
                                     parseFloat(row.amount || 0) / parseFloat(row.today_rate || 1)
                                   ).toFixed(3)}
                             </span>
-                          </h4>
+                          </h4> */}
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+  LOCAL:{" "}
+  <span>
+    {Array.isArray(row.paid_amount_date) &&
+    row.paid_amount_date.length > 0 &&
+    row.today_rate
+      ? (
+          Math.max(
+            (parseFloat(row.amount || 0) -
+              row.paid_amount_date.reduce(
+                (total, entry) => total + parseFloat(entry.amount || 0),
+                0
+              )) /
+            parseFloat(row.today_rate),
+            0
+          )
+        ).toFixed(3) // Ensures result is always in 3 decimal format
+      : parseFloat(row.amount || 0) === 0
+        ? "0.000"
+        : (
+            Math.max(
+              parseFloat(row.amount || 0) / parseFloat(row.today_rate || 1),
+              0
+            )
+          ).toFixed(3)}
+  </span>
+</h4>
+
                         </div>
                       </td>
-
                       <td>
                         {employees.length > 0 && row.user_id ? (
                           employees.some((eid) => eid.user_id === row.user_id) ? (
@@ -941,7 +1027,7 @@ function Client() {
                   type="text"
                   value={
                     selectedClient.client_name
-                      ? selectedClient.client_name.replace(/"/g, "")
+                      ? selectedClient.client_name.replace(/"/g, "").toUpperCase()
                       : ""
                   }
                   readOnly
@@ -969,7 +1055,7 @@ function Client() {
                     .filter((emp) => emp.role === "Collection Agent")
                     .map((emp) => (
                       <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
-                        {emp.username}
+                        {emp.username.toUpperCase()}
                       </option>
                     ))}
                 </select>
@@ -992,6 +1078,49 @@ function Client() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+
+
+      <Modal show={allClient} onHide={() => setAllClient(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign Employee</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          { (
+            <form>
+              <div>
+                <h4>Assign Employee</h4>
+                <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} style={{ padding: "0px", border: "none" }} >
+                  <option value="" disabled>
+                    Select Employee
+                  </option>
+                  {employees
+                    .filter((emp) => emp.role === "Collection Agent")
+                    .map((emp) => (
+                      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
+                        {emp.username.toUpperCase()}
+                      </option>
+                    ))}
+                </select>
+
+              </div>
+            </form>
+          ) }
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setSendModal(false)}>
+            Close
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => handleAssignsend()}
+          >
+            Assign
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
 
 
       <Modal show={show} onHide={handleClose} dialogClassName="custom-modal">
@@ -1126,15 +1255,10 @@ function Client() {
                         />
                         <label>IFSC Code </label>
                       </div>
-
                     </div>
-
-
-
-
-
                   </>
-                ) : (<></>)}
+                ) : (<>             
+                </>)}
 
 
               <Modal.Footer className="w-100 justify-content-center">
@@ -1186,6 +1310,24 @@ function Client() {
       >
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
+
+      <Modal show={sentAgent} onHide={() => setSentAgent(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Set The Agent</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+         
+        </Modal.Body>
+        <Modal.Footer className="d-flex justify-content-center align-items-center">
+          <Button variant="danger" onClick={() =>setSentAgent(false)}>
+            Cancel
+          </Button>
+          <Button variant="success" >
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
