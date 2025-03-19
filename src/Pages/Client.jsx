@@ -166,7 +166,7 @@ function Client() {
 
     return users.filter((row) => {
       const clientName = row.client_name?.toLowerCase().trim() || "";
-      const clientContact = row.client_contact?.toLowerCase().trim() || "";
+      const clientContact = row.client_contact || "";
       const employeeName = row.employee_name?.toLowerCase().trim() || "";
       const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
       const clientStatus = row.status?.toLowerCase().trim() || "";
@@ -566,7 +566,7 @@ function Client() {
     }));
 
     try {
-        const response = await fetch(`${API_URL}/client_IDupdated`, {
+        const response = await fetch(`${API_URL}/client_IDupdateds`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -798,7 +798,7 @@ function Client() {
                         <div className="client">
                           <div className="client-info">
                             <h4>{row.client_name ? row.client_name.replace(/"/g, "").toUpperCase() : ""}</h4>
-                            <small>{row.client_contact.toUpperCase()}</small>
+                            <small>{row.client_contact}</small>
                           </div>
                         </div>
                       </td>

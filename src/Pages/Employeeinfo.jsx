@@ -294,19 +294,26 @@ const EmployeeInfo = () => {
     message += "---|--------------|---------|---------|------------\n";
 
    
-    const totalLocalAmount = filteredUsers.reduce((sum, client) => {
-      const localAmount = client?.amount && client?.today_rate && 
-                          !isNaN(parseFloat(client.amount)) && 
-                          !isNaN(parseFloat(client.today_rate))
-        ? parseFloat(client.amount) / parseFloat(client.today_rate)
-        : 0;
+    // const totalLocalAmount = filteredUsers.forEach((client, index) => {client..reduce((sum, client) => {
+    //   const localAmount = client?.amount && client?.today_rate && 
+    //                       !isNaN(parseFloat(client.amount)) && 
+    //                       !isNaN(parseFloat(client.today_rate))
+    //     ? parseFloat(client.amount) / parseFloat(client.today_rate)
+    //     : 0;
     
-      return sum + localAmount;
-    }, 0).toFixed(3);
+    //   return sum + localAmount;
+    // })}, 0).toFixed(3);
     
     const totalInterAmount = Math.ceil(filteredUsers.reduce((sum, client) => {
       return sum + (parseFloat(client.amount) || 0); 
     }, 0)).toFixed(2); 
+
+
+    const   collectionInterAmount =  filteredUsers.reduce((total, client) => {
+      const clientAmount = parseFloat(client.amount) || 0;
+      const clientRate = parseFloat(client.today_rate) || 1;
+      return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+    }, 0);
     
   
     
@@ -320,10 +327,16 @@ const EmployeeInfo = () => {
             sum + (parseFloat(payment.amount) || 0), 0
           ).toFixed(2)
         : "0.00";
+
+      //   const collectionInterAmount = (Array.isArray(client.paid_amount_date)
+      //   ? client.paid_amount_date.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)
+      //   : 0
+      // ).toFixed(2);
+    
     
       const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
     
-      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${todayRate} | ${localAmount} | ${ Math.ceil((parseFloat(client.amount)) || 0).toFixed(2)} |\n`;
+      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${todayRate} | ${localAmount} | ${ Math.ceil((parseFloat(client.amount)) || 0).toFixed(2)} |\n\n`;
     });
     
    
@@ -332,6 +345,12 @@ const EmployeeInfo = () => {
     
     message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT*\n\n";
     message += `-----  ${totalInterAmount} \n\n`;
+
+    message += "🔹 *TOTAL CLIENT COLLECTION INTERNATIONAL AMOUNT*\n\n";
+    message += `-----  ${interAmount} \n\n`;
+
+    message += "🔹 *TOTAL CLIENT COLLECTION INTERNATIONAL AMOUNT*\n\n";
+    message += `-----  ${collectionLocalAmount} \n\n`;
     
     console.log(message);
     

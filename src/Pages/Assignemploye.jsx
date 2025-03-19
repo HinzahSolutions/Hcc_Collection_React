@@ -121,7 +121,7 @@ function Assignemploye() {
                     ></div>
                     <div className="client-info">
                       <h4>{row.client_name ? row.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
-                      <small>{row.client_contact ? row.client_contact.toUpperCase() : "NO CONTACT AVAILABLE"}</small>
+                      <small>{row.client_contact ? row.client_contact: "NO CONTACT AVAILABLE"}</small>
                     </div>
                   </div>
                 </td>

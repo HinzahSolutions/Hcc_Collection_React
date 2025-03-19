@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
-import { parse, subDays, format } from "date-fns";
+import { parse, subDays, format, parseISO } from "date-fns";
 
 function Employee() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -24,7 +24,7 @@ function Employee() {
   const [role, setRole] = useState("");
   const [photo, setPhoto] = useState(null);
   const [distributormodal, setDistributormodal] = useState(false)
-  const [amountSet,setAmountSet] = useState(false)
+  const [amountSet, setAmountSet] = useState(false)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [Confirmpassword, setConfirmpassword] = useState("");
@@ -40,8 +40,8 @@ function Employee() {
   const [employeeNameToDelete, setemployeeNameToDelete] = useState('');
   const currentDate = format(new Date(), "dd-MM-yyyy");
   const date = new Date();  // Current date
-const formattedDate = date.toISOString();  // Output: 2025-03-17T00:00:00.000Z
-console.log(formattedDate);
+  const formattedDate = date.toISOString(); 
+  console.log(formattedDate);
   console.log(employees)
   const fetchEmployees = async () => {
     setLoading(true);
@@ -413,6 +413,7 @@ console.log(formattedDate);
         alert("Rate updated successfully!");
         setTodayRateModal(false);
         setAmount("");
+        fetchEmployees();
       } else {
         const errorText = await response.text();
         console.error("Failed to update rate:", errorText);
@@ -424,96 +425,143 @@ console.log(formattedDate);
     }
   };
 
- 
 
 
 
- 
-    // const [amounts, setAmounts] = useState(() =>
-    //   employees.reduce((acc, emp) => ({ ...acc, [emp.user_id]: "" }), {})
-    // );
-  
-    // const handleAmountChange = (userId, value) => {
-    //   setAmounts((prev) => ({ ...prev, [userId]: value }));
-    // };
-  
-    // const handleSubmitUpdate2 = async () => {
-    //   const currentDate = format(new Date(), "dd-MM-yyyy");
-  
-    //   const data = employees.map((emp) => ({
-    //     user_id: emp.user_id,
-    //     today_rate_date: currentDate,
-    //     Distributor_today_rate: amounts[emp.user_id] || "",
-    //   }));
-  
-    //   console.log("Sending data:", data);
-  
-    //   try {
-    //     const response = await fetch(`${API_URL}/update-distributor-amount`, {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify(data),
-    //     });
-  
-    //     if (response.ok) {
-    //       alert("Rates updated successfully!");
-    //       setAmountSet(false);
-    //     } else {
-    //       const errorText = await response.text();
-    //       console.error("Failed to update rates:", errorText);
-    //       alert(`Failed to update rates: ${errorText}`);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error updating rates:", error);
-    //     alert("An error occurred.");
-    //   }
-    // };
 
-    const [amounts, setAmounts] = useState(() =>
-      employees.reduce((acc, emp) => ({ ...acc, [emp.user_id]: "" }), {})
-    );
-  
-    const handleAmountChange = (userId, value) => {
-      setAmounts((prev) => ({ ...prev, [userId]: value }));
-    };
-  
-    const handleSubmitUpdate2 = async () => {
-     
-  
-      const data = employees
-        .filter((emp) => emp.role === "Distributor")
-        .map((emp) => ({
-          user_id: emp.user_id,
-          today_rate_date: currentDate,
-          Distributor_today_rate: amounts[emp.user_id] || "",
-        }));
-  
-      console.log("Sending data:", data);
-  
-      try {
-        const response = await fetch(`${API_URL}/update-distributor-amounts`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-  
-        if (response.ok) {
-          alert("Rates updated successfully!");
-          setAmountSet(false);
-        } else {
-          const errorText = await response.text();
-          console.error("Failed to update rates:", errorText);
-          alert(`Failed to update rates`);
-        }
-      } catch (error) {
-        console.error("Error updating rates:", error);
-        alert("An error occurred.");
+
+  // const [amounts, setAmounts] = useState(() =>
+  //   employees.reduce((acc, emp) => ({ ...acc, [emp.user_id]: "" }), {})
+  // );
+
+  // const handleAmountChange = (userId, value) => {
+  //   setAmounts((prev) => ({ ...prev, [userId]: value }));
+  // };
+
+  // const handleSubmitUpdate2 = async () => {
+  //   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  //   const data = employees.map((emp) => ({
+  //     user_id: emp.user_id,
+  //     today_rate_date: currentDate,
+  //     Distributor_today_rate: amounts[emp.user_id] || "",
+  //   }));
+
+  //   console.log("Sending data:", data);
+
+  //   try {
+  //     const response = await fetch(`${API_URL}/update-distributor-amount`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(data),
+  //     });
+
+  //     if (response.ok) {
+  //       alert("Rates updated successfully!");
+  //       setAmountSet(false);
+  //     } else {
+  //       const errorText = await response.text();
+  //       console.error("Failed to update rates:", errorText);
+  //       alert(`Failed to update rates: ${errorText}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating rates:", error);
+  //     alert("An error occurred.");
+  //   }
+  // };
+
+  const [amounts, setAmounts] = useState(() =>
+    employees.reduce((acc, emp) => ({ ...acc, [emp.user_id]: "" }), {})
+  );
+
+  const handleAmountChange = (userId, value) => {
+    setAmounts((prev) => ({ ...prev, [userId]: value }));
+  };
+
+  const handleSubmitUpdate2 = async () => {
+
+
+    const data = employees
+      .filter((emp) => emp.role === "Distributor" && emp.user_id)
+      .map((emp) => ({
+        user_id: emp.user_id,
+        today_rate_date: currentDate,
+        Distributor_today_rate: parseFloat(amounts[emp.user_id]) || 0,
+      }));
+
+    console.log("Sending data:", data);
+
+    try {
+      const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Rates updated successfully!");
+        setAmountSet(false);
+        fetchEmployees();
+      } else {
+        const errorText = await response.text();
+        console.error("Failed to update rates:", errorText);
+        alert(`Failed to update rates`);
       }
-    };
+    } catch (error) {
+      console.error("Error updating rates:", error);
+      alert("An error occurred.");
+    }
+  };
+
+
+
+  //   const handleSubmitUpdate2 = async () => {
+  //     // Log employees and amounts to verify data structure
+  //     console.log("Employees Data:", employees);
+  //     console.log("Amounts Data:", amounts);
+
+  //     const data = employees
+  //         .filter((emp) => emp.role === "Distributor" && emp.user_id)  // Ensure valid user_id
+  //         .map((emp) => ({
+  //             user_id: emp.user_id.toString(), // Ensures user_id is sent as a string
+  //             today_rate_date: currentDate,
+  //             Distributor_today_rate: parseFloat(amounts[emp.user_id]) || 0,  // Ensures float conversion
+  //         }))
+  //         .filter((entry) => entry.user_id && entry.Distributor_today_rate !== 0); // Exclude invalid entries
+
+  //     // Wrap data in an array to meet backend expectations
+  //     const payload = { data };
+
+  //     // Log final data before sending
+  //     console.log("Data to Send:", payload);
+
+  //     try {
+  //         const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+  //             method: "POST",
+  //             headers: {
+  //                 "Content-Type": "application/json",
+  //             },
+  //             body: JSON.stringify(payload),  // Send as { data: [...] }
+  //         });
+
+  //         if (response.ok) {
+  //             alert("Rates updated successfully!");
+  //             setAmountSet(false);
+  //         } else {
+  //             const errorText = await response.text();
+  //             console.error("Failed to update rates:", errorText);
+  //             alert(`Failed to update rates: ${errorText}`);
+  //         }
+  //     } catch (error) {
+  //         console.error("Error updating rates:", error);
+  //         alert("An error occurred.");
+  //     }
+  // };
+
 
   return (
     <div style={{ marginTop: "50px" }}>
@@ -618,7 +666,7 @@ console.log(formattedDate);
                   Add New Distributor
                 </Button>
 
-                <Button className="w-auto text-white"  onClick={() => setAmountSet(true)} >
+                <Button className="w-auto text-white" onClick={() => setAmountSet(true)} >
                   Set Amount
                 </Button>
 
@@ -793,7 +841,7 @@ console.log(formattedDate);
                       <th>ROLE</th>
                       <th>CITY</th>
                       <th>EMAIL</th>
-                      {/* <th>Today Rate</th> */}
+                      <th>Today Rate</th>
                       <th>ACTIONS</th>
                     </tr>
                   </thead>
@@ -820,13 +868,13 @@ console.log(formattedDate);
                         <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
                         <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
                         <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
-                        {/* <td>
-          {row.role === "Distributor"
-            ? row.today_rate_date === formattedDate
-              ? row.Distributor_today_rate || "0"
-              : "0"
-            : "-"}
-        </td> */}
+                        <td>
+                          {row.role === "Distributor" && row.today_rate_date
+                            ? (row.today_rate_date === currentDate)
+                              ? row.Distributor_today_rate || "0"
+                              : "0"
+                            : "-"}
+                        </td>
                         <td>
                           <div className="actions d-flex justify-content-start align-items-center pt-2">
                             <span
@@ -857,7 +905,7 @@ console.log(formattedDate);
                             >
                               DELETE
                             </span>
-                            {/* {
+                            {
                               row.role === "Distributor" ? (<span
                                 className=""
                                 style={{
@@ -873,7 +921,7 @@ console.log(formattedDate);
                               >
                                 Today Rate
                               </span>) : (<></>)
-                            } */}
+                            }
 
                           </div>
                         </td>
@@ -967,32 +1015,32 @@ console.log(formattedDate);
 
 
           <Modal show={amountSet} onHide={() => setAmountSet(false)}>
-      <Modal.Header closeButton>
-        <Modal.Title>Amount Set</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-      {employees.filter((emp) => emp.role === "Distributor").map((emp) => (
-          <div key={emp.user_id} className="mb-3">
-            <p><strong>{emp.username}</strong></p>
-            <input
-              type="number"
-              placeholder="Enter Amount"
-              value={amounts[emp.user_id] || ""}
-              onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
-              className="form-control"
-            />
-          </div>
-        ))}
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => setAmountSet(false)}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={handleSubmitUpdate2}>
-          Update
-        </Button>
-      </Modal.Footer>
-    </Modal>
+            <Modal.Header closeButton>
+              <Modal.Title>Amount Set</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {employees.filter((emp) => emp.role === "Distributor").map((emp) => (
+                <div key={emp.user_id} className="mb-3">
+                  <p><strong>{emp.username}</strong></p>
+                  <input
+                    type="number"
+                    placeholder="Enter Amount"
+                    value={amounts[emp.user_id] || ""}
+                    onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+              ))}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setAmountSet(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleSubmitUpdate2}>
+                Update
+              </Button>
+            </Modal.Footer>
+          </Modal>
 
 
 
