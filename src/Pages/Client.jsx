@@ -1227,7 +1227,7 @@ function Client() {
                         <label>Account Number</label>
                       </div>
                     </div>
-                    <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
+                    {/* <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
                           type="text"
@@ -1247,7 +1247,7 @@ function Client() {
                         />
                         <label>Beneficiary Address</label>
                       </div>
-                    </div>
+                    </div> */}
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
