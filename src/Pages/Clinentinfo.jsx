@@ -217,7 +217,7 @@ function Clinentinfo() {
               </div>
               <div className="col-md-6">
                 <h4 className="fw-bold">Contact Number:</h4>
-                <p className="text-muted fw-bold">{(selectedClient.client_contact || " -----  ").toUpperCase()}</p>
+                <p className="text-muted fw-bold">{(selectedClient.client_contact || " -----  ")}</p>
               </div>
               <div className="col-md-6">
                 <h4 className="fw-bold">City:</h4>

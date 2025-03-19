@@ -1039,7 +1039,7 @@ function Client() {
                   type="text"
                   value={
                     selectedClient.client_contact
-                      ? selectedClient.client_contact.replace(/"/g, "")
+                      ? selectedClient.client_contact
                       : ""
                   }
                   readOnly
@@ -1176,14 +1176,17 @@ function Client() {
                     type="text"
                     value={contactNumber}
                     onChange={(e) => setContactNumber(e.target.value)}
-                    required
+                    // required
                   />
                   <label>Client Contact Number</label>
                 </div>
               </div>
               <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
-                  <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
+                  <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
+                  //  required 
+
+                   />
                   <label>City</label>
                 </div>
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
@@ -1192,7 +1195,7 @@ function Client() {
                     value={amount}
                     step="0.01"
                     onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                    required
+                    // required
                   />
                   <label>Amount</label>
                 </div>
@@ -1209,7 +1212,7 @@ function Client() {
                           type="text"
                           value={bname}
                           onChange={(e) => setBname(e.target.value)}
-                          required
+                          // required
                         />
                         <label>Bank Name</label>
                       </div>
@@ -1219,7 +1222,7 @@ function Client() {
                           value={anumber}
                           step="0.01"
                           onChange={(e) => setAnumber(e.target.value)}
-                          required
+                          // required
                         />
                         <label>Account Number</label>
                       </div>
@@ -1230,7 +1233,7 @@ function Client() {
                           type="text"
                           value={holdername}
                           onChange={(e) => setHoldername(e.target.value)}
-                          required
+                          // required
                         />
                         <label>Beneficiary Name</label>
                       </div>
@@ -1240,7 +1243,7 @@ function Client() {
                           value={holderaddress}
 
                           onChange={(e) => setHolderadderss(e.target.value)}
-                          required
+                          // required
                         />
                         <label>Beneficiary Address</label>
                       </div>
@@ -1251,7 +1254,7 @@ function Client() {
                           type="text"
                           value={ifsc}
                           onChange={(e) => setIfsc(e.target.value)}
-                          required
+                          // required
                         />
                         <label>IFSC Code </label>
                       </div>

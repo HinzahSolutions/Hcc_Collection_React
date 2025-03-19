@@ -91,7 +91,7 @@ function Formdata() {
                   name="client_name"
                   value={clientData.client_name || ''}
                   onChange={handleChange}
-                  required
+                 
                 />
               </Form.Group>
 
@@ -102,7 +102,7 @@ function Formdata() {
                   name="client_contact"
                   value={clientData.client_contact || ''}
                   onChange={handleChange}
-                  required
+                 
                 />
               </Form.Group>
 
@@ -113,7 +113,7 @@ function Formdata() {
                   name="client_city"
                   value={clientData.client_city || ''}
                   onChange={handleChange}
-                  required
+                  
                 />
               </Form.Group>
 
