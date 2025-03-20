@@ -52,9 +52,9 @@ function Client() {
   const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
   const [showBankModal, setShowBankModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
-  const [sentAgent,setSentAgent] = useState(false)
-  const [allClient,setAllClient] = useState(false)
- 
+  const [sentAgent, setSentAgent] = useState(false)
+  const [allClient, setAllClient] = useState(false)
+
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
     if (Authorization) {
@@ -261,7 +261,6 @@ function Client() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const currentDate = format(new Date(), "dd-MM-yyyy");
-    const selectedDistributor = employees.find(emp => emp.user_id === distributorId);
 
     const clientData = {
       client_name: (clientName || "UNKNOWN").toUpperCase(),
@@ -551,7 +550,7 @@ function Client() {
     } else {
       setTodayRate("");
     }
-  };   
+  };
 
 
 
@@ -559,45 +558,45 @@ function Client() {
     const currentDate = format(new Date(), "dd-MM-yyyy");
 
     const sendData = selectedRows.map((client) => ({
-        client_id: client.client_id,
-        user_id: employeeId,
-        assigned_date: currentDate,
-        sent: true
+      client_id: client.client_id,
+      user_id: employeeId,
+      assigned_date: currentDate,
+      sent: true
     }));
 
     try {
-        const response = await fetch(`${API_URL}/client_IDupdateds`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(sendData),
-        });
+      const response = await fetch(`${API_URL}/client_IDupdateds`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sendData),
+      });
 
-        if (!response.ok) {
-            throw new Error("Failed to update client");
-        }
+      if (!response.ok) {
+        throw new Error("Failed to update client");
+      }
 
-        const result = await response.json();
-        console.log("Updated client response:", result);
-        setSendModal(false);
-        alert("Employee assignment successful");
+      const result = await response.json();
+      console.log("Updated client response:", result);
+      setSendModal(false);
+      alert("Employee assignment successful");
 
-        fetch(`${API_URL}/acc_list`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: localStorage.getItem("authToken"),
-            },
-        })
+      fetch(`${API_URL}/acc_list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("authToken"),
+        },
+      })
         .then((response) => response.json())
         .then((updatedData) => dispatch(setUsers(updatedData)))
         .catch((error) => console.error("Error fetching updated data:", error));
 
     } catch (error) {
-        console.error("Fetch error:", error);
+      console.error("Fetch error:", error);
     }
-};
+  };
 
 
 
@@ -714,8 +713,8 @@ function Client() {
               Add New
             </Button>
 
-            <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }}  onClick={() => setAllClient(true)} >
-               Assign{selectedRows.length > 0 && (
+            <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }} onClick={() => setAllClient(true)} >
+              Assign{selectedRows.length > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {selectedRows.length}
                 </span>
@@ -802,7 +801,7 @@ function Client() {
                           </div>
                         </div>
                       </td>
-                      <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : ""}</td>
+                      <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : "---"}</td>
                       <td>
                         <div className="client-info">
                           <h4 style={{ color: "blue", fontWeight: "500" }}>
@@ -818,13 +817,13 @@ function Client() {
                           </h4>
                         </div>
                       </td>
-                      <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "0.000"}</td>
+                      <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "---"}</td>
                       <td>
                         <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
                           {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
                         </p>
                       </td>
-                      <td>{row.date}</td>
+                      <td>{row.date || "---"}</td>
                       <td>
                         <div className="client-info">
                           <h4 style={{ color: "blue", fontWeight: "500" }}>
@@ -886,55 +885,31 @@ function Client() {
                                   : Math.ceil(parseFloat(row.amount || 0)).toFixed(2)}
                             </span>
                           </h4>
-                          {/* <h4 style={{ color: "red", fontWeight: "500" }}>
+
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
                             LOCAL:{" "}
                             <span>
                               {Array.isArray(row.paid_amount_date) &&
                                 row.paid_amount_date.length > 0 &&
                                 row.today_rate
                                 ? (
-                                  (parseFloat(row.amount || 0) -
-                                    row.paid_amount_date.reduce(
-                                      (total, entry) => total + parseFloat(entry.amount || 0),
-                                      0
-                                    )) /
-                                  parseFloat(row.today_rate)
+                                  Math.max(
+                                    (parseFloat(row.amount || 0) -
+                                      row.paid_amount_date.reduce(
+                                        (total, entry) => total + parseFloat(entry.amount || 0),
+                                        0
+                                      )) /
+                                    parseFloat(row.today_rate),
+                                    0
+                                  )
                                 ).toFixed(3)
                                 : parseFloat(row.amount || 0) === 0
-                                  ? "0.00"
+                                  ? "0.000"
                                   : (
-                                    parseFloat(row.amount || 0) / parseFloat(row.today_rate || 1)
-                                  ).toFixed(3)}
+                                    Math.max(
+                                      parseFloat(row.amount || 0) / parseFloat(row.today_rate || 1),0)).toFixed(3)}
                             </span>
-                          </h4> */}
-                          <h4 style={{ color: "red", fontWeight: "500" }}>
-  LOCAL:{" "}
-  <span>
-    {Array.isArray(row.paid_amount_date) &&
-    row.paid_amount_date.length > 0 &&
-    row.today_rate
-      ? (
-          Math.max(
-            (parseFloat(row.amount || 0) -
-              row.paid_amount_date.reduce(
-                (total, entry) => total + parseFloat(entry.amount || 0),
-                0
-              )) /
-            parseFloat(row.today_rate),
-            0
-          )
-        ).toFixed(3) // Ensures result is always in 3 decimal format
-      : parseFloat(row.amount || 0) === 0
-        ? "0.000"
-        : (
-            Math.max(
-              parseFloat(row.amount || 0) / parseFloat(row.today_rate || 1),
-              0
-            )
-          ).toFixed(3)}
-  </span>
-</h4>
-
+                          </h4>
                         </div>
                       </td>
                       <td>
@@ -1086,8 +1061,16 @@ function Client() {
           <Modal.Title>Assign Employee</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          { (
+          {(
             <form>
+            <div>
+                   <p>Total Selected Client : <span  className="text-danger">{selectedRows.length}</span> </p> 
+
+
+                  <div>
+                      
+                  </div>
+            </div>
               <div>
                 <h4>Assign Employee</h4>
                 <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} style={{ padding: "0px", border: "none" }} >
@@ -1105,10 +1088,10 @@ function Client() {
 
               </div>
             </form>
-          ) }
+          )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setSendModal(false)}>
+          <Button variant="secondary" onClick={() => setAllClient(false)}>
             Close
           </Button>
           <Button
@@ -1176,7 +1159,7 @@ function Client() {
                     type="text"
                     value={contactNumber}
                     onChange={(e) => setContactNumber(e.target.value)}
-                    // required
+                  // required
                   />
                   <label>Client Contact Number</label>
                 </div>
@@ -1186,7 +1169,7 @@ function Client() {
                   <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
                   //  required 
 
-                   />
+                  />
                   <label>City</label>
                 </div>
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
@@ -1195,7 +1178,7 @@ function Client() {
                     value={amount}
                     step="0.01"
                     onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                    // required
+                  // required
                   />
                   <label>Amount</label>
                 </div>
@@ -1212,7 +1195,7 @@ function Client() {
                           type="text"
                           value={bname}
                           onChange={(e) => setBname(e.target.value)}
-                          // required
+                        // required
                         />
                         <label>Bank Name</label>
                       </div>
@@ -1222,45 +1205,24 @@ function Client() {
                           value={anumber}
                           step="0.01"
                           onChange={(e) => setAnumber(e.target.value)}
-                          // required
+                        // required
                         />
                         <label>Account Number</label>
                       </div>
                     </div>
-                    {/* <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
-                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
-                        <input
-                          type="text"
-                          value={holdername}
-                          onChange={(e) => setHoldername(e.target.value)}
-                          // required
-                        />
-                        <label>Beneficiary Name</label>
-                      </div>
-                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
-                        <input
-                          type="text"
-                          value={holderaddress}
-
-                          onChange={(e) => setHolderadderss(e.target.value)}
-                          // required
-                        />
-                        <label>Beneficiary Address</label>
-                      </div>
-                    </div> */}
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
                           type="text"
                           value={ifsc}
                           onChange={(e) => setIfsc(e.target.value)}
-                          // required
+                        // required
                         />
                         <label>IFSC Code </label>
                       </div>
                     </div>
                   </>
-                ) : (<>             
+                ) : (<>
                 </>)}
 
 
@@ -1313,23 +1275,6 @@ function Client() {
       >
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
-
-      <Modal show={sentAgent} onHide={() => setSentAgent(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Set The Agent</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-         
-        </Modal.Body>
-        <Modal.Footer className="d-flex justify-content-center align-items-center">
-          <Button variant="danger" onClick={() =>setSentAgent(false)}>
-            Cancel
-          </Button>
-          <Button variant="success" >
-            Confirm
-          </Button>
-        </Modal.Footer>
-      </Modal>
 
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>

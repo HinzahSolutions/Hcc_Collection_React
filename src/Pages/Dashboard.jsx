@@ -25,23 +25,18 @@ function Dashboard() {
   const users = useSelector((state) => state.clients.users);
   const employees = useSelector((state) => state.employees.employees);
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
-  const [accountsLoaded, setAccountsLoaded] = useState(false);
-const [employeesLoaded, setEmployeesLoaded] = useState(false);
+  // const [accountsLoaded, setAccountsLoaded] = useState(false);
+  // const [employeesLoaded, setEmployeesLoaded] = useState(false);
   const [totalPaidAmount, setTotalPaidAmount] = useState(0);
   const [totalBalanceAmount, setTotalBalanceAmount] = useState(0);
-  const [todayCollections, setTodayCollections] = useState([]);
   const [overallAmount, setOverallAmount] = useState(0);
   const [overallPaidAmount, setOverallPaidAmount] = useState(0); 
   const [ratemodel,setRateModel] = useState(false)
-
-
   const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
   const currentYear = new Date().getFullYear();
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
-
   const getCookie = (name) => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -224,7 +219,6 @@ useEffect(() => {
         <h1>Dashboard</h1>
         <div  className="d-flex  justify-content-between">
         <small>Dashboard</small>
-        {/* <Button   onClick={() => setRateModel(1)}  className="w-auto">Add Today Rate</Button> */}
         </div>
         
       </div>
@@ -308,9 +302,9 @@ useEffect(() => {
         </div>
       </div>
       <div>
-        <Assignemploye />
+        <Assignemploye   />
       </div>
-      <Todaycollection />
+      <Todaycollection   className="vh-100" />
       <div>
         <div className="chart-header text-center">
           <h4 className="pt-2">Payment Chart</h4>
@@ -333,9 +327,7 @@ useEffect(() => {
             </select>
           </div>
         </div>
-        
           <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} style={{height:'100%'}} />
-        
       </div>
     </div>
   )}
@@ -348,7 +340,7 @@ useEffect(() => {
   </Modal.Header>
   <Modal.Body>
     {employees
-      .filter((eid) => eid.role === "Distributor") // Correct filter function
+      .filter((eid) => eid.role === "Distributor") 
       .map((distributor) => (
         <div>
         <span  key={distributor.id} >{distributor.username}</span>
@@ -364,7 +356,6 @@ useEffect(() => {
     <Button variant="primary">OK</Button>
   </Modal.Footer>
 </Modal>
-
 </div>
   )
 }

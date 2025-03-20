@@ -24,7 +24,7 @@ function Assignemploye() {
       console.log("Unassigned Users:", unassigned);
     }
   }, [users]);
- 
+
 
   const handleClientClick = (client) => {
     dispatch(setSelectedClient(client));
@@ -32,13 +32,13 @@ function Assignemploye() {
   };
   const handlesend = async (client_id) => {
 
-       const currentDate = format(new Date(), "dd-MM-yyyy");
+    const currentDate = format(new Date(), "dd-MM-yyyy");
     console.log(employeeId)
     const sendData = {
       client_id,
       user_id: employeeId,
       sent: 1,
-      assigned_date: currentDate, 
+      assigned_date: currentDate,
     };
     try {
       const response = await fetch(`${API_URL}/client_IDupdated/${client_id}`, {
@@ -86,14 +86,14 @@ function Assignemploye() {
     });
   }, [assign]);
   return (
-    <div> {sortedData.length > 0 ? (
+    <div style={{ height: '100%', width: '100%' }}> {sortedData.length > 0 ? (
       <div className=" ">
         <div className="record-header">
           <div className="add">
             <h4 style={{ textAlign: 'center', padding: '10px' }}>Assign Employee</h4>
           </div>
         </div>
-        <table className="table table-striped">
+        <table className="table table-striped w-100 " style={{ overflowX: 'scroll' }}  >
           <thead>
             <tr>
               <th>#</th>
@@ -102,13 +102,13 @@ function Assignemploye() {
               <th>AMOUNT</th>
               <th>TODAY RATE</th>
               <th>DATE</th>
-              <th>ACTIONS</th>
+                <th>ACTIONS</th>
             </tr>
           </thead>
           {sortedData.map((row, index) => (
             <tbody key={index}>
               <tr>
-                <td>{index +1}</td>
+                <td>{index + 1}</td>
                 <td>
                   <div className="client">
                     <div
@@ -120,34 +120,34 @@ function Assignemploye() {
                       }}
                     ></div>
                     <div className="client-info">
-                      <h4>{row.client_name ? row.client_name.toUpperCase() : "UNKNOWN CLIENT"}</h4>
-                      <small>{row.client_contact ? row.client_contact: "NO CONTACT AVAILABLE"}</small>
+                      <h4>{row.client_name ? row.client_name.replace(/"/g, "").toUpperCase() : "UNKNOWN CLIENT"}</h4>
+                      <small>{row.client_contact ? row.client_contact : "NO CONTACT AVAILABLE"}</small>
                     </div>
                   </div>
                 </td>
                 <td>{row.client_city ? row.client_city.toUpperCase() : "UNKNOWN CITY"}</td>
 
                 <td>
-          <div className="client-info">
-            <h4 style={{ color: "blue", fontWeight: "500" }}>
-              INTER: <span>{row.amount ? parseFloat(row.amount).toFixed(2) : "0.00"}</span>
-            </h4>
-            <h4 style={{ color: "red", fontWeight: "500" }}>
-              LOCAL:{" "}
-              <span>
-                {row.amount && row.today_rate
-                  ? (parseFloat(row.amount) / parseFloat(row.today_rate)).toFixed(3)
-                  : "0.000"}
-              </span>
-            </h4>
-          </div>
-        </td>
-               <td>{parseFloat(row.today_rate).toFixed(2)}</td>
+                  <div className="client-info">
+                    <h4 style={{ color: "blue", fontWeight: "500" }}>
+                      INTER: <span>{row.amount ? parseFloat(row.amount).toFixed(2) : "0.00"}</span>
+                    </h4>
+                    <h4 style={{ color: "red", fontWeight: "500" }}>
+                      LOCAL:{" "}
+                      <span>
+                        {row.amount && row.today_rate
+                          ? (parseFloat(row.amount) / parseFloat(row.today_rate)).toFixed(3)
+                          : "0.000"}
+                      </span>
+                    </h4>
+                  </div>
+                </td>
+                <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "---"}</td>
                 <td>{row.date ? row.date.toUpperCase() : "UNKNOWN DATE"}</td>
                 <td>
                   <div className="actions">
                     <span className=""
-                      style={{cursor: "pointer",fontSize: "11px",backgroundColor: "#00bbf0",padding: "5px 10px 5px 10px",color: "white",borderRadius: "10px",}}
+                      style={{ cursor: "pointer", fontSize: "11px", backgroundColor: "#00bbf0", padding: "5px 10px 5px 10px", color: "white", borderRadius: "10px", }}
                       onClick={() => handleClientClick(row)}
                     >
                       SEND

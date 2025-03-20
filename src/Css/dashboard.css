@@ -8,7 +8,10 @@
     justify-content: center;
     align-items: center;
 }
-
+.custom-placeholder::placeholder {
+    color: #1246ac; /* Placeholder text color */
+    opacity: 1; /* Ensures color visibility */
+  }
 .page-header {
     padding: 1.3rem 1rem;
     background: #E9edf2;
