@@ -13,7 +13,7 @@ function Alldata() {
   const [clients, setClients] = useState([]);
   const [dashboardNav, setDashboardNav] = useState("OverAllAmount");
   const dispatch = useDispatch();
-
+  const handleAgentChange = (e) => setSelectedAgent(e.target.value);
   
   const yesterday = subDays(new Date(), 1);
   const formattedYesterday = format(yesterday, "yyyy-MM-dd");

@@ -93,7 +93,9 @@ function Assignemploye() {
             <h4 style={{ textAlign: 'center', padding: '10px' }}>Assign Employee</h4>
           </div>
         </div>
-        <table className="table table-striped w-100 " style={{ overflowX: 'scroll' }}  >
+        <div>
+        <div className="table-responsive-md table-responsive-sm" style={{ maxHeight: "90vh", overflowY: "scroll"}}>
+        <table className="table table-striped"  >
           <thead>
             <tr>
               <th>#</th>
@@ -121,7 +123,7 @@ function Assignemploye() {
                     ></div>
                     <div className="client-info">
                       <h4>{row.client_name ? row.client_name.replace(/"/g, "").toUpperCase() : "UNKNOWN CLIENT"}</h4>
-                      <small>{row.client_contact ? row.client_contact : "NO CONTACT AVAILABLE"}</small>
+                      <small>{row.client_contact ? row.client_contact : ""}</small>
                     </div>
                   </div>
                 </td>
@@ -158,7 +160,8 @@ function Assignemploye() {
             </tbody>
           ))}
         </table>
-
+         </div>
+         </div>
       </div>
     ) : (
       <span></span>

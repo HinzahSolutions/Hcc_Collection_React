@@ -213,7 +213,7 @@ function Clinentinfo() {
             <div className="row gy-3">
               <div className="col-md-6">
                 <h4 className="fw-bold">Name:</h4>
-                <p className="text-muted fw-bold">{(selectedClient.client_name || " ----- ").toUpperCase()}</p>
+                <p className="text-muted fw-bold">{(selectedClient.client_name.replace(/"/g, "") || " ----- ").toUpperCase()}</p>
               </div>
               <div className="col-md-6">
                 <h4 className="fw-bold">Contact Number:</h4>
@@ -275,7 +275,7 @@ function Clinentinfo() {
         <div className="d-flex gap-4   justify-content-center align-items-center py-3 px-5" style={{ flexWrap: 'wrap' }}>
           <div className="d-flex">
             <h4 className='totalamount pt-2'>Total Amount :</h4>
-            <div className='totalbox'><h4>{(selectedClient.amount / selectedClient.today_rate).toFixed(3)} </h4></div>
+            <div className='totalbox'><h4>{selectedClient.amount && selectedClient.today_rate?((selectedClient.amount / selectedClient.today_rate).toFixed(3)): "0.000"} </h4></div>
           </div>
           <div className="d-flex">
             <h4 className='totalamount pt-2'>Paid Amount :</h4>

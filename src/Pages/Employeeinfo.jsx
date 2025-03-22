@@ -57,9 +57,9 @@ const EmployeeInfo = () => {
   };
   const filteredUsers = users.filter(
     (eid) =>
-      selectedEmployee?.user_id && 
+      selectedEmployee?.user_id &&
       eid.Distributor_id === selectedEmployee.user_id &&
-      (!selectedClientDate || eid.date === selectedClientDate) 
+      (!selectedClientDate || eid.date === selectedClientDate)
   );
 
 
@@ -293,56 +293,56 @@ const EmployeeInfo = () => {
     message += " #   | Client Name | Date  | Today Rate | Local Amount | international Amount | \n";
     message += "---|--------------|---------|---------|------------\n";
 
-   
+
     // const totalLocalAmount = filteredUsers.forEach((client, index) => {client..reduce((sum, client) => {
     //   const localAmount = client?.amount && client?.today_rate && 
     //                       !isNaN(parseFloat(client.amount)) && 
     //                       !isNaN(parseFloat(client.today_rate))
     //     ? parseFloat(client.amount) / parseFloat(client.today_rate)
     //     : 0;
-    
+
     //   return sum + localAmount;
     // })}, 0).toFixed(3);
-    
+
     const totalInterAmount = Math.ceil(filteredUsers.reduce((sum, client) => {
-      return sum + (parseFloat(client.amount) || 0); 
-    }, 0)).toFixed(2); 
+      return sum + (parseFloat(client.amount) || 0);
+    }, 0)).toFixed(2);
 
 
-    const   collectionInterAmount =  filteredUsers.reduce((total, client) => {
+    const collectionInterAmount = filteredUsers.reduce((total, client) => {
       const clientAmount = parseFloat(client.amount) || 0;
       const clientRate = parseFloat(client.today_rate) || 1;
       return total + (clientRate > 0 ? clientAmount / clientRate : 0);
     }, 0);
-    
-  
-    
+
+
+
     filteredUsers.forEach((client, index) => {
       const localAmount = client.amount && client.today_rate
         ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
         : "N/A";
-    
+
       const interAmount = Array.isArray(client.paid_amount_date)
-        ? client.paid_amount_date.reduce((sum, payment) => 
-            sum + (parseFloat(payment.amount) || 0), 0
-          ).toFixed(2)
+        ? client.paid_amount_date.reduce((sum, payment) =>
+          sum + (parseFloat(payment.amount) || 0), 0
+        ).toFixed(2)
         : "0.00";
 
       //   const collectionInterAmount = (Array.isArray(client.paid_amount_date)
       //   ? client.paid_amount_date.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)
       //   : 0
       // ).toFixed(2);
-    
-    
+
+
       const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
-    
-      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${todayRate} | ${localAmount} | ${ Math.ceil((parseFloat(client.amount)) || 0).toFixed(2)} |\n\n`;
+
+      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${todayRate} | ${localAmount} | ${Math.ceil((parseFloat(client.amount)) || 0).toFixed(2)} |\n\n`;
     });
-    
-   
+
+
     message += "🔹 *TOTAL CLIENT LOCAL AMOUNT*\n\n";
     message += `-----  ${totalLocalAmount} \n\n`;
-    
+
     message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT*\n\n";
     message += `-----  ${totalInterAmount} \n\n`;
 
@@ -351,9 +351,9 @@ const EmployeeInfo = () => {
 
     message += "🔹 *TOTAL CLIENT COLLECTION INTERNATIONAL AMOUNT*\n\n";
     message += `-----  ${collectionLocalAmount} \n\n`;
-    
+
     console.log(message);
-    
+
 
     const phone = selectedEmployee.phone_number;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
@@ -412,7 +412,7 @@ const EmployeeInfo = () => {
     dispatch(setSelectedClient(client));
     navigate("/clientinfo");
   };
-       
+
 
   const customRound = (value) => {
     const decimalPart = value % 1; // Extract decimal part
@@ -545,14 +545,13 @@ const EmployeeInfo = () => {
                         </div>
                       </td>
 
-
-                      {/* <td>
+                      <td>
                         <div className="client-info">
                           <h4 style={{ color: "blue", fontWeight: "500" }}>
                             INTER:{" "}
                             <span>
                               {client.amount
-                                ? Math.ceil(parseFloat(collectedAmount)).toFixed(2)
+                                ? parseFloat(collectedAmount).toFixed(2)
                                 : "0.00"}
                             </span>
                           </h4>
@@ -562,40 +561,14 @@ const EmployeeInfo = () => {
                             <span>
                               {collectedAmount && client.today_rate
                                 ? (
-                                  Math.ceil(parseFloat(collectedAmount)) /
+                                  parseFloat(collectedAmount) /
                                   parseFloat(client.today_rate)
                                 ).toFixed(3)
                                 : "0.000"}
                             </span>
                           </h4>
                         </div>
-                      </td> */}
-
-
-                      <td>
-  <div className="client-info">
-    <h4 style={{ color: "blue", fontWeight: "500" }}>
-      INTER:{" "}
-      <span>
-        {client.amount
-          ? parseFloat(collectedAmount).toFixed(2)
-          : "0.00"}
-      </span>
-    </h4>
-
-    <h4 style={{ color: "red", fontWeight: "500" }}>
-      LOCAL:{" "}
-      <span>
-        {collectedAmount && client.today_rate
-          ? (
-              parseFloat(collectedAmount) /
-              parseFloat(client.today_rate)
-            ).toFixed(3)
-          : "0.000"}
-      </span>
-    </h4>
-  </div>
-</td>
+                      </td>
 
 
                       {/* <td>
@@ -624,16 +597,44 @@ const EmployeeInfo = () => {
                         </div>
                       </td> */}
 
-                    
 
-<td>
+
+                      {/* <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER:{" "}
+                            <span>
+                              {client.amount
+                                ? parseFloat(client.amount - collectedAmount) >= 0.50
+                                  ? customRound(parseFloat(client.amount - collectedAmount)).toFixed(2)
+                                  : "0.00"
+                                : "0.00"}
+                            </span>
+                          </h4>
+
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {collectedAmount && client.today_rate
+                                ? (
+                                  parseFloat(client.amount - collectedAmount) /
+                                  parseFloat(client.today_rate)
+                                ).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td> */}
+
+
+                      <td>
   <div className="client-info">
     <h4 style={{ color: "blue", fontWeight: "500" }}>
       INTER:{" "}
       <span>
         {client.amount
-          ? parseFloat(client.amount - collectedAmount) >= 0.50
-            ? customRound(parseFloat(client.amount - collectedAmount)).toFixed(2)
+          ? Math.max(parseFloat(client.amount - collectedAmount), 0.00) >= 0.50
+            ? customRound(Math.max(parseFloat(client.amount - collectedAmount), 0.00)).toFixed(2)
             : "0.00"
           : "0.00"}
       </span>
@@ -643,15 +644,16 @@ const EmployeeInfo = () => {
       LOCAL:{" "}
       <span>
         {collectedAmount && client.today_rate
-          ? (
-              parseFloat(client.amount - collectedAmount) /
-              parseFloat(client.today_rate)
+          ? Math.max(
+              parseFloat(client.amount - collectedAmount) / parseFloat(client.today_rate),
+              0.000
             ).toFixed(3)
           : "0.000"}
       </span>
     </h4>
   </div>
 </td>
+
 
 
                       <td>

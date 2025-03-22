@@ -128,7 +128,7 @@ function Todaycollection() {
           </div>
 
           <div>
-            <div className="table-responsive-md table-responsive-sm">
+            <div className="table-responsive-md table-responsive-sm" style={{ maxHeight: "90vh", overflowY: "scroll"}} >
               <table className="table table-striped">
                 <thead>
                   <tr>
@@ -171,7 +171,7 @@ function Todaycollection() {
                                 ></div>
                                 <div className="client-info">
                                   <h4>{payment.client_name?.toUpperCase() || "NULL"}</h4>
-                                  <small>{payment.client_contact || "N/A"}</small>
+                                  <small>{payment.client_contact || ""}</small>
                                 </div>
                               </div>
                             </td>

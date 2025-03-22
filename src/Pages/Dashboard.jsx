@@ -214,7 +214,7 @@ useEffect(() => {
      <Mosaic color="#1246ac" size="large" text="" textColor="#1246ac" />
     </div>
   ) : (
-    <div className="mt-5">
+    <div className="mt-5"  >
       <div className="page-header">
         <h1>Dashboard</h1>
         <div  className="d-flex  justify-content-between">
@@ -301,10 +301,12 @@ useEffect(() => {
           </div>
         </div>
       </div>
-      <div>
+      <div  style={{paddingBottom:'10px'}}>
         <Assignemploye   />
       </div>
+      <div  style={{}}>
       <Todaycollection   className="vh-100" />
+      </div>
       <div>
         <div className="chart-header text-center">
           <h4 className="pt-2">Payment Chart</h4>
@@ -327,7 +329,9 @@ useEffect(() => {
             </select>
           </div>
         </div>
-          <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear} style={{height:'100%'}} />
+        <div   className="w-100" style={{overflowY:'hidden'}}>
+          <PaymentChart users={users} selectedMonth={selectedMonth} selectedYear={selectedYear}  className="w-100"  style={{overflowY:'hidden'}}/>
+          </div>
       </div>
     </div>
   )}

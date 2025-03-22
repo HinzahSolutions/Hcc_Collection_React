@@ -214,7 +214,7 @@ function Client() {
   }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
 
 
-
+   
 
 
   const handleShowMore = () => {
@@ -448,10 +448,13 @@ function Client() {
           (item) => item.client_id !== client.client_id
         );
         setSelectAll(updatedSelection.length === sortedData.length);
+        console.log(selectedClient)
         return updatedSelection;
       } else {
         const updatedSelection = [...prevSelected, client];
+        console.log(selectedClient)
         setSelectAll(updatedSelection.length === sortedData.length);
+        console.log(selectedClient)
         return updatedSelection;
       }
     });
@@ -472,6 +475,7 @@ function Client() {
       return;
     }
     setShowModal(true);
+    console.log(selectedClient)
   };
 
   const handleBankSelection = (bankType) => {
@@ -599,7 +603,9 @@ function Client() {
   };
 
 
-
+  const clientsWithMissingDetails = Array.isArray(selectedRows)
+  ? selectedRows.filter(client => !client.accno || !client.ifsc_code)
+  : [];
 
   return (
     <div style={{ marginTop: "50px", width: '100%' }}>
@@ -818,11 +824,12 @@ function Client() {
                         </div>
                       </td>
                       <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "---"}</td>
+                     
                       <td>
-                        <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
-                          {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
-                        </p>
-                      </td>
+  <p className={`badge ${parseFloat(row.amount || 0) - (row.paid_amount_date?.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0) || 0) <= 0 ? "bg-success" : "bg-danger"}`}>
+    {parseFloat(row.amount || 0) - (row.paid_amount_date?.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0) || 0) <= 0 ? "PAID" : "UNPAID"}
+  </p>
+</td>
                       <td>{row.date || "---"}</td>
                       <td>
                         <div className="client-info">
@@ -1075,7 +1082,7 @@ function Client() {
                 <h4>Assign Employee</h4>
                 <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} style={{ padding: "0px", border: "none" }} >
                   <option value="" disabled>
-                    Select Employee
+                    SELECT EMPLOYEE
                   </option>
                   {employees
                     .filter((emp) => emp.role === "Collection Agent")
@@ -1092,13 +1099,13 @@ function Client() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setAllClient(false)}>
-            Close
+            CLOSE
           </Button>
           <Button
             variant="primary"
             onClick={() => handleAssignsend()}
           >
-            Assign
+           ASSIGN
           </Button>
         </Modal.Footer>
       </Modal>
@@ -1123,12 +1130,12 @@ function Client() {
                     onChange={handleDistributorChange}
                     style={{ border: 'none', background: 'none', color: 'black', fontWeight: 'bold', outline: 'none', boxShadow: 'none', margin: '0px', padding: '0px', paddingTop: '20px' }}
                   >
-                    <option value="">Select Distributor</option>
+                    <option value="">SELECT DISTRIBUTOR</option>
                     {employees
                       .filter((emp) => emp.role === "Distributor")
                       .map((emp) => (
                         <option key={emp.user_id} value={emp.user_id}>
-                          {emp.username}
+                          {emp.username.toUpperCase()}
                         </option>
                       ))}
                   </select>
@@ -1141,7 +1148,7 @@ function Client() {
                     onChange={(e) => setTodayRate(parseFloat(e.target.value) || "")}
                     required
                   />
-                  <label>Today Rate</label>
+                  <label>TODAY RATE</label>
                 </div>
               </div>
               <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
@@ -1150,9 +1157,9 @@ function Client() {
                     type="text"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    required
+                    // required
                   />
-                  <label>Client Name</label>
+                  <label>CLIENT NAME</label>
                 </div>
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                   <input
@@ -1161,7 +1168,7 @@ function Client() {
                     onChange={(e) => setContactNumber(e.target.value)}
                   // required
                   />
-                  <label>Client Contact Number</label>
+                  <label>CLIENT CONTACT NUMBER</label>
                 </div>
               </div>
               <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
@@ -1180,7 +1187,7 @@ function Client() {
                     onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
                   // required
                   />
-                  <label>Amount</label>
+                  <label>AMOUNT</label>
                 </div>
               </div>
               <div className="row d-flex  justify-content-end col-12">
@@ -1193,11 +1200,11 @@ function Client() {
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
                           type="text"
-                          value={bname}
-                          onChange={(e) => setBname(e.target.value)}
+                          value={holdername}
+                          onChange={(e) =>setHoldername(e.target.value)}
                         // required
                         />
-                        <label>Bank Name</label>
+                        <label>NAME OF THE  BENEFICIARY</label>
                       </div>
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
@@ -1207,7 +1214,7 @@ function Client() {
                           onChange={(e) => setAnumber(e.target.value)}
                         // required
                         />
-                        <label>Account Number</label>
+                        <label>ACCOUNT NUMBER</label>
                       </div>
                     </div>
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
@@ -1218,7 +1225,7 @@ function Client() {
                           onChange={(e) => setIfsc(e.target.value)}
                         // required
                         />
-                        <label>IFSC Code </label>
+                        <label>IFSC CODE</label>
                       </div>
                     </div>
                   </>
@@ -1276,35 +1283,49 @@ function Client() {
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
 
+<Modal show={showModal} onHide={() => setShowModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Select Bank</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {clientsWithMissingDetails.length > 0 ? (
+      <div className="alert alert-warning text-center">
+        <strong  className="text-danger">Clients with Missing accountNumber and IFSC code:</strong>
+        <ul className="mt-2 text-left">
+          {clientsWithMissingDetails.map((client,index) => (
+            <li key={client.id || client.client_name || Math.random()}>
+             {index+1 } {client.client_name?.trim() ? client.client_name : "Unknown Client"}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : (
+      <p className="text-success text-center">All clients have complete details.</p>
+    )}
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Select Bank</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Button
-            variant={selectedBank === "bank1" ? "primary" : "secondary"}
-            onClick={() => handleBankSelection("bank1")}
-            className="mr-2"
-          >
-            Bank1
-          </Button>
-          <Button
-            variant={selectedBank === "bank2" ? "primary" : "secondary"}
-            onClick={() => handleBankSelection("bank2")}
-          >
-            Bank2
-          </Button>
-        </Modal.Body>
-        <Modal.Footer className="d-flex justify-content-center align-items-center">
-          <Button variant="danger" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="success" onClick={confirmExport}>
-            Confirm & Export
-          </Button>
-        </Modal.Footer>
-      </Modal>
+    {/* Bank selection buttons */}
+    <div className="d-flex justify-content-center mt-3">
+      {["bank1", "bank2"].map(bank => (
+        <Button
+          key={bank}
+          variant={selectedBank === bank ? "primary" : "secondary"}
+          onClick={() => handleBankSelection(bank)}
+          className="mx-2"
+        >
+          {bank.charAt(0).toUpperCase() + bank.slice(1)}
+        </Button>
+      ))}
+    </div>
+  </Modal.Body>
+  <Modal.Footer className="d-flex justify-content-center">
+    <Button variant="danger" onClick={() => setShowModal(false)}>Cancel</Button>
+    <Button variant="success" onClick={confirmExport} disabled={!selectedBank}>
+      Confirm & Export
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
     </div>
   );
 }

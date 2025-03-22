@@ -14,7 +14,7 @@ import { logout } from '../Slicers/authSlice';
 import '../Css/sidebar.css';
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const conformrole = localStorage.getItem('role');
