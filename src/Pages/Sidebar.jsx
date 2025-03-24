@@ -28,7 +28,7 @@ const Sidebar = () => {
   };
 
   const closenav = () => {
-    setIsOpen(!isOpen)
+    setIsOpen(true)
   }
 
 
