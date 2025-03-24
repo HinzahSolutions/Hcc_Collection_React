@@ -142,7 +142,7 @@ function Alldata() {
   const handlenav = (client) => {
     dispatch(setSelectedEmployee(client));
     console.log("employee detail",client)
-    navigate("/employeeinfo");
+    navigate("/employee/employeeinfo");
   };
 
   const handlenav1 = (client) => {

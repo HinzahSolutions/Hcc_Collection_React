@@ -159,20 +159,40 @@ const EmployeeInfo = () => {
     }
   }, [selectedEmployee, users]);
 
-  const filteredClients = selectedDate
-    ? employeeClients.map(client => ({
-      ...client,
-      paid_amount_date: Array.isArray(client.paid_amount_date)
-        ? client.paid_amount_date.filter(payment => {
-          const [year, month, day] = selectedDate.split("-");
-          return payment?.date === `${day}-${month}-${year}`;
+  // const filteredClients = selectedDate
+  //   ? employeeClients.map(client => ({
+  //     ...client,
+  //     paid_amount_date: Array.isArray(client.paid_amount_date)
+  //       ? client.paid_amount_date.filter(payment => {
+  //         const [year, month, day] = selectedDate.split("-");
+  //         return payment?.date === `${day}-${month}-${year}`;
+  //       })
+  //       : []
+  //   })).filter(client => client.paid_amount_date.length > 0)
+  //   : employeeClients;
+
+  const filteredClients = employeeClients
+  .map(client => ({
+    ...client,
+    paid_amount_date: Array.isArray(client.paid_amount_date)
+      ? client.paid_amount_date.filter(payment => {
+          if (!payment?.date || !payment?.userID) return false; // Ensure valid data
+
+          const [year, month, day] = selectedDate?.split("-") || [];
+          const matchesDate = selectedDate ? payment.date === `${day}-${month}-${year}` : true;
+          const matchesEmployee = selectedEmployee ? payment.userID === selectedEmployee.user_id : true;
+          
+          return matchesDate && matchesEmployee;
         })
-        : []
-    })).filter(client => client.paid_amount_date.length > 0)
-    : employeeClients;
+      : []
+  }))
+  .filter(client => client.paid_amount_date.length > 0); // Keep only clients with valid payments
 
+console.log(filteredClients);
 
+  
 
+    
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
@@ -225,7 +245,7 @@ const EmployeeInfo = () => {
     dispatch(setSelectedClient(client));
     navigate('/clientinfo');
   };
-
+  console.log(filteredClients)
 
   const exportToExcel = () => {
     const wb = XLSX.utils.book_new();
@@ -283,83 +303,205 @@ const EmployeeInfo = () => {
     window.open(whatsappLink, "_blank");
   };
 
-  const sendDistributorCSVToWhatsApp = () => {
-    if (!selectedEmployee?.phone_number) {
+  // const sendDistributorCSVToWhatsApp = () => {
+  //   if (!selectedEmployee?.phone_number) {
+  //     alert("No phone number available for the employee.");
+  //     return;
+  //   }
+
+  //   let message = "🔹 * Distributor Clients Report*\n\n";
+  //   message += " #   | Client Name | Date  | Today Rate | Local Amount | International Amount |  Collection Local Amount  |  Collection International Amount  |\n";
+  //   message += "---|--------------|---------|---------|------------\n";
+
+
+  //   const totalLocalAmount = filteredUsers.forEach((client, index) => {client.reduce((sum, client) => {
+  //     const localAmount = client?.amount && client?.today_rate && 
+  //                         !isNaN(parseFloat(client.amount)) && 
+  //                         !isNaN(parseFloat(client.today_rate))
+  //       ? parseFloat(client.amount) / parseFloat(client.today_rate)
+  //       : 0;
+
+  //     return sum + localAmount;
+  //   })}, 0).toFixed(3);
+
+  //   const totalInterAmount = Math.ceil(filteredUsers.reduce((sum, client) => {
+  //     return sum + (parseFloat(client.amount) || 0);
+  //   }, 0)).toFixed(2);
+
+
+  //   const collectionInterAmount = filteredUsers.reduce((total, client) => {
+  //     const clientAmount = parseFloat(client.amount) || 0;
+  //     const clientRate = parseFloat(client.today_rate) || 1;
+  //     return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+  //   }, 0);
+
+
+
+  //   filteredUsers.forEach((client, index) => {
+  //     const localAmount = client.amount && client.today_rate
+  //       ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
+  //       : "N/A";
+
+  //     const interAmount = Array.isArray(client.paid_amount_date)
+  //       ? client.paid_amount_date.reduce((sum, payment) =>
+  //         sum + (parseFloat(payment.amount) || 0), 0
+  //       ).toFixed(2)
+  //       : "0.00";
+
+     
+
+
+  //     const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
+
+  //     message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${todayRate} | ${localAmount} | ${Math.ceil((parseFloat(client.amount)) || 0).toFixed(2)} |\n\n`;
+  //   });
+
+
+  //   message += "🔹 *TOTAL CLIENT LOCAL AMOUNT*\n\n";
+  //   message += `-----  ${totalLocalAmount} \n\n`;
+
+  //   message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT*\n\n";
+  //   message += `-----  ${totalInterAmount} \n\n`;
+
+
+  //   console.log(message);
+
+
+  //   const phone = selectedEmployee.phone_number;
+  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+  //   window.open(whatsappLink, "_blank");
+  // };
+
+//   const sendDistributorCSVToWhatsApp = () => {
+//     if (!selectedEmployee?.phone_number) {
+//         alert("No phone number available for the employee.");
+//         return;
+//     }
+
+//     let message = "🔹 *Distributor Clients Report*\n\n";
+//     message += " # | Client Name | Date | Today Rate | Local Amount | International Amount | Collection Local Amount | Collection International Amount |\n";
+//     message += "------------------------------------------------------------------------------------------------\n";
+
+//     // ✅ Corrected: Calculate total local amount
+//     const totalLocalAmount = filteredUsers.reduce((sum, client) => {
+//         const localAmount = client?.amount && client?.today_rate
+//             ? parseFloat(client.amount) / parseFloat(client.today_rate)
+//             : 0;
+//         return sum + localAmount;
+//     }, 0).toFixed(3);
+
+//     // ✅ Corrected: Calculate total international amount
+//     const totalInterAmount = filteredUsers.reduce((sum, client) => {
+//         return sum + (parseFloat(client.amount) || 0);
+//     }, 0).toFixed(2);
+
+//     // ✅ Corrected: Calculate collection international amount
+//     const collectionInterAmount = filteredUsers.reduce((total, client) => {
+//         const clientAmount = parseFloat(client.amount) || 0;
+//         const clientRate = parseFloat(client.today_rate) || 1;
+//         return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+//     }, 0).toFixed(3);
+
+//     let collectionLocalAmount = 0; // ✅ To store the sum of collection local amounts
+
+//     // ✅ Loop through clients and generate message
+//     filteredUsers.forEach((client, index) => {
+//         const localAmount = client.amount && client.today_rate
+//             ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
+//             : "N/A";
+
+//         const interAmount = Array.isArray(client.paid_amount_date)
+//             ? client.paid_amount_date.reduce((sum, payment) =>
+//                 sum + (parseFloat(payment.amount) || 0), 0
+//             ).toFixed(2)
+//             : "0.00";
+
+//         collectionLocalAmount += parseFloat(localAmount) || 0; // ✅ Sum up collection local amounts
+
+//         const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
+
+//         message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${todayRate} | ${localAmount} | ${client.amount.toFixed(2)} |  ${CollectionLocalAmount} | ${CollectionInternationalAmount} |n`;
+//     });
+
+//     // ✅ Append totals to message
+//     message += "\n🔹 *TOTAL CLIENT LOCAL AMOUNT:* " + totalLocalAmount + "\n";
+//     message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT:* " + totalInterAmount + "\n";
+   
+
+//     console.log(message);
+
+//     // ✅ Open WhatsApp with pre-filled message
+//     const phone = selectedEmployee.phone_number;
+//     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+//     window.open(whatsappLink, "_blank");
+// };
+
+
+
+const sendDistributorCSVToWhatsApp = () => {
+  if (!selectedEmployee?.phone_number) {
       alert("No phone number available for the employee.");
       return;
-    }
+  }
 
-    let message = "🔹 * Distributor Clients Report*\n\n";
-    message += " #   | Client Name | Date  | Today Rate | Local Amount | international Amount | \n";
-    message += "---|--------------|---------|---------|------------\n";
+  let message = "🔹 *Distributor Clients Report*\n\n";
+  message +=  `Distributor Name :  ${selectedEmployee?.username}\n\n`
+  // message += " # | Client Name | Date | Today Rate | Local Amount | International Amount | Collection Local Amount | Collection International Amount |\n";
+  // message += "------------------------------------------------------------------------------------------------\n";
 
+  let totalLocalAmount = 0;
+  let totalInterAmount = 0;
+  let totalCollectionLocalAmount = 0;
+  let totalCollectionInterAmount = 0;
 
-    // const totalLocalAmount = filteredUsers.forEach((client, index) => {client..reduce((sum, client) => {
-    //   const localAmount = client?.amount && client?.today_rate && 
-    //                       !isNaN(parseFloat(client.amount)) && 
-    //                       !isNaN(parseFloat(client.today_rate))
-    //     ? parseFloat(client.amount) / parseFloat(client.today_rate)
-    //     : 0;
-
-    //   return sum + localAmount;
-    // })}, 0).toFixed(3);
-
-    const totalInterAmount = Math.ceil(filteredUsers.reduce((sum, client) => {
-      return sum + (parseFloat(client.amount) || 0);
-    }, 0)).toFixed(2);
-
-
-    const collectionInterAmount = filteredUsers.reduce((total, client) => {
-      const clientAmount = parseFloat(client.amount) || 0;
-      const clientRate = parseFloat(client.today_rate) || 1;
-      return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-    }, 0);
-
-
-
-    filteredUsers.forEach((client, index) => {
+  filteredUsers.forEach((client, index) => {
+      const todayRate = client.today_rate ? parseFloat(client.today_rate) : 1; // Prevent division by zero
       const localAmount = client.amount && client.today_rate
-        ? (parseFloat(client.amount) / parseFloat(client.today_rate)).toFixed(3)
-        : "N/A";
+          ? (parseFloat(client.amount) / todayRate).toFixed(3)
+          : "N/A";
+      
+      const interAmount = parseFloat(client.amount) || 0;
+      totalLocalAmount += parseFloat(localAmount) || 0;
+      totalInterAmount += interAmount;
 
-      const interAmount = Array.isArray(client.paid_amount_date)
-        ? client.paid_amount_date.reduce((sum, payment) =>
-          sum + (parseFloat(payment.amount) || 0), 0
-        ).toFixed(2)
-        : "0.00";
+      let collectionLocalAmount = 0;
+      let collectionInterAmount = 0;
 
-      //   const collectionInterAmount = (Array.isArray(client.paid_amount_date)
-      //   ? client.paid_amount_date.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)
-      //   : 0
-      // ).toFixed(2);
+      if (Array.isArray(client.paid_amount_date)) {
+          client.paid_amount_date.forEach(payment => {
+              collectionInterAmount += parseFloat(payment.amount) || 0;
+              if (todayRate > 0) {
+                  collectionLocalAmount += (parseFloat(payment.amount) / todayRate) || 0;
+              }
+          });
+      }
+
+      totalCollectionLocalAmount += collectionLocalAmount;
+      totalCollectionInterAmount += collectionInterAmount;
+
+      message += `${index + 1} | Client Name : ${client.client_name || 'Unknown'}, \n     Date : ${client.date}, \n     Today Rate : ${todayRate.toFixed(2)}, \n     Local Amount : ${localAmount}, \n     International Amount : ${interAmount.toFixed(2)}, \n     Collection Local Amount : ${collectionLocalAmount.toFixed(3)}, \n     Collection Inter Amount : ${collectionInterAmount.toFixed(2)}.\n`;
+      message += "------------------------------------------------------------------------------------------------\n";
+  });
+
+  // Append totals
+  message += "\n🔹 *TOTAL CLIENT LOCAL AMOUNT:* " + totalLocalAmount.toFixed(3) + "\n";
+  message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT:* " + totalInterAmount.toFixed(2) + "\n";
+  message += "🔹 *TOTAL COLLECTION LOCAL AMOUNT:* " + totalCollectionLocalAmount.toFixed(3) + "\n";
+  message += "🔹 *TOTAL COLLECTION INTERNATIONAL AMOUNT:* " + totalCollectionInterAmount.toFixed(2) + "\n";
+
+  console.log(message);
+
+  const phone = selectedEmployee.phone_number;
+  const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+  window.open(whatsappLink, "_blank");
+};
 
 
-      const todayRate = client.today_rate ? parseFloat(client.today_rate).toFixed(2) : "N/A";
 
-      message += `${index + 1} | ${client.client_name || 'Unknown'} | ${client.date} | ${todayRate} | ${localAmount} | ${Math.ceil((parseFloat(client.amount)) || 0).toFixed(2)} |\n\n`;
-    });
-
-
-    message += "🔹 *TOTAL CLIENT LOCAL AMOUNT*\n\n";
-    message += `-----  ${totalLocalAmount} \n\n`;
-
-    message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT*\n\n";
-    message += `-----  ${totalInterAmount} \n\n`;
-
-    message += "🔹 *TOTAL CLIENT COLLECTION INTERNATIONAL AMOUNT*\n\n";
-    message += `-----  ${interAmount} \n\n`;
-
-    message += "🔹 *TOTAL CLIENT COLLECTION INTERNATIONAL AMOUNT*\n\n";
-    message += `-----  ${collectionLocalAmount} \n\n`;
-
-    console.log(message);
-
-
-    const phone = selectedEmployee.phone_number;
-    const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-
-    window.open(whatsappLink, "_blank");
-  };
+  
   const overallamount = filteredClients.reduce((total, client) => {
     return (
       total +

@@ -51,7 +51,7 @@ function Client() {
   const [selectAmount, setSelectAmount] = useState()
   const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
   const [showBankModal, setShowBankModal] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(20);
+  const [visibleCount, setVisibleCount] = useState(50);
   const [sentAgent, setSentAgent] = useState(false)
   const [allClient, setAllClient] = useState(false)
 
