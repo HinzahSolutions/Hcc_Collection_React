@@ -218,7 +218,7 @@ function Client() {
 
 
   const handleShowMore = () => {
-    setVisibleCount((prevCount) => prevCount + 20);
+    setVisibleCount((prevCount) => prevCount + 50);
   };
 
 
