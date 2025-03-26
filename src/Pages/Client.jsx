@@ -826,10 +826,10 @@ function Client() {
                       <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "---"}</td>
                      
                       <td>
-  <p className={`badge ${parseFloat(row.amount || 0) - (row.paid_amount_date?.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0) || 0) <= 0 ? "bg-success" : "bg-danger"}`}>
-    {parseFloat(row.amount || 0) - (row.paid_amount_date?.reduce((total, entry) => total + parseFloat(entry.amount || 0), 0) || 0) <= 0 ? "PAID" : "UNPAID"}
-  </p>
-</td>
+                        <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
+                          {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
+                        </p>
+                      </td>
                       <td>{row.date || "---"}</td>
                       <td>
                         <div className="client-info">
