@@ -97,26 +97,26 @@ function Clinentinfo() {
         tableData = [
           {
             "#": selectedClient.client_id,
-            "Client Name": selectedClient.client_name || "Unknown Client",
-            "Client Number": selectedClient.client_contact || "Unknown Client",
-            "Amount": selectedClient.amount || 0,
-            "Account Number": selectedClient.accno || "Unknown Account",
-            "Narration": selectedClient.narration || "UNDEFINED",
+            "Client Name":selectedClient.client_name || "Unknown Client",
+            "Client Number":selectedClient.client_contact || "Unknown Client",
+            "Amount":selectedClient.amount || 0,
+            "Account Number":selectedClient.accno || "Unknown Account",
+            "Narration":selectedClient.narration || "UNDEFINED",
           },
         ];
       } else {
         tableData = [
           {
             "#": selectedClient.client_id,
-            "Client Name": selectedClient.client_name || "Unknown Client",
-            "Client Number": selectedClient.client_contact || "Unknown Client",
-            "Amount": selectedClient.amount || 0,
-            "Bank Name": selectedClient.bank_name || "Unknown Bank",
-            "IFSC Code": selectedClient.ifsc_code || "Unknown IFSC",
-            "Account Number": selectedClient.accno || "Unknown Account",
-            "Beneficiary Name": selectedClient.name_of_the_beneficiary || "Unknown Beneficiary",
-            "Beneficiary Address": selectedClient.address_of_the_beneficiary || "Unknown Address",
-            "Sender Information": selectedClient.sender_information || "Unknown Sender",
+            "Client Name":selectedClient.client_name || "Unknown Client",
+            "Client Number":selectedClient.client_contact || "Unknown Client",
+            "Amount":selectedClient.amount || 0,
+            "Bank Name":selectedClient.bank_name || "Unknown Bank",
+            "IFSC Code":selectedClient.ifsc_code || "Unknown IFSC",
+            "Account Number":selectedClient.accno || "Unknown Account",
+            "Beneficiary Name":selectedClient.name_of_the_beneficiary || "Unknown Beneficiary",
+            "Beneficiary Address":selectedClient.address_of_the_beneficiary || "Unknown Address",
+            "Sender Information":selectedClient.sender_information || "Unknown Sender",
           },
         ];
       }

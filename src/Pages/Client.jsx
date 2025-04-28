@@ -54,7 +54,13 @@ function Client() {
   const [visibleCount, setVisibleCount] = useState(50);
   const [sentAgent, setSentAgent] = useState(false)
   const [allClient, setAllClient] = useState(false)
-
+  const [showNewDistributorModal,setShowNewDistributorModal] = useState(false)
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+  const [distributorname,setDistributorname] = useState("")
+  const [distributorcontact,setDistributorcontact] = useState()
+  const [todayRate,setTodayrate] = useState()
+  const [showupdateamountModal,setShowupdateamountModal] = useState(false)
+  const [amountSet,setAmountSet] = useState()
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
     if (Authorization) {
@@ -114,12 +120,20 @@ function Client() {
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const handlemodelClose = () => setSendModal(false);
-  const handlemodelShow = () => setSendModal(true);
+  const handlemodelClose = () => {
+    setShowupdateamountModal(false), 
+    setShow(true) ;
+  }
+  const handlemodelShow = () => {
+                             setShowupdateamountModal(true),
+                             setShow(false)
+                            }
   const handleClientClick = (client) => {
     dispatch(setSelectedClient(client));
     setSendModal(true);
   };
+
+  
 
   const totalCount = users.length;
   const paidCount = users.filter((paid) => paid.paid_and_unpaid == true).length;
@@ -135,6 +149,11 @@ function Client() {
     dispatch(setSelectedClient(client));
     navigate("/clientinfo");
   };
+
+
+   const [amounts, setAmounts] = useState(() =>
+      employees.reduce((acc, emp) => ({ ...acc, [emp.user_id]: "" }), {})
+    );
 
   const handlenav1 = (client) => {
     dispatch(setSelectedEmployee(client));
@@ -256,6 +275,18 @@ function Client() {
       return total + (clientRate > 0 ? clientBalance / clientRate : 0);
     }, 0);
   }, [filteredData]);
+
+
+  const totalLocalTodayAmount = useMemo(() => {
+    return users.reduce((total, client) => {
+      if (client.date === currentDate) {
+        const clientAmount = parseFloat(client.amount) || 0;
+        const clientRate = parseFloat(client.today_rate) || 1;
+        return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+      }
+      return total;
+    }, 0);
+  }, [filteredData, currentDate]);
 
 
   const handleSubmit = (e) => {
@@ -505,20 +536,20 @@ function Client() {
 
     const csvData = filteredRows.map((client) => {
       let clientData = {
-        " ACCOUNT NUMBER": ` ${client.accno}`,
-        " AMOUNT": ` ${client.amount.toFixed(2)}`,
+        "ACCOUNT NUMBER": `${client.accno}`,
+        "AMOUNT": `${client.amount.toFixed(2)}`,
       };
 
       if (selectedBank === "bank1") {
-        clientData[" NARRATION"] = ` ${client.narration || ""}`;
+        clientData["NARRATION"] = `${client.narration || ""}`;
       } else if (selectedBank === "bank2") {
         clientData = {
-          " IFSC CODE": ` ${client.ifsc_code}`,
-          " ACCOUNT TYPE": ` ${client.accoun_type || ""}`,
-          " ACCOUNT NUMBER": ` ${client.accno}`,
-          " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
-          " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}`,
-          " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}`,
+          "IFSC CODE": `${client.ifsc_code}`,
+          "ACCOUNT TYPE": `${client.accoun_type || ""}`,
+          "ACCOUNT NUMBER": `${client.accno}`,
+          "BENEFICIARY NAME": `${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
+          "BENEFICIARY ADDRESS": `${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}`,
+          "SENDER INFORMATION": `${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}`,
           ...clientData,
         };
       }
@@ -545,16 +576,22 @@ function Client() {
   }, []);
 
 
-  const handleDistributorChange = (e) => {
-    const selectedId = e.target.value;
-    setDistributorId(selectedId);
-    const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
-    if (selectedDistributor) {
-      setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
-    } else {
-      setTodayRate("");
-    }
+  // const handleDistributorChange = (e) => {
+  //   const selectedId = e.target.value;
+  //   setDistributorId(selectedId);
+  //   const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
+  //   if (selectedDistributor) {
+  //     setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
+  //   } else {
+  //     setTodayRate("");
+  //   }
+  // };
+
+
+  const handleAmountChange = (userId, value) => {
+    setAmounts((prev) => ({ ...prev, [userId]: value }));
   };
+
 
 
 
@@ -606,6 +643,247 @@ function Client() {
   const clientsWithMissingDetails = Array.isArray(selectedRows)
   ? selectedRows.filter(client => !client.accno || !client.ifsc_code)
   : [];
+
+
+
+  // const handleDistributorSubmit = async (event) => {
+  //   event.preventDefault();
+  
+  //   const Authorization = localStorage.getItem("authToken");
+  //   const currentDate = format(new Date(), "dd-MM-yyyy");
+  
+  //   if (!Authorization) {
+  //     console.error("Authorization token is missing");
+  //     return;
+  //   }
+  
+  //   try {
+  //     const distributorData = new FormData();
+  //     distributorData.append("username", distributorname);
+  //     distributorData.append("phone_number", distributorcontact);
+  //     distributorData.append("role", "Distributor"); 
+  //     distributorData.append("today_rate_date", currentDate);
+  //     distributorData.append("Distributor_today_rate", todayRate);
+  
+  //     const signupResponse = await fetch(
+  //       `${API_URL}/distrbutorCreated`,
+  //       {
+  //         method: "POST",
+  //         body: distributorData,
+  //         headers: {
+  //           Authorization: Authorization,
+  //         },
+  //       }
+  //     );
+  
+  //     if (!signupResponse.ok) {
+  //       throw new Error("Something went wrong while adding the distributor!");
+  //     }
+  
+  //     const data = await signupResponse.json();
+  //     alert("New Distributor successfully created!"); 
+  //       setDistributorname("")
+  //       setDistributorcontact("")
+  //       setTodayrate("")
+  //     setShow(true);
+  //     setShowNewDistributorModal(!showNewDistributorModal)
+       
+  //   //  const Authorization  = localStorage.getItem("authToken");
+  //    if (Authorization) {
+  //      fetch(`${API_URL}/list`, {
+  //        method: "GET",
+  //        headers: {
+  //          "Content-Type": "application/json",
+  //          Authorization: Authorization,
+  //        },
+  //      })
+  //        .then((response) => {
+  //          if (response.status === 401) {
+  //            console.error("Unauthorized access - redirecting to login");
+  //            handleUnauthorizedAccess();
+  //            return;
+  //          }
+  //          return response.json();
+  //        })
+  //        .then((data) => dispatch(setEmployees(data)))
+  //        .catch((error) => console.error("Fetch error:", error));
+  //    } else {
+  //      console.error("No authorization token found in localStorage");
+  //    }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
+
+
+
+   const fetchEmployees = async () => {
+      setLoading(true);
+      const Authorization = localStorage.getItem("authToken");
+  
+  
+      if (Authorization) {
+        try {
+          const response = await fetch(`${API_URL}/list`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: Authorization,
+            },
+  
+          });
+  
+          if (response.status === 401) {
+            console.error("Unauthorized access - redirecting to login");
+            handleUnauthorizedAccess();
+            return;
+          }
+          const data = await response.json();
+  
+          dispatch(setEmployees(data));
+        } catch (error) {
+          console.error("Fetch error:", error);
+  
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.error("No authorization token found in localStorage");
+        setLoading(false);
+      }
+    };
+    
+  const handleSubmitUpdate2 = async () => {
+ 
+
+    const data = employees
+      .filter((emp) => emp.role === "Distributor" && emp.user_id)
+      .map((emp) => ({
+        user_id: emp.user_id,
+        today_rate_date: amounts[emp.user_id] // Check if amount is changed
+          ? currentDate
+          : emp.today_rate_date, // Retain previous date if no change
+        Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
+      }));
+  
+    console.log("Sending data:", data);
+  
+    try {
+      const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      alert("Rates updated successfully!");
+      setAmount("");
+      handlemodelClose();
+      fetchEmployees();
+
+    } catch (error) {
+      console.error("Error updating rates:", error);
+      alert("An error occurred.");
+    }
+  };
+
+
+
+
+  const handleDistributorSubmit = async (event) => {
+    event.preventDefault();
+  
+    // Check for empty distributorname or distributorcontact
+    if (!distributorname.trim() || !distributorcontact.trim()) {
+      alert("Please fill in all required fields (Name and Contact).");
+      return; // Stop the function if fields are empty
+    }
+  
+    const Authorization = localStorage.getItem("authToken");
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+  
+    if (!Authorization) {
+      console.error("Authorization token is missing");
+      return;
+    }
+  
+    try {
+      const distributorData = new FormData();
+      distributorData.append("username", distributorname);
+      distributorData.append("phone_number", distributorcontact);
+      distributorData.append("role", "Distributor"); 
+      distributorData.append("today_rate_date", currentDate);
+      distributorData.append("Distributor_today_rate", todayRate);
+  
+      const signupResponse = await fetch(
+        `${API_URL}/distrbutorCreated`,
+        {
+          method: "POST",
+          body: distributorData,
+          headers: {
+            Authorization: Authorization,
+          },
+        }
+      );
+  
+      if (!signupResponse.ok) {
+        throw new Error("Something went wrong while adding the distributor!");
+      }
+  
+      const data = await signupResponse.json();
+      alert("New Distributor successfully created!"); 
+      setDistributorname("");
+      setDistributorcontact("");
+      setTodayrate("");
+      setShow(true);
+      setShowNewDistributorModal(!showNewDistributorModal);
+  
+      if (Authorization) {
+        fetch(`${API_URL}/list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: Authorization,
+          },
+        })
+          .then((response) => {
+            if (response.status === 401) {
+              console.error("Unauthorized access - redirecting to login");
+              handleUnauthorizedAccess();
+              return;
+            }
+            return response.json();
+          })
+          .then((data) => dispatch(setEmployees(data)))
+          .catch((error) => console.error("Fetch error:", error));
+      } else {
+        console.error("No authorization token found in localStorage");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+
+  const handleDistributorChange = (e) => {
+    const selectedId = e.target.value;
+    setDistributorId(selectedId);
+  
+    const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
+    
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+  
+    if (selectedDistributor) {
+      if (selectedDistributor.today_rate_date === currentDate) {
+        setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
+      } else {
+        setTodayRate(0); // Not today's rate, so empty
+      }
+    } else {
+      setTodayRate(0);
+    }
+  };
+  
 
   return (
     <div style={{ marginTop: "50px", width: '100%' }}>
@@ -702,6 +980,20 @@ function Client() {
         </div>
 
 
+        <div className="cardAction  cardgreen  bg-primary" >
+          <div className="card-head">
+            <h2>{totalLocalTodayAmount.toFixed(3)}</h2>
+            <span className="las la-user-friends">
+              <GiReceiveMoney />
+              <HiUsers />
+            </span>
+          </div>
+          <div className="card-progress">
+            <small>TODAY ORDER CLIENT</small>
+          </div>
+        </div>
+
+
       </div>
       <div className="">
         <div className="record-header d-flex justify-content-between align-items-center flex-wrap gap-1 py-2 px-1">
@@ -774,7 +1066,7 @@ function Client() {
               <tr>
                 <th># </th>
                 <th>CLIENT</th>
-                <th>CITY</th>
+                <th>Distributor Name</th>
                 <th>TOTAL</th>
                 <th>RATE</th>
                 <th>STATUS</th>
@@ -789,7 +1081,10 @@ function Client() {
               {
                 sortedData.length > 0 ? (
                   sortedData.slice(0, visibleCount).map((row, index) => (
-                    <tr key={index}>
+                    <tr 
+  key={index}
+  className={row.date === currentDate ? "table-success" : ""}
+>
                       <td>
                         <input
                           type="checkbox"
@@ -807,7 +1102,26 @@ function Client() {
                           </div>
                         </div>
                       </td>
-                      <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : "---"}</td>
+                      {/* <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : "---"}</td> */}
+
+                      <td>
+                        {employees.length > 0 && row.Distributor_id ? (
+                          employees.some((eid) => eid.user_id === row.Distributor_id) ? (
+                            employees
+                              .filter((eid) => eid.user_id === row.Distributor_id)
+                              .map((eid, idx) => (
+                                <span key={idx} onClick={() => handlenav1(eid)}>
+                                  {eid.username.toUpperCase()}
+                                </span>
+                              ))
+                          ) : (
+                            <span>------</span>
+                          )
+                        ) : (
+                          <span style={{ textAlign: "center" }}>------</span>
+                        )}
+                      </td>
+
                       <td>
                         <div className="client-info">
                           <h4 style={{ color: "blue", fontWeight: "500" }}>
@@ -824,7 +1138,7 @@ function Client() {
                         </div>
                       </td>
                       <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "---"}</td>
-                     
+                      
                       <td>
                         <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
                           {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
@@ -1110,6 +1424,50 @@ function Client() {
         </Modal.Footer>
       </Modal>
 
+      <Modal show={showupdateamountModal} onHide={handlemodelClose} dialogClassName="custom-modal">
+        <div className="dio" style={{ width: '50vw' }}>
+          <Modal.Header closeButton className="d-flex justify-content-between py-3 ">
+            <div className="d-flex justify-content-between w-100" >
+              <Modal.Title  >Update Amount</Modal.Title>  </div>
+          </Modal.Header>
+          <Modal.Body>
+          <form onSubmit={handleDistributorSubmit}>
+                   <div> 
+                    {employees
+      .filter(
+        (emp) =>
+          emp.role === 'Distributor' &&
+          emp.username.toLowerCase().includes(searchQuery)
+      )
+      .map((emp) => (
+        <div key={emp.user_id} className="mb-3">
+          <p>
+            <strong  style={{color:' #1246ac'}}>{emp.username.toUpperCase()}</strong>
+          </p>
+          <input  
+            type="number"
+            placeholder={ ` Date ${emp.today_rate_date}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
+            value={amounts[emp.user_id] || ''}
+            onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
+            className="form-control"
+          />
+        </div>
+      ))} 
+         
+      </div>          
+          <Modal.Footer className="w-100 justify-content-center">
+                <Button variant="secondary" className="w-15" onClick={handlemodelClose}  >
+                  Close
+                </Button>
+                <Button variant="primary" onClick={handleSubmitUpdate2} className="w-15" >
+                  Save Changes
+                </Button>
+              </Modal.Footer>
+          </form>
+          </Modal.Body>
+        </div>
+      </Modal>
+
 
 
 
@@ -1191,10 +1549,66 @@ function Client() {
                 </div>
               </div>
               <div className="row d-flex  justify-content-end col-12">
-                <Button className={!showBankModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={() => setShowBankModal(!showBankModal)}>{showBankModal ? "Clear" : "Add Bank"} </Button>
+                <Button className={!showBankModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={() => setShowBankModal(!showBankModal)}>
+                {showBankModal ? "Clear Bank" : "Add Bank"}
+                 </Button>
+
+                 <Button className={!showNewDistributorModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={() => setShowNewDistributorModal(!showNewDistributorModal)}>
+                 {showNewDistributorModal ? "Clear Distributor" : "Add New Distributor"}
+                  </Button>
+
+
+                  <Button className={!showupdateamountModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={handlemodelShow }>
+                 {showupdateamountModal ? "Clear " : "Distributor Today Rate"}
+                  </Button>
+
+
               </div>
               {
-                showBankModal ? (
+                showNewDistributorModal  ? (
+                  <>
+                    <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
+                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+                        <input
+                          type="text"
+                          value={distributorname}
+                          onChange={(e) =>setDistributorname(e.target.value)}
+                        // required
+                        />
+                        <label>ENTER THE DISTRIBUTOR NAME</label>
+                      </div>
+                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+                        <input
+                          type="text"
+                          value={distributorcontact}
+                          step="0.01"
+                          onChange={(e) => setDistributorcontact(e.target.value)}
+                        // required
+                        />
+                        <label>CONTACT NUMBER</label>
+                      </div>
+                    </div>
+                    <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
+                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+                        <input
+                          type="number"
+                          value={todayRate}
+                          onChange={(e) => setTodayrate(e.target.value)}
+                        // required
+                        />
+                        <label>TODAY RATE</label>
+                      </div>
+                    </div>
+
+                    <Button variant="primary"  onClick={handleDistributorSubmit} className="w-15" >
+                  Save Distributor 
+                </Button>
+                  </>
+                ) : (<>
+                </>)}
+
+                {
+                  showBankModal ? (
                   <>
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
@@ -1231,6 +1645,39 @@ function Client() {
                   </>
                 ) : (<>
                 </>)}
+
+                {/* {
+                  showupdateamountModal ? (
+                  <>
+                  
+                   
+                  <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12  "  style={{height:'300px',overflow:'scroll',backgroundColor:'black'}}>
+                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12  ">
+                    {employees
+      .filter(
+        (emp) =>
+          emp.role === 'Distributor' &&
+          emp.username.toLowerCase().includes(searchQuery)
+      )
+      .map((emp) => (
+        <div key={emp.user_id} className="mb-3">
+          <p>
+            <strong  style={{color:' #1246ac'}}>{emp.username.toUpperCase()}</strong>
+          </p>
+          <input  
+            type="number"
+            placeholder={ ` Date ${emp.today_rate_date}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
+            value={amounts[emp.user_id] || ''}
+            onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
+            className="form-control"
+          />
+        </div>
+      ))} 
+      </div>
+            </div>        
+                  </>
+                ) : (<>
+                </>)} */}
 
 
               <Modal.Footer className="w-100 justify-content-center">
@@ -1324,8 +1771,6 @@ function Client() {
     </Button>
   </Modal.Footer>
 </Modal>
-
-
     </div>
   );
 }
