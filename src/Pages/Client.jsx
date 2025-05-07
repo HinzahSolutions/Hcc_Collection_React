@@ -181,7 +181,7 @@ function Client() {
   const filteredData = useMemo(() => {
     if (!Array.isArray(users)) return [];
 
-    const today = format(new Date(), "dd-MM-yyyy"); // Format today's date
+    const today = format(new Date(), "dd-MM-yyyy");
 
     return users.filter((row) => {
       const clientName = row.client_name?.toLowerCase().trim() || "";
@@ -509,10 +509,21 @@ function Client() {
     console.log(selectedClient)
   };
 
+  // const handleBankSelection = (bankType) => {
+  //   setSelectedBank(bankType);
+  // };
+ 
+
+  const bankNames = {
+    bank1: "IOB ONLY",
+    bank2: "IOB OTHERS",
+    bank3: "IDBANK OTHERS",
+  };
+  
   const handleBankSelection = (bankType) => {
     setSelectedBank(bankType);
   };
-
+  
 
 
   const confirmExport = () => {
@@ -534,28 +545,76 @@ function Client() {
       return;
     }
 
+    // const csvData = filteredRows.map((client) => {
+    //   let clientData = {
+    //     "ACCOUNT NUMBER": `${client.accno}`,
+    //     " AMOUNT": ` ${client.amount.toFixed(2)}`,
+    //   };
+
+    //   if (selectedBank === "bank1") {
+    //     clientData[" NARRATION"] = ` ${client.narration || ""}`;
+    //   } else if (selectedBank === "bank2") {
+    //     clientData = {
+    //       " IFSC CODE": ` ${client.ifsc_code}`,
+    //       " ACCOUNT TYPE": ` ${client.accoun_type || ""}`,
+    //       " ACCOUNT NUMBER": ` ${client.accno}`,
+    //       " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
+    //       " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}`,
+    //       " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}`,
+    //       ...clientData,
+    //     };
+    //   }  else if(selectedBank === "bank3"){
+    //         clientData = {
+    //            "CUSTOMER_NAME": `${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
+    //            " CITY": ` ${client.city?.toUpperCase() || "UNKNOWN CITY NAME"}`,
+    //            " ACCOUNT_NUMBER": ` ${client.accno}`,
+    //            " AMOUNT": ` ${client.amount.toFixed(2)}`,
+    //            " DESCRIPTION": ` ${""}`,
+    //            " IFSC_CODE": ` ${client.ifsc_code}`,
+    //            " BANK_NAME": ` ${client.bank_name?.toUpperCase() || "UNKNOWN  NAME"}`,
+    //            " BENEFICIARY_EMAIL_ID": ` ${client.bank_name?.toUpperCase() || "UNKNOWN  EMAIL ID"}`,
+    //         };
+    //   }
+
+    //   return clientData;
+    // });
+           
+
     const csvData = filteredRows.map((client) => {
       let clientData = {
         "ACCOUNT NUMBER": `${client.accno}`,
-        "AMOUNT": `${client.amount.toFixed(2)}`,
+        " AMOUNT": ` ${client.amount.toFixed(2)}` ,
       };
-
+    
       if (selectedBank === "bank1") {
-        clientData["NARRATION"] = `${client.narration || ""}`;
+        clientData[" NARRATION"] = ` ${client.narration}`  || "";
       } else if (selectedBank === "bank2") {
         clientData = {
-          "IFSC CODE": `${client.ifsc_code}`,
-          "ACCOUNT TYPE": `${client.accoun_type || ""}`,
-          "ACCOUNT NUMBER": `${client.accno}`,
-          "BENEFICIARY NAME": `${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
-          "BENEFICIARY ADDRESS": `${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}`,
-          "SENDER INFORMATION": `${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}`,
-          ...clientData,
+          "IFSC CODE": `${client.ifsc_code}` ,
+          " ACCOUNT TYPE": ` ${client.account_type}  ` || "" ,
+          " ACCOUNT NUMBER": ` ${client.accno}` ,
+          " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}` ,
+          " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}` ,
+          " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}` ,
+          " ACCOUNT NUMBER": ` ${client.accno}`,
+          " AMOUNT": ` ${client.amount.toFixed(2)}` ,
+        };
+      } else if (selectedBank === "bank3") {
+        clientData = {
+          "CUSTOMER_NAME": `${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}` ,
+          " CITY": ` ${client.client_city?.toUpperCase() || "UNKNOWN CITY NAME"}` ,
+          " ACCOUNT_NUMBER": ` ${client.accno}`,
+          " AMOUNT": ` ${ client.amount.toFixed(2)}`,
+          " DESCRIPTION": " STOCK",
+          " IFSC_CODE": ` ${client.ifsc_code}` ,
+          " BANK_NAME": ` ${ client.bank_name?.toUpperCase() || "UNKNOWN NAME"}`,
+          " BENEFICIARY_EMAIL_ID": ` ${client.beneficiary_email_id?.toLowerCase() || "UNKNOWN EMAIL ID"}`,
         };
       }
-
+    
       return clientData;
     });
+    
 
     const headers = [...new Set(csvData.flatMap((row) => Object.keys(row)))];
     const csvContent = [headers, ...csvData.map((row) => headers.map((header) => row[header] || "")),]
@@ -793,10 +852,10 @@ function Client() {
   const handleDistributorSubmit = async (event) => {
     event.preventDefault();
   
-    // Check for empty distributorname or distributorcontact
+   
     if (!distributorname.trim() || !distributorcontact.trim()) {
       alert("Please fill in all required fields (Name and Contact).");
-      return; // Stop the function if fields are empty
+      return;
     }
   
     const Authorization = localStorage.getItem("authToken");
@@ -877,7 +936,7 @@ function Client() {
       if (selectedDistributor.today_rate_date === currentDate) {
         setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
       } else {
-        setTodayRate(0); // Not today's rate, so empty
+        setTodayRate(0);
       }
     } else {
       setTodayRate(0);
@@ -1751,8 +1810,8 @@ function Client() {
     )}
 
     {/* Bank selection buttons */}
-    <div className="d-flex justify-content-center mt-3">
-      {["bank1", "bank2"].map(bank => (
+    {/* <div className="d-flex justify-content-center mt-3">
+      {["bank1","bank2","bank3"].map(bank => (
         <Button
           key={bank}
           variant={selectedBank === bank ? "primary" : "secondary"}
@@ -1762,7 +1821,25 @@ function Client() {
           {bank.charAt(0).toUpperCase() + bank.slice(1)}
         </Button>
       ))}
-    </div>
+    </div> */}
+    {/* const bankNames = {
+  bank1: "IOB ONLY",
+  bank2: "IOB OTHERS",
+  bank3: "IDBANK OTHERS",
+}; */}
+
+<div className="d-flex justify-content-center mt-3">
+  {Object.entries(bankNames).map(([bankKey, bankLabel]) => (
+    <Button
+      key={bankKey}
+      variant={selectedBank === bankKey ? "primary" : "secondary"}
+      onClick={() => handleBankSelection(bankKey)}
+      className="mx-2"
+    >
+      {bankLabel}
+    </Button>
+  ))}
+</div>
   </Modal.Body>
   <Modal.Footer className="d-flex justify-content-center">
     <Button variant="danger" onClick={() => setShowModal(false)}>Cancel</Button>

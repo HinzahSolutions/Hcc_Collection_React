@@ -479,22 +479,67 @@ function Employee() {
   };
 
 
+  // const handleSubmitupdate = async () => {
+  //   if (!amount || !showData) {
+  //     alert("Please enter an amount");
+  //     return;
+  //   }
+
+  //   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  //   const data = {
+  //     user_id: showData.user_id,
+  //     today_rate_date: currentDate,
+  //     Distributor_today_rate: amount,
+  //   };
+
+  //   console.log("Sending data:", data);
+
+  //   try {
+  //     const response = await fetch(
+  //       `${API_URL}/update-distributor-amount/${showData.user_id}`,
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(data),
+  //       }
+  //     );
+
+  //     if (response.ok) {
+  //       alert("Rate updated successfully!");
+  //       setTodayRateModal(false);
+  //       setAmount("");
+  //       fetchEmployees();
+  //     } else {
+  //       const errorText = await response.text();
+  //       console.error("Failed to update rate:", errorText);
+  //       alert(`Failed to update rate: ${errorText}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating rate:", error);
+  //     alert("An error occurred.");
+  //   }
+  // };
+ 
+
   const handleSubmitupdate = async () => {
     if (!amount || !showData) {
       alert("Please enter an amount");
       return;
     }
-
+  
     const currentDate = format(new Date(), "dd-MM-yyyy");
-
+  
     const data = {
       user_id: showData.user_id,
       today_rate_date: currentDate,
       Distributor_today_rate: amount,
     };
-
+  
     console.log("Sending data:", data);
-
+  
     try {
       const response = await fetch(
         `${API_URL}/update-distributor-amount/${showData.user_id}`,
@@ -506,23 +551,67 @@ function Employee() {
           body: JSON.stringify(data),
         }
       );
-
-      if (response.ok) {
-        alert("Rate updated successfully!");
-        setTodayRateModal(false);
-        setAmount("");
-        fetchEmployees();
-      } else {
+  
+      if (!response.ok) {
         const errorText = await response.text();
         console.error("Failed to update rate:", errorText);
         alert(`Failed to update rate: ${errorText}`);
+        return;
       }
+  
+      alert("Rate updated successfully!");
+      setTodayRateModal(false);
+      setAmount("");
+      fetchEmployees();
+  
+      // 🟡 Step 2: Fetch clients
+      const authToken = localStorage.getItem("authToken");
+      const clientRes = await fetch(`${API_URL}/acc_list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authToken,
+        },
+      });
+  
+      if (!clientRes.ok) {
+        console.error("Failed to fetch clients");
+        return;
+      }
+  
+      const clients = await clientRes.json();
+  
+      const targetClients = clients.filter(
+        (client) =>
+          client.Distributor_id === showData.user_id &&
+          client.date === currentDate &&
+          !client.today_rate
+      );
+  
+      // 🟡 Step 3: Update each client's today_rate
+      const updatePromises = targetClients.map((client) =>
+        fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authToken,
+          },
+          body: JSON.stringify({
+            ...client,
+            today_rate: amount,
+          }),
+        })
+      );
+  
+      await Promise.all(updatePromises);
+      console.log("Updated clients with new today_rate");
+  
     } catch (error) {
       console.error("Error updating rate:", error);
       alert("An error occurred.");
     }
   };
-
+  
 
 
   const handleShowMore = () => {
@@ -539,8 +628,8 @@ function Employee() {
     setAmounts((prev) => ({ ...prev, [userId]: value }));
   };
 
-
-   // Ensure you have date-fns installed
+  
+  
 
 const handleSubmitUpdate2 = async () => {
  
@@ -549,9 +638,9 @@ const handleSubmitUpdate2 = async () => {
     .filter((emp) => emp.role === "Distributor" && emp.user_id)
     .map((emp) => ({
       user_id: emp.user_id,
-      today_rate_date: amounts[emp.user_id] // Check if amount is changed
+      today_rate_date: amounts[emp.user_id] 
         ? currentDate
-        : emp.today_rate_date, // Retain previous date if no change
+        : emp.today_rate_date,
       Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
     }));
 
@@ -581,6 +670,12 @@ const handleSubmitUpdate2 = async () => {
     alert("An error occurred.");
   }
 };
+
+
+
+const autosetamount =() => {
+         
+}
  
   return (
     <div style={{ marginTop: "50px" }}>
@@ -639,7 +734,7 @@ const handleSubmitUpdate2 = async () => {
               </div>
               <div className="card-progress">
                 <small>COLLECTION MANAGER</small>
-              </div>
+              </div>  
             </div>
 
             <div
