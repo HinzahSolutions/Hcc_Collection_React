@@ -11,6 +11,7 @@ import { format, parse } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaRegCalendarAlt } from "react-icons/fa";
+import { current } from "@reduxjs/toolkit";
 
 
 function Client() {
@@ -30,6 +31,7 @@ function Client() {
   const [bname, setBname] = useState("")
   const [anumber, setAnumber] = useState("")
   const [ifsc, setIfsc] = useState("")
+  const [beneficiaryemailid,setBeneficiaryemailid] = useState("")
   const [holdername, setHoldername] = useState("")
   const [holderaddress, setHolderadderss] = useState("")
   const [distributor, setDistributor] = useState(null);
@@ -61,6 +63,10 @@ function Client() {
   const [todayRate,setTodayrate] = useState()
   const [showupdateamountModal,setShowupdateamountModal] = useState(false)
   const [amountSet,setAmountSet] = useState()
+  const [description,setDescription] = useState()
+  const conformrole = localStorage.getItem('role');
+  const  Dtpuserid = localStorage.getItem('user_id')
+  console.log("user DTP id", Dtpuserid)
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
     if (Authorization) {
@@ -178,62 +184,123 @@ function Client() {
 
 
 
-  const filteredData = useMemo(() => {
-    if (!Array.isArray(users)) return [];
+  // const filteredData = useMemo(() => {
+  //   if (!Array.isArray(users)) return [];
 
-    const today = format(new Date(), "dd-MM-yyyy");
+  //   const today = format(new Date(), "dd-MM-yyyy");
 
-    return users.filter((row) => {
-      const clientName = row.client_name?.toLowerCase().trim() || "";
-      const clientContact = row.client_contact || "";
-      const employeeName = row.employee_name?.toLowerCase().trim() || "";
-      const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-      const clientStatus = row.status?.toLowerCase().trim() || "";
-      const createdAt = row.date?.trim() || "";
-      const query = searchQuery?.toLowerCase().trim() || "";
-      const queryUpper = searchQuery?.toUpperCase().trim() || "";
-      const paidAndUnpaid = row.paid_and_unpaid;
-      const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+  //   return users.filter((row) => {
+  //     const clientName = row.client_name?.toLowerCase().trim() || "";
+  //     const clientContact = row.client_contact || "";
+  //     const employeeName = row.employee_name?.toLowerCase().trim() || "";
+  //     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+  //     const clientStatus = row.status?.toLowerCase().trim() || "";
+  //     const createdAt = row.date?.trim() || "";
+  //     const query = searchQuery?.toLowerCase().trim() || "";
+  //     const queryUpper = searchQuery?.toUpperCase().trim() || "";
+  //     const paidAndUnpaid = row.paid_and_unpaid;
+  //     const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
 
 
-      const matchesQuery = !searchQuery
-        ? true
-        : isQueryDate
-          ? createdAt === searchQuery
-          : clientName.includes(query) ||
+  //     const matchesQuery = !searchQuery
+  //       ? true
+  //       : isQueryDate
+  //         ? createdAt === searchQuery
+  //         : clientName.includes(query) ||
+  //         clientContact.includes(query) ||
+  //         employeeName.includes(query) ||
+  //         accountNumbers.includes(queryUpper);
+
+
+  //     const matchesDashboardFilter =
+  //       dashboardNav === "client" ||
+  //       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+  //       (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+  //       !dashboardNav;
+
+
+  //     const matchesStatusFilter = selectedStatus
+  //       ? clientStatus === selectedStatus.toLowerCase()
+  //       : true;
+
+
+  //     const matchesDateFilter =
+  //       selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+  //         ? createdAt === format(selectedDate, "dd-MM-yyyy")
+  //         : true;
+
+
+  //     const matchesBankFilter = navselectedBank
+  //       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+  //       : true;
+
+  //     return (matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter && matchesBankFilter);
+  //   });
+  // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
+
+
+   const filteredData = useMemo(() => {
+  if (!Array.isArray(users)) return [];
+
+  const today = format(new Date(), "dd-MM-yyyy");
+
+  const conformrole = localStorage.getItem("role");
+  const Dtpuserid = localStorage.getItem("user_id");
+
+  return users.filter((row) => {
+    const clientName = row.client_name?.toLowerCase().trim() || "";
+    const clientContact = row.client_contact || "";
+    const employeeName = row.employee_name?.toLowerCase().trim() || "";
+    const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+    const clientStatus = row.status?.toLowerCase().trim() || "";
+    const createdAt = row.date?.trim() || "";
+    const query = searchQuery?.toLowerCase().trim() || "";
+    const queryUpper = searchQuery?.toUpperCase().trim() || "";
+    const paidAndUnpaid = row.paid_and_unpaid;
+    const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+
+    const matchesQuery = !searchQuery
+      ? true
+      : isQueryDate
+        ? createdAt === searchQuery
+        : clientName.includes(query) ||
           clientContact.includes(query) ||
           employeeName.includes(query) ||
           accountNumbers.includes(queryUpper);
 
+    const matchesDashboardFilter =
+      dashboardNav === "client" ||
+      (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+      (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+      !dashboardNav;
 
-      const matchesDashboardFilter =
-        dashboardNav === "client" ||
-        (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-        (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
-        !dashboardNav;
+    const matchesStatusFilter = selectedStatus
+      ? clientStatus === selectedStatus.toLowerCase()
+      : true;
 
-
-      const matchesStatusFilter = selectedStatus
-        ? clientStatus === selectedStatus.toLowerCase()
+    const matchesDateFilter =
+      selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+        ? createdAt === format(selectedDate, "dd-MM-yyyy")
         : true;
 
+    const matchesBankFilter = navselectedBank
+      ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+      : true;
 
-      const matchesDateFilter =
-        selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-          ? createdAt === format(selectedDate, "dd-MM-yyyy")
-          : true;
+    const matchesDtpFilter =
+      conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
 
+    return (
+      matchesQuery &&
+      matchesDashboardFilter &&
+      matchesStatusFilter &&
+      matchesDateFilter &&
+      matchesBankFilter &&
+      matchesDtpFilter
+    );
+  });
+}, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
 
-      const matchesBankFilter = navselectedBank
-        ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-        : true;
-
-      return (matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter && matchesBankFilter);
-    });
-  }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
-
-
-   
 
 
   const handleShowMore = () => {
@@ -252,6 +319,96 @@ function Client() {
       return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
     }, 0);
   }, [filteredData]);
+
+
+
+//   const totalDTPLocalPaid = useMemo(() => {
+//   const conformrole = localStorage.getItem("role");
+//   const Dtpuserid = localStorage.getItem("user_id");
+
+//   // Optional filtering before reduce
+//   const dtpFilteredData =
+//     conformrole === "Dtp"
+//       ? filteredData.filter((client) => String(client.dtp_id) === String(Dtpuserid))
+//       : filteredData;
+
+//   return dtpFilteredData.reduce((total, client) => {
+//     const payments = client.paid_amount_date || [];
+//     const totalPaidForClient = payments.reduce((sum, payment) => {
+//       return sum + (parseFloat(payment.amount) || 0);
+//     }, 0);
+
+//     const clientRate = parseFloat(client.today_rate) || 1;
+//     return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
+//   }, 0);
+// }, [filteredData]);
+ 
+
+// const totalDTPLocalPaid = useMemo(() => {
+//   const conformrole = localStorage.getItem("role");
+//   const Dtpuserid = localStorage.getItem("user_id");
+
+//   // If role is DTP, filter clients by matching DTP ID
+//   const relevantClients = conformrole === "Dtp"
+//     ? filteredData.filter((client) => String(client.dtp_id) === String(Dtpuserid))
+//     : filteredData;
+
+//   return relevantClients.reduce((total, client) => {
+//     const payments = client.paid_amount_date || [];
+//     const totalPaidForClient = payments.reduce((sum, payment) => {
+//       return sum + (parseFloat(payment.amount) || 0);
+//     }, 0);
+
+//     const clientRate = parseFloat(client.today_rate) || 1;
+//     return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
+//   }, 0);
+// }, [filteredData]);
+
+
+
+
+ const totalDTPLocalPaid = useMemo(() => {
+  const Dtpuserid = localStorage.getItem("user_id");
+
+  return filteredData
+    .filter(client => String(client.dtp_id) === String(Dtpuserid))
+    .reduce((total, client) => {
+      return total + (parseFloat(client.amount) || 0);
+    }, 0);
+}, [filteredData]);
+
+const totalTodayDTPLocalPaid = useMemo(() => {
+  const Dtpuserid = localStorage.getItem("user_id");
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  return filteredData
+    .filter(
+      client =>
+        String(client.dtp_id) === String(Dtpuserid) &&
+        client.date === currentDate
+    )
+    .reduce((total, client) => {
+      const amount = parseFloat(client.amount) || 0;
+      const rate = parseFloat(client.today_rate) || 1;
+      return total + (rate > 0 ? amount / rate : 0);
+    }, 0);
+}, [filteredData]);
+
+
+
+const totalLocalDTPLocalPaid = useMemo(() => {
+  const Dtpuserid = localStorage.getItem("user_id");
+
+  return filteredData
+    .filter(client => String(client.dtp_id) === String(Dtpuserid))
+    .reduce((total, client) => {
+      const amount = parseFloat(client.amount) || 0;
+      const rate = parseFloat(client.today_rate) || 1;
+
+      return total + (rate > 0 ? amount / rate : 0);
+    }, 0);
+}, [filteredData]);
+
 
 
   const totalLocalCurrency = useMemo(() => {
@@ -288,71 +445,200 @@ function Client() {
     }, 0);
   }, [filteredData, currentDate]);
 
+//   const totalINTERNALTodayAmount = useMemo(() => {
+//   return users.reduce((total, client) => {
+//     if (client.date === currentDate) {
+//       const clientAmount = parseFloat(client.amount) || 0;
+//       return total + clientAmount;
+//     }
+//     return total;
+//   }, 0);
+// }, [users, currentDate]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const currentDate = format(new Date(), "dd-MM-yyyy");
 
-    const clientData = {
-      client_name: (clientName || "UNKNOWN").toUpperCase(),
-      client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
-      client_city: (city || "UNKNOWN").toUpperCase(),
-      amount: amount || 0,
-      today_rate: todayrate || 0,
-      date: currentDate || new Date().toISOString(),
-      sent: false,
-      message: (message || "").toUpperCase(),
-      paid_and_unpaid: false,
-      success_and_unsuccess: false,
-      bank_name: (bname || "").toUpperCase(),
-      accno: (anumber || "").toUpperCase(),
-      ifsc_code: (ifsc || "").toUpperCase(),
-      accoun_type: (type || "10").toUpperCase(),
-      Distributor_id: distributorId || null,
-      name_of_the_beneficiary: (holdername || "").toUpperCase(),
-      address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
-      sender_information: (senderinfo || "STOCK").toUpperCase(),
-      bank_type: (clientType || "").toUpperCase(),
-      narration: (narration || "STOCK").toUpperCase(),
-    };
+const totalINTERNALTodayAmount = useMemo(() => {
+  const rawTotal = users.reduce((total, client) => {
+    if (client.date === currentDate) {
+      const clientAmount = parseFloat(client.amount) || 0;
+      return total + clientAmount;
+    }
+    return total;
+  }, 0);
 
-    console.log(clientData)
+  const decimalPart = rawTotal - Math.floor(rawTotal);
+  const roundedTotal = decimalPart >= 0.5 ? Math.ceil(rawTotal) : Math.floor(rawTotal);
 
-    fetch(`${API_URL}/acc_insertarrays`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(clientData),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Something went wrong!");
-      })
-      .then((data) => {
-        console.log("Response data:", data);
-        alert("New Client Created");
+  return roundedTotal;
+}, [users, currentDate]);
 
-        resetForm();
 
-        fetch(`${API_URL}/acc_list`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("authToken"),
-          },
-        })
-          .then((response) => response.json())
-          .then((updatedData) => dispatch(setUsers(updatedData)))
-          .catch((error) => console.error("Error fetching updated data:", error));
 
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+
+ 
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     const currentDate = format(new Date(), "dd-MM-yyyy");
+
+//     // const clientData = {
+//     //   client_name: (clientName || "UNKNOWN").toUpperCase(),
+//     //   client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
+//     //   client_city: (city || "UNKNOWN").toUpperCase(),
+//     //   amount: amount || 0,
+//     //   today_rate: todayrate || 0,
+//     //   date: currentDate || new Date().toISOString(),
+//     //   sent: false,
+//     //   message: (message || "").toUpperCase(),
+//     //   paid_and_unpaid: false,
+//     //   success_and_unsuccess: false,
+//     //   bank_name: (bname || "").toUpperCase(),
+//     //   accno: (anumber || "").toUpperCase(),
+//     //   ifsc_code: (ifsc || "").toUpperCase(),
+//     //   accoun_type: (type || "10").toUpperCase(),
+//     //   Distributor_id: distributorId || null,
+//     //   name_of_the_beneficiary: (holdername || "").toUpperCase(),
+//     //   address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
+//     //   sender_information: (senderinfo || "STOCK").toUpperCase(),
+//     //   bank_type: (clientType || "").toUpperCase(),
+//     //   narration: (narration || "STOCK").toUpperCase(),
+//     //   description :(description || "STOCK").toUpperCase(),
+//     //   beneficiary_email_id :(beneficiaryemailid || "")
+//     // };
+//     const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
+
+//     const clientData = {
+//   client_name: (clientName || "UNKNOWN").toUpperCase(),
+//   client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
+//   client_city: (city || "UNKNOWN").toUpperCase(),
+//   amount: amount || 0,
+//   today_rate: todayrate || 0,
+//   date: currentDate || new Date().toISOString(),
+//   sent: false,
+//   message: (message || "").toUpperCase(),
+//   paid_and_unpaid: false,
+//   success_and_unsuccess: false,
+//   bank_name: (bname || "").toUpperCase(),
+//   accno: (anumber || "").toUpperCase(),
+//   ifsc_code: (ifsc || "").toUpperCase(),
+//   accoun_type: (type || "10").toUpperCase(),
+//   Distributor_id: distributorId || null,
+//   name_of_the_beneficiary: (holdername || "").toUpperCase(),
+//   address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
+//   sender_information: (senderinfo || "STOCK").toUpperCase(),
+//   bank_type: (clientType || "STOCK").toUpperCase(),
+//   narration: (narration || "STOCK").toUpperCase(),
+//   description: (description || "STOCK").toUpperCase(),
+//   beneficiary_email_id: (beneficiaryemailid || ""),
+//   ...(dtp_id && { dtp_id }),
+   
+// };
+
+
+//     console.log(clientData)
+
+//     fetch(`${API_URL}/acc_insertarrays`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(clientData),
+//     })
+//       .then((response) => {
+//         if (response.ok) {
+//           return response.json();
+//         }
+//         throw new Error("Something went wrong!");
+//       })
+//       .then((data) => {
+//         console.log("Response data:", data);
+//         alert("New Client Created");
+
+//         resetForm();
+
+//         fetch(`${API_URL}/acc_list`, {
+//           method: "GET",
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: localStorage.getItem("authToken"),
+//           },
+//         })
+//           .then((response) => response.json())
+//           .then((updatedData) => dispatch(setUsers(updatedData)))
+//           .catch((error) => console.error("Error fetching updated data:", error));
+
+//       })
+//       .catch((error) => {
+//         console.error("Error:", error);
+//       });
+//   };
+    
+
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
+
+  const clientData = {
+    client_name: (clientName || "UNKNOWN").toUpperCase(),
+    client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
+    client_city: (city || "UNKNOWN").toUpperCase(),
+    amount: amount || 0,
+    today_rate: todayrate || 0,
+    date: currentDate || new Date().toISOString(),
+    sent: false,
+    message: (message || "").toUpperCase(),
+    paid_and_unpaid: false,
+    success_and_unsuccess: false,
+    bank_name: (bname || "").toUpperCase(),
+    accno: (anumber || "").toUpperCase(),
+    ifsc_code: (ifsc || "").toUpperCase(),
+    accoun_type: (type || "10").toUpperCase(), // ✅ fixed typo here
+    Distributor_id: distributorId || null,
+    name_of_the_beneficiary: (holdername || "").toUpperCase(),
+    address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
+    sender_information: (senderinfo || "STOCK").toUpperCase(),
+    bank_type: (clientType || "STOCK").toUpperCase(),
+    narration: (narration || "STOCK").toUpperCase(),
+    description: (description || "STOCK").toUpperCase(),
+    beneficiary_email_id: (beneficiaryemailid || ""),
+    ...(dtp_id && { dtp_id }),
   };
+
+  console.log(clientData);
+
+  fetch(`${API_URL}/acc_insertarrays`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(clientData),
+  })
+    .then((response) => {
+      if (response.ok) return response.json();
+      throw new Error("Something went wrong!");
+    })
+    .then((data) => {
+      console.log("Response data:", data);
+      alert("New Client Created");
+      resetForm();
+
+      // Refresh the data
+      fetch(`${API_URL}/acc_list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("authToken"),
+        },
+      })
+        .then((response) => response.json())
+        .then((updatedData) => dispatch(setUsers(updatedData)))
+        .catch((error) => console.error("Error fetching updated data:", error));
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+};
 
 
   const resetForm = () => {
@@ -368,6 +654,7 @@ function Client() {
     setHolderadderss("");
     setType("");
     setSenderinfo("");
+    setBeneficiaryemailid("")
   };
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
@@ -596,7 +883,7 @@ function Client() {
           " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}` ,
           " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}` ,
           " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}` ,
-          " ACCOUNT NUMBER": ` ${client.accno}`,
+          // " ACCOUNT NUMBER": ` ${client.accno}` ,
           " AMOUNT": ` ${client.amount.toFixed(2)}` ,
         };
       } else if (selectedBank === "bank3") {
@@ -605,10 +892,10 @@ function Client() {
           " CITY": ` ${client.client_city?.toUpperCase() || "UNKNOWN CITY NAME"}` ,
           " ACCOUNT_NUMBER": ` ${client.accno}`,
           " AMOUNT": ` ${ client.amount.toFixed(2)}`,
-          " DESCRIPTION": " STOCK",
+          " DESCRIPTION": ` ${ client.description?.toUpperCase() || "UNKNOWN NAME"}`,
           " IFSC_CODE": ` ${client.ifsc_code}` ,
           " BANK_NAME": ` ${ client.bank_name?.toUpperCase() || "UNKNOWN NAME"}`,
-          " BENEFICIARY_EMAIL_ID": ` ${client.beneficiary_email_id?.toLowerCase() || "UNKNOWN EMAIL ID"}`,
+          " BENEFICIARY_EMAIL_ID": ` ${ client.beneficiary_email_id?.toLowerCase() || "UNKNOWN EMAIL ID"}`,
         };
       }
     
@@ -704,76 +991,25 @@ function Client() {
   : [];
 
 
+    // const fetchdata  = async () =>{
+    //   setLoading(true);
+    //   const Authorization = localStorage.getItem("authToken")
 
-  // const handleDistributorSubmit = async (event) => {
-  //   event.preventDefault();
-  
-  //   const Authorization = localStorage.getItem("authToken");
-  //   const currentDate = format(new Date(), "dd-MM-yyyy");
-  
-  //   if (!Authorization) {
-  //     console.error("Authorization token is missing");
-  //     return;
-  //   }
-  
-  //   try {
-  //     const distributorData = new FormData();
-  //     distributorData.append("username", distributorname);
-  //     distributorData.append("phone_number", distributorcontact);
-  //     distributorData.append("role", "Distributor"); 
-  //     distributorData.append("today_rate_date", currentDate);
-  //     distributorData.append("Distributor_today_rate", todayRate);
-  
-  //     const signupResponse = await fetch(
-  //       `${API_URL}/distrbutorCreated`,
-  //       {
-  //         method: "POST",
-  //         body: distributorData,
-  //         headers: {
-  //           Authorization: Authorization,
-  //         },
-  //       }
-  //     );
-  
-  //     if (!signupResponse.ok) {
-  //       throw new Error("Something went wrong while adding the distributor!");
-  //     }
-  
-  //     const data = await signupResponse.json();
-  //     alert("New Distributor successfully created!"); 
-  //       setDistributorname("")
-  //       setDistributorcontact("")
-  //       setTodayrate("")
-  //     setShow(true);
-  //     setShowNewDistributorModal(!showNewDistributorModal)
+
+    //  if(Authorization) {
+    //   try {
+    //     const response = await fetch(`${API_URL}/list`, {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: Authorization,
+    //    },
+    //    cache{
+      
+    //    }
+    //  }
        
-  //   //  const Authorization  = localStorage.getItem("authToken");
-  //    if (Authorization) {
-  //      fetch(`${API_URL}/list`, {
-  //        method: "GET",
-  //        headers: {
-  //          "Content-Type": "application/json",
-  //          Authorization: Authorization,
-  //        },
-  //      })
-  //        .then((response) => {
-  //          if (response.status === 401) {
-  //            console.error("Unauthorized access - redirecting to login");
-  //            handleUnauthorizedAccess();
-  //            return;
-  //          }
-  //          return response.json();
-  //        })
-  //        .then((data) => dispatch(setEmployees(data)))
-  //        .catch((error) => console.error("Fetch error:", error));
-  //    } else {
-  //      console.error("No authorization token found in localStorage");
-  //    }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-
+    // }
 
 
    const fetchEmployees = async () => {
@@ -836,7 +1072,7 @@ function Client() {
         body: JSON.stringify(data),
       });
       alert("Rates updated successfully!");
-      setAmount("");
+      setAmounts()
       handlemodelClose();
       fetchEmployees();
 
@@ -942,7 +1178,7 @@ function Client() {
       setTodayRate(0);
     }
   };
-  
+      // const conformrole = localStorage.getItem('role');
 
   return (
     <div style={{ marginTop: "50px", width: '100%' }}>
@@ -950,7 +1186,9 @@ function Client() {
         <h1>Client</h1>
         <small>Client / Dash</small>
       </div>
-      <div className="analytics">
+      {
+        conformrole === "Admin" ?(
+                  <div className="analytics">
         <div
           className={dashboardNav === "client" ? "cardAction" : "card"}
           onClick={DashboardClient}
@@ -1040,8 +1278,11 @@ function Client() {
 
 
         <div className="cardAction  cardgreen  bg-primary" >
-          <div className="card-head">
-            <h2>{totalLocalTodayAmount.toFixed(3)}</h2>
+          <div className="card-head  ">
+          <div   className="d-flex flex-column">
+            <h2>{totalLocalTodayAmount.toFixed(3)}</h2> 
+            <h2>{totalINTERNALTodayAmount.toFixed(2)}</h2>
+            </div>
             <span className="las la-user-friends">
               <GiReceiveMoney />
               <HiUsers />
@@ -1052,39 +1293,93 @@ function Client() {
           </div>
         </div>
 
+        {/* <div className="card-head    cardgreen  bg-primary "  >
+  <h2>{totalLocalTodayAmount.toFixed(3)}</h2><h2>/</h2>
+  <br />
+  <h2>{totalINTERNALTodayAmount.toFixed(2)}</h2>
+  <span className="las la-user-friends">
+    <GiReceiveMoney />
+    <HiUsers />
+  </span>
+</div> */}
+
+
 
       </div>
+        ):(<div  className="analytics" >
+
+                <div className="cardAction  cardgreen  bg-primary" >
+          <div className="card-head">
+            <h2>{totalLocalDTPLocalPaid.toFixed(3)}</h2>
+            <span className="las la-user-friends">
+              <GiReceiveMoney />
+              <HiUsers />
+            </span>
+          </div>
+          <div className="card-progress">
+            <small>TOTAL YOUR ORDER CLIENT</small>
+          </div>
+        </div>
+
+         <div className="cardAction  cardgreen  bg-success" >
+          <div className="card-head">
+            <h2>{totalTodayDTPLocalPaid.toFixed(3)}</h2>
+            <span className="las la-user-friends">
+              <GiReceiveMoney />
+              <HiUsers />
+            </span>
+          </div>
+          <div className="card-progress">
+            <small>TODAY YOUR ORDER CLIENT</small>
+          </div>
+        </div>
+
+
+        </div>)
+      }
+     
       <div className="">
         <div className="record-header d-flex justify-content-between align-items-center flex-wrap gap-1 py-2 px-1">
           <div className="d-flex align-items-center gap-2 ">
-            <button
+
+          { conformrole === "Admin" ?(
+                 <button
               onClick={handleSelectAll}
               className={`btn ${selectAll ? "btn-danger" : "btn-success"} btn-sm`}
               style={{ minWidth: "100px" }}
             >
               {selectAll ? "Deselect All" : "Select All"}
             </button>
+          ) :(<span></span>)}
+           
 
 
             <Button className="btn btn-primary btn-sm" style={{ minWidth: "80px" }} onClick={handleShow}>
               Add New
             </Button>
 
-            <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }} onClick={() => setAllClient(true)} >
+            {
+              conformrole === "Admin" ?(
+                     <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }} onClick={() => setAllClient(true)} >
               Assign{selectedRows.length > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {selectedRows.length}
                 </span>
               )}
             </Button>
+              ):(<span></span>)
+            }
+
+            
 
 
           </div>
 
 
           <div className="d-flex align-items-center gap-2 ">
-
-            <Button
+           {
+            conformrole === "Admin" ?(
+                 <Button
               onClick={exportToCSV}
               className="btn btn-primary position-relative text-nowrap"
               style={{ minWidth: "120px" }} >
@@ -1095,6 +1390,9 @@ function Client() {
                 </span>
               )}
             </Button>
+            ):(<span></span>)
+           }
+           
 
 
             <InputGroup className="d-flex gap-2 flex-wrap align-items-center">
@@ -1284,7 +1582,8 @@ function Client() {
                                   )
                                 ).toFixed(3)
                                 : parseFloat(row.amount || 0) === 0
-                                  ? "0.000"
+                                  ? 
+                                  "0.000"
                                   : (
                                     Math.max(
                                       parseFloat(row.amount || 0) / parseFloat(row.today_rate || 1),0)).toFixed(3)}
@@ -1700,6 +1999,17 @@ function Client() {
                         />
                         <label>IFSC CODE</label>
                       </div>
+
+                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+                        <input
+                          type="text"
+                          value={beneficiaryemailid}
+                          onChange={(e) => setBeneficiaryemailid(e.target.value)}
+                        // required
+                        />
+                        <label>BENEFICIARY EMAIL_ID</label>
+                      </div>
+
                     </div>
                   </>
                 ) : (<>

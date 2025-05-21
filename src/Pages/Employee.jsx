@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { parse, subDays, format, parseISO } from "date-fns";
 
+
 function Employee() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
@@ -266,7 +267,12 @@ function Employee() {
       );
     });
   });
+  
 
+
+
+
+   
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -358,6 +364,10 @@ function Employee() {
   useEffect(() => {
     sessionStorage.clear();
   }, []);
+
+
+
+  
 
   // const sortedData = useMemo(() => {
   //   return [...filteredData].sort((a, b) => {
@@ -588,7 +598,7 @@ function Employee() {
           !client.today_rate
       );
   
-      // 🟡 Step 3: Update each client's today_rate
+     
       const updatePromises = targetClients.map((client) =>
         fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
           method: "PUT",
@@ -631,22 +641,64 @@ function Employee() {
   
   
 
-const handleSubmitUpdate2 = async () => {
+// const handleSubmitUpdate2 = async () => {
  
 
+//   const data = employees
+//     .filter((emp) => emp.role === "Distributor" && emp.user_id)
+//     .map((emp) => ({
+//       user_id: emp.user_id,
+//       today_rate_date: amounts[emp.user_id] 
+//         ? currentDate
+//         : emp.today_rate_date,
+//       Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
+//     }));
+
+//   console.log("Sending data:", data);
+
+//   try {
+//     const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(data),
+//     });
+
+//     if (response.ok) {
+//       alert("Rates updated successfully!");
+//       setAmountSet(false);
+//       fetchEmployees();
+//       setSearchQuery("");
+//     } else {
+//       const errorText = await response.text();
+//       console.error("Failed to update rates:", errorText);
+//       alert(`Failed to update rates`);
+//     }
+//   } catch (error) {
+//     console.error("Error updating rates:", error);
+//     alert("An error occurred.");
+//   }
+// };
+
+
+
+const handleSubmitUpdate2 = async () => {
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  // Step 1: Prepare distributor update data
   const data = employees
     .filter((emp) => emp.role === "Distributor" && emp.user_id)
     .map((emp) => ({
       user_id: emp.user_id,
-      today_rate_date: amounts[emp.user_id] 
-        ? currentDate
-        : emp.today_rate_date,
+      today_rate_date: amounts[emp.user_id] ? currentDate : emp.today_rate_date,
       Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
     }));
 
-  console.log("Sending data:", data);
+  console.log("Sending data to update distributors:", data);
 
   try {
+    // Step 2: Update distributor rates
     const response = await fetch(`${API_URL}/update-distributor-amounts`, {
       method: "POST",
       headers: {
@@ -654,22 +706,88 @@ const handleSubmitUpdate2 = async () => {
       },
       body: JSON.stringify(data),
     });
-
+    console.log("Distributor update response status:", response.status);
     if (response.ok) {
-      alert("Rates updated successfully!");
-      setAmountSet(false);
-      fetchEmployees();
-      setSearchQuery("");
-    } else {
       const errorText = await response.text();
-      console.error("Failed to update rates:", errorText);
-      alert(`Failed to update rates`);
+      console.error("Failed to update distributor rates:", errorText);
+      alert("Failed to update distributor rates");
+      return;
     }
+
+    alert("Distributor rates updated successfully!");
+    setAmountSet(false);
+    fetchEmployees();
+    setSearchQuery("");
+
+    // Step 3: Fetch all clients
+    const authToken = localStorage.getItem("authToken");
+    const clientRes = await fetch(`${API_URL}/acc_list`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authToken,
+      },
+    });
+
+    if (!clientRes.ok) {
+      console.error("Failed to fetch clients");
+      alert("Client fetch failed");
+      return;
+    }
+
+    const clients = await clientRes.json();
+    console.log("Fetched clients:", clients);
+
+    // Step 4: Filter and prepare client update requests
+    const updatePromises = [];
+
+    data.forEach((dist) => {
+      const distributorClients = clients.filter((client) => {
+        const clientDateFormatted = client.date
+          ? format(new Date(client.date), "dd-MM-yyyy")
+          : null;
+
+        return (
+          String(client.Distributor_id) === String(dist.user_id) &&
+          clientDateFormatted === currentDate &&
+          (client.today_rate === null ||
+            client.today_rate === "" ||
+            client.today_rate === 0)
+        );
+      });
+
+      console.log(
+        `Clients to update for distributor ${dist.user_id}:`,
+        distributorClients
+      );
+
+      distributorClients.forEach((client) => {
+        updatePromises.push(
+          fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: authToken,
+            },
+            body: JSON.stringify({
+              ...client,
+              today_rate: dist.Distributor_today_rate,
+            }),
+          })
+        );
+      });
+    });
+
+    // Step 5: Execute all client update requests
+    await Promise.all(updatePromises);
+    console.log("All relevant clients updated with new today_rate");
+
   } catch (error) {
-    console.error("Error updating rates:", error);
-    alert("An error occurred.");
+    console.error("Error during multi-rate update:", error);
+    // alert("An error occurred while updating rates or clients.");
   }
 };
+
 
 
 
@@ -833,6 +951,9 @@ const autosetamount =() => {
                               <option value="Admin">Admin</option>
                               <option value="Collection Manager">
                                 Collection Manager
+                              </option>
+                               <option value="Dtp">
+                                Dtp
                               </option>
                               <option value="Collection Agent">Collection Agent</option>
                             </select>

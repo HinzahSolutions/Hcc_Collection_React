@@ -59,7 +59,7 @@ function MainApp() {
       <div style={{ width: "100vw", }}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route element={<PrivateRoute requiredRole="Admin" />}>
+        <Route element={<PrivateRoute requiredRole={["Admin", "Dtp"]} />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/client" element={<Client />} />

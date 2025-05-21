@@ -39,30 +39,42 @@ function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        throw new Error("Invalid email or password.");
-      }
+      // if (!response.ok) {
+      //   throw new Error("Invalid email or password.");
+       
+      // }
 
       const data = await response.json();
       const { token, user } = data;
-
-      if (user.role !== "Admin") {
+       console.log("vhvbnvbx",data)
+      if (user.role !== "Admin" && user.role !== "Dtp") {
         setError("Wrong user login.");
-        alert("Wrong User Login");
+        alert("Wrong User Login"); 
+
         return;
       }
-
+        
       dispatch(login({ token, role: user.role }));
       localStorage.setItem("authToken", token);
       localStorage.setItem("role", user.role);
-      localStorage.setItem("userName", user.username);
-      navigate("/dashboard");
+      localStorage.setItem("userName", user.username); 
+       localStorage.setItem("user_id", user.user_id);
+       console.log("vhvbnvbx",user)  
+      if (user.role === "Admin") {
+  navigate("/dashboard");
+} else if (user.role === "Dtp") {
+  navigate("/client");
+} else {
+  navigate("/login");
+   // Fallback route if role is unrecognized
+}
     } catch (error) {
       console.error("Login Error:", error.message);
       if (error.message === "Failed to fetch") {
         setError("No internet connection. Please check your network.");
       } else {
         setError(error.message);
+        console.log(error)
       }
     } finally {
       setLoading(false);
