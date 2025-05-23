@@ -232,6 +232,7 @@ function Employee() {
   const Dashboardpaid = () => setDashboardnav("Collection Manager");
   const Dashboardunpaid = () => setDashboardnav("Collection Agent");
   const DashboardAll = () => setDashboardnav("All");
+  const DashDtp=() => setDashboardnav("Dtp")
   const Dashboardother = () => setDashboardnav("Distributor");
 
 
@@ -262,8 +263,10 @@ function Employee() {
           (dashboardnav === "Collection Agent" &&
             row.role === "Collection Agent") ||
           (dashboardnav === "Distributor" &&
-            row.role === "Distributor"
-          ))
+            row.role === "Distributor")  ||
+             (dashboardnav === "Dtp" &&
+            row.role === "Dtp"
+          ) )
       );
     });
   });
@@ -279,6 +282,7 @@ function Employee() {
 
   const handlenav = (client) => {
     dispatch(setSelectedEmployee(client));
+    console.log(client)
     navigate("/employee/employeeinfo");
   };
   const collectionManagerCount = employees.filter(
@@ -293,6 +297,11 @@ function Employee() {
   const Distributor = employees.filter(
     (employee) => employee.role === "Distributor"
   ).length;
+
+    const Dtp = employees.filter(
+    (employee) => employee.role === "Dtp"
+  ).length;
+
   const allEmployeeCount = employees.filter((e1) => e1.user_id).length;
 
   const handleDelete = async (clientId) => {
@@ -854,6 +863,26 @@ const autosetamount =() => {
                 <small>COLLECTION MANAGER</small>
               </div>  
             </div>
+
+
+               <div
+              className={
+                dashboardnav === "Dtp" ? "cardAction" : "card"
+              }
+              onClick={DashDtp}
+            >
+              <div className="card-head">
+                <h2>{Dtp}</h2>
+                <span className="las la-user-friends">
+                  <FaUserTie />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small>DTP</small>
+              </div>  
+            </div>
+
+            
 
             <div
               className={

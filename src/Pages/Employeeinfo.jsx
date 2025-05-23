@@ -55,12 +55,23 @@ const EmployeeInfo = () => {
     const [year, month, day] = dateString.split("-");
     return `${day}-${month}-${year}`;
   };
+
+
+  // const filteredUsers = users.filter(
+  //   (eid) =>
+  //     selectedEmployee?.user_id && 
+  //     eid.Distributor_id === selectedEmployee.user_id &&  eid.dtp_id === selectedEmployee.user_id &&
+  //     (!selectedClientDate || eid.date === selectedClientDate),
+      
+  // );
+
   const filteredUsers = users.filter(
-    (eid) =>
-      selectedEmployee?.user_id &&
-      eid.Distributor_id === selectedEmployee.user_id &&
-      (!selectedClientDate || eid.date === selectedClientDate)
-  );
+  (eid) =>
+    selectedEmployee?.user_id &&
+    (eid.Distributor_id === selectedEmployee.user_id || eid.dtp_id === selectedEmployee.user_id) &&
+    (!selectedClientDate || eid.date === selectedClientDate)
+);
+
 
 
 
@@ -528,7 +539,7 @@ const sendDistributorCSVToWhatsApp = () => {
           </div>
         </div>
       </div>
-      <div className="d-flex justify-content-end px-2">
+      {/* <div className="d-flex justify-content-end px-2">
         <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
           COLLECTION AMOUNT
           <span style={{ backgroundColor: "white", color: "black" }} className="px-2 py-2 mx-1">
@@ -537,7 +548,21 @@ const sendDistributorCSVToWhatsApp = () => {
               : thisAgentCollectionAmount.toFixed(3)}
           </span>
         </h4>
-      </div>
+      </div> */}
+
+      {(selectedEmployee?.role === "Distributor" || selectedEmployee?.role === "Agent") && (
+  <div className="d-flex justify-content-end px-2">
+    <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
+      COLLECTION AMOUNT
+      <span style={{ backgroundColor: "white", color: "black" }} className="px-2 py-2 mx-1">
+        {selectedEmployee.role === "Distributor"
+          ? thisDistributorCollectionAmount.toFixed(3)
+          : thisAgentCollectionAmount.toFixed(3)}
+      </span>
+    </h4>
+  </div>
+)}
+
       {selectedEmployee?.role === "Collection Agent" ? (
         <div>
           <div className='record-header d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
@@ -811,7 +836,70 @@ const sendDistributorCSVToWhatsApp = () => {
 
         </div>
       ) : (
-        <p>No valid role assigned</p>
+       selectedEmployee?.role === "Dtp" ?(
+                       <div>
+          {/* <div>
+            <div className='d-flex justify-content-end align-items-center  py-4 ' style={{ backgroundColor: 'rgb(119, 162, 207)' }}>
+              <div>  <Button onClick={exportToExcel} className='mB-3 w-auto'>Export to Excel</Button></div>
+              <div> <InputGroup className="mb-auto" style={{ width: '200px' }}>
+                <FormControl type="date" value={selectedClientDate} onChange={handleDateChange} />
+              </InputGroup></div>
+              <div>  <Button className='mB-3 w-auto' variant="success" onClick={sendDistributorCSVToWhatsApp} >
+                Send to WhatsApp
+              </Button></div>
+            </div>
+
+          </div> */}
+          <table className="table table-striped w-70">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>CLIENT NAME</th>
+                <th>DATE</th>
+                <th>AGENT</th>
+                <th>AMOUNT</th>
+                <th>TODAY RATE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((eid, index) => {
+                  const matchedEmployee = employees.find((ename) => ename.user_id === eid.user_id);
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{eid.client_name ? eid.client_name.toUpperCase() : "UNKNOWN CLIENT"}</td>
+                      <td>{eid.date}</td>
+                      <td>{matchedEmployee ? matchedEmployee.username.toUpperCase() : "---"}</td>
+                      <td>
+                        <div className="client-info">
+                          <h4 style={{ color: "blue", fontWeight: "500" }}>
+                            INTER: <span>{eid.amount ? parseFloat(eid.amount).toFixed(2) : "0.00"}</span>
+                          </h4>
+                          <h4 style={{ color: "red", fontWeight: "500" }}>
+                            LOCAL:{" "}
+                            <span>
+                              {eid.amount && eid.today_rate
+                                ? (parseFloat(eid.amount) / parseFloat(eid.today_rate)).toFixed(3)
+                                : "0.000"}
+                            </span>
+                          </h4>
+                        </div>
+                      </td>
+                      <td>{eid.today_rate}</td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center" }}>No data available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+        </div>
+       ) :(<p>no client  </p>)
       )}
 
 

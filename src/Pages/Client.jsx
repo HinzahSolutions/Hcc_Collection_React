@@ -593,7 +593,7 @@ const handleSubmit = (e) => {
     bank_name: (bname || "").toUpperCase(),
     accno: (anumber || "").toUpperCase(),
     ifsc_code: (ifsc || "").toUpperCase(),
-    accoun_type: (type || "10").toUpperCase(), // ✅ fixed typo here
+    accoun_type: (type || "10" ).toUpperCase(), // ✅ fixed typo here
     Distributor_id: distributorId || null,
     name_of_the_beneficiary: (holdername || "").toUpperCase(),
     address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
@@ -878,7 +878,7 @@ const handleSubmit = (e) => {
       } else if (selectedBank === "bank2") {
         clientData = {
           "IFSC CODE": `${client.ifsc_code}` ,
-          " ACCOUNT TYPE": ` ${client.account_type}  ` || "" ,
+          " ACCOUNT TYPE": ` ${client.accoun_type}  ` || "" ,
           " ACCOUNT NUMBER": ` ${client.accno}` ,
           " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}` ,
           " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}` ,
