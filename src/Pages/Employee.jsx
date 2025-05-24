@@ -247,34 +247,63 @@ function Employee() {
     return url;
   };
 
-  const filteredData = useMemo(() => {
-    return employees.filter((row) => {
-      const username = row.username || "";
-      const phonenumber = row.phone_number || "";
-      const query = searchQuery || "";
+  // const filteredData = useMemo(() => {
+  //   return employees.filter((row) => {
+  //     const username = row.username || "";
+  //     const phonenumber = row.phone_number || "";
+  //     const query = searchQuery || "";
 
-      return (
-        (username.toLowerCase().includes(query.toLowerCase()) ||
-          phonenumber.includes(query)) &&
-        (dashboardnav === "All" ||
-          (dashboardnav === "Admin" && row.role === "Admin") ||
-          (dashboardnav === "Collection Manager" &&
-            row.role === "Collection Manager") ||
-          (dashboardnav === "Collection Agent" &&
-            row.role === "Collection Agent") ||
-          (dashboardnav === "Distributor" &&
-            row.role === "Distributor")  ||
-             (dashboardnav === "Dtp" &&
-            row.role === "Dtp"
-          ) )
-      );
-    });
-  });
+  //     return (
+  //       (username.toLowerCase().includes(query.toLowerCase()) ||
+  //         phonenumber.includes(query)) &&
+  //       (dashboardnav === "All" ||
+  //         (dashboardnav === "Admin" && row.role === "Admin") ||
+  //         (dashboardnav === "Collection Manager" &&
+  //           row.role === "Collection Manager") ||
+  //         (dashboardnav === "Collection Agent" &&
+  //           row.role === "Collection Agent") ||
+  //         (dashboardnav === "Distributor" &&
+  //           row.role === "Distributor")  ||
+  //            (dashboardnav === "Dtp" &&
+  //           row.role === "Dtp"
+  //         ) )
+  //     );
+  //   });
+  // });
   
 
 
+const filteredData = useMemo(() => {
+  return employees.filter((row) => {
+    const username = row.username || "";
+    const phonenumber = row.phone_number || "";
+    const query = searchQuery || "";
 
+    const matchesSearch =
+      username.toLowerCase().includes(query.toLowerCase()) ||
+      phonenumber.includes(query);
 
+    const matchesRole =
+      dashboardnav === "All" ||
+      (dashboardnav === "Admin" && row.role === "Admin") ||
+      (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
+      (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
+      (dashboardnav === "Distributor" && row.role === "Distributor") ||
+      (dashboardnav === "Dtp" && row.role === "Dtp");
+
+    // Extra condition: if role is Distributor, make sure client matches
+    const hasTodayClient =
+      row.role !== "Distributor" ||
+      users.some(
+        (client) =>
+          client.Distributor_id === row.user_id && client.date === currentDate
+      );
+
+    return matchesSearch && matchesRole && hasTodayClient;
+  });
+}, [employees, searchQuery, dashboardnav,users, currentDate]);
+
+ console.log(filteredData)
    
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -391,30 +420,70 @@ function Employee() {
   // }, [filteredData]);
   
 
-  const sortedData = useMemo(() => {
-    const currentDateObj = new Date(); // current date object
+  // const sortedData = useMemo(() => {
+  //   const currentDateObj = new Date(); // current date object
   
-    return [...filteredData].sort((a, b) => {
-      // Parse dates (null dates will be pushed to end)
-      const aDate = a.today_rate_date
-        ? new Date(a.today_rate_date.split("-").reverse().join("-"))
-        : null;
-      const bDate = b.today_rate_date
-        ? new Date(b.today_rate_date.split("-").reverse().join("-"))
-        : null;
+  //   return [...filteredData].sort((a, b) => {
+  //     // Parse dates (null dates will be pushed to end)
+  //     const aDate = a.today_rate_date
+  //       ? new Date(a.today_rate_date.split("-").reverse().join("-"))
+  //       : null;
+  //     const bDate = b.today_rate_date
+  //       ? new Date(b.today_rate_date.split("-").reverse().join("-"))
+  //       : null;
   
-      // First, push nulls to bottom
-      if (aDate === null && bDate === null) return 0;
-      if (aDate === null) return 1;
-      if (bDate === null) return -1;
+  //     // First, push nulls to bottom
+  //     if (aDate === null && bDate === null) return 0;
+  //     if (aDate === null) return 1;
+  //     if (bDate === null) return -1;
   
-      // Then sort by most recent date first
-      return bDate - aDate;
-    });
-  }, [filteredData]);
+  //     // Then sort by most recent date first
+  //     return bDate - aDate;
+  //   });
+  // }, [filteredData]);
   
+// const sortedData = useMemo(() => {
+//   return [...filteredData].sort((a, b) => {
+//     const aDate = a.today_rate_date
+//       ? new Date(a.today_rate_date.split("-").reverse().join("-"))
+//       : null;
+//     const bDate = b.today_rate_date
+//       ? new Date(b.today_rate_date.split("-").reverse().join("-"))
+//       : null;
 
-  
+//     if (aDate === null && bDate === null) return 0;
+//     if (aDate === null) return 1;
+//     if (bDate === null) return -1;
+
+//     return bDate - aDate;
+//   });
+// }, [filteredData]);
+
+  const sortedData = useMemo(() => {
+  return [...filteredData].sort((a, b) => {
+    // Show Distributors first
+    const isADistributor = a.role === "Distributor";
+    const isBDistributor = b.role === "Distributor";
+
+    if (isADistributor && !isBDistributor) return -1;
+    if (!isADistributor && isBDistributor) return 1;
+
+    // Then sort by today_rate_date (most recent first)
+    const aDate = a.today_rate_date
+      ? new Date(a.today_rate_date.split("-").reverse().join("-"))
+      : null;
+    const bDate = b.today_rate_date
+      ? new Date(b.today_rate_date.split("-").reverse().join("-"))
+      : null;
+
+    if (aDate === null && bDate === null) return 0;
+    if (aDate === null) return 1;
+    if (bDate === null) return -1;
+
+    return bDate - aDate;
+  });
+}, [filteredData]);
+
 
 
   const sendtodayWA = (row) => {

@@ -65,7 +65,10 @@ function Client() {
   const [amountSet,setAmountSet] = useState()
   const [description,setDescription] = useState()
   const conformrole = localStorage.getItem('role');
-  const  Dtpuserid = localStorage.getItem('user_id')
+  const  Dtpuserid = localStorage.getItem('user_id');
+  const [searchText, setSearchText] = useState('');
+const [showDistList, setShowDistList] = useState(false);
+
   console.log("user DTP id", Dtpuserid)
   useEffect(() => {
     const Authorization = localStorage.getItem("authToken");
@@ -878,7 +881,7 @@ const handleSubmit = (e) => {
       } else if (selectedBank === "bank2") {
         clientData = {
           "IFSC CODE": `${client.ifsc_code}` ,
-          " ACCOUNT TYPE": ` ${client.accoun_type}  ` || "" ,
+          " ACCOUNT TYPE": ` ${client.accoun_type}` || "" ,
           " ACCOUNT NUMBER": ` ${client.accno}` ,
           " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}` ,
           " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}` ,
@@ -1179,6 +1182,22 @@ const handleSubmit = (e) => {
     }
   };
       // const conformrole = localStorage.getItem('role');
+
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
 
   return (
     <div style={{ marginTop: "50px", width: '100%' }}>
@@ -1840,7 +1859,7 @@ const handleSubmit = (e) => {
 
               <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12  " style={{ backgroundColor: "rgb(251, 243, 243)", borderRadius: '10px' }}>
 
-                <div className="txt_field col-lg-5 col-md-10 col-sm-10 ">
+                {/* <div className="txt_field col-lg-5 col-md-10 col-sm-10 ">
                   <select
                     value={distributorId}
                     onChange={handleDistributorChange}
@@ -1855,7 +1874,86 @@ const handleSubmit = (e) => {
                         </option>
                       ))}
                   </select>
-                </div>
+                </div> */}
+              
+
+    <div className="txt_field col-lg-5 col-md-10 col-sm-10" style={{ position: 'relative' }}>
+  <input
+    type="text"
+    placeholder="SELECT DISTRIBUTOR"
+    value={searchText}
+    onChange={(e) => {
+      setSearchText(e.target.value);
+      setShowDistList(true);
+      
+    }}
+    onFocus={() => setShowDistList(true)}
+    style={{
+      border: 'none',
+      background: 'none',
+      color: 'black',
+      fontWeight: 'bold',
+      outline: 'none',
+      boxShadow: 'none',
+      margin: '0px',
+      padding: '0px',
+      paddingTop: '20px',
+      width: '100%',
+    
+    }}
+  />
+  {showDistList && (
+    <ul
+      style={{
+        position: 'absolute',
+        top: '100%',
+        left: 0,
+        right: 0,
+        background: '#fff',
+        border: '1px solid #ccc',
+        maxHeight: '200px',
+        overflowY: 'auto',
+        zIndex: 1000,
+        listStyle: 'none',
+        padding: 0,
+        marginTop: '4px',
+      }}
+    >
+      {employees
+        .filter(
+          (emp) =>
+            emp.role === 'Distributor' &&
+            emp.username.toLowerCase().startsWith(searchText.toLowerCase())
+        )
+        .map((emp) => (
+          <li
+            key={emp.user_id}
+            onClick={() => {
+              const fakeEvent = { target: { value: emp.user_id } };
+              handleDistributorChange(fakeEvent);
+              setSearchText(emp.username);
+              setShowDistList(false);
+            }}
+            style={{
+              padding: '10px',
+              cursor: 'pointer',
+              borderBottom: '1px solid #eee',
+            }}
+          >
+            {emp.username.toUpperCase()}
+          </li>
+        ))}
+      {employees.filter(
+        (emp) =>
+          emp.role === 'Distributor' &&
+          emp.username.toLowerCase().startsWith(searchText.toLowerCase())
+      ).length === 0 && (
+        <li style={{ padding: '10px', color: '#999' }}>No match found</li>
+      )}
+    </ul>
+  )}
+</div>
+
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                   <input
                     type="number"
@@ -2158,6 +2256,7 @@ const handleSubmit = (e) => {
     </Button>
   </Modal.Footer>
 </Modal>
+
     </div>
   );
 }
