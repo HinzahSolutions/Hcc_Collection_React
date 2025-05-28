@@ -21,7 +21,7 @@ function Employee() {
   const [city, setCity] = useState("");
   const [username, setUsername] = useState("");
   const [phone_number, setPhone_number] = useState("");
-  const [dashboardnav, setDashboardnav] = useState("All");
+  const [dashboardnav, setDashboardnav] = useState("Distributor");
   const [role, setRole] = useState("");
   const [photo, setPhoto] = useState(null);
   const [distributormodal, setDistributormodal] = useState(false)
@@ -273,35 +273,71 @@ function Employee() {
   
 
 
+// const filteredData = useMemo(() => {
+//   return employees.filter((row) => {
+//     const username = row.username || "";
+//     const phonenumber = row.phone_number || "";
+//     const query = searchQuery || "";
+
+//     const matchesSearch =
+//       username.toLowerCase().includes(query.toLowerCase()) ||
+//       phonenumber.includes(query);
+
+//     const matchesRole =
+//       dashboardnav === "All" ||
+//       (dashboardnav === "Admin" && row.role === "Admin") ||
+//       (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
+//       (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
+//       (dashboardnav === "Distributor" && row.role === "Distributor") ||
+//       (dashboardnav === "Dtp" && row.role === "Dtp");
+
+//     // Extra condition: if role is Distributor, make sure client matches
+//     const hasTodayClient =
+//       row.role !== "Distributor" ||
+//       users.some(
+//         (client) =>
+//           client.Distributor_id === row.user_id && client.date === currentDate
+//       );
+
+//     return matchesSearch && matchesRole && hasTodayClient;
+//   });
+// }, [employees, searchQuery, dashboardnav,users, currentDate]);
+
 const filteredData = useMemo(() => {
+  if (dashboardnav === "All") {
+    return employees;
+  }
+
+  const query = searchQuery?.toLowerCase().trim() || "";
+
   return employees.filter((row) => {
-    const username = row.username || "";
+    const username = row.username?.toLowerCase().trim() || "";
     const phonenumber = row.phone_number || "";
-    const query = searchQuery || "";
 
     const matchesSearch =
-      username.toLowerCase().includes(query.toLowerCase()) ||
+      !query ||
+      username.includes(query) ||
       phonenumber.includes(query);
 
     const matchesRole =
-      dashboardnav === "All" ||
       (dashboardnav === "Admin" && row.role === "Admin") ||
       (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
       (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
       (dashboardnav === "Distributor" && row.role === "Distributor") ||
       (dashboardnav === "Dtp" && row.role === "Dtp");
 
-    // Extra condition: if role is Distributor, make sure client matches
     const hasTodayClient =
       row.role !== "Distributor" ||
       users.some(
         (client) =>
-          client.Distributor_id === row.user_id && client.date === currentDate
+          String(client.Distributor_id) === String(row.user_id) &&
+          client.date === currentDate
       );
 
     return matchesSearch && matchesRole && hasTodayClient;
   });
-}, [employees, searchQuery, dashboardnav,users, currentDate]);
+}, [employees, searchQuery, dashboardnav, users, currentDate]);
+
 
  console.log(filteredData)
    
@@ -309,11 +345,7 @@ const filteredData = useMemo(() => {
     setSearchQuery(e.target.value);
   };
 
-  const handlenav = (client) => {
-    dispatch(setSelectedEmployee(client));
-    console.log(client)
-    navigate("/employee/employeeinfo");
-  };
+ 
   const collectionManagerCount = employees.filter(
     (employee) => employee.role === "Collection Manager"
   ).length;
@@ -332,6 +364,14 @@ const filteredData = useMemo(() => {
   ).length;
 
   const allEmployeeCount = employees.filter((e1) => e1.user_id).length;
+
+
+
+   const handlenav = (client) => {
+    dispatch(setSelectedEmployee(client));
+    console.log(client)
+    navigate("/employee/employeeinfo");
+  };
 
   const handleDelete = async (clientId) => {
     try {
@@ -1301,9 +1341,12 @@ const autosetamount =() => {
                   </tr>}
                   </tbody>
                 </table>
-                {visibleCount < sortedData.length && (
-            <div className="d-flex  justify-content-end  mt-3 px-2"><p onClick={handleShowMore} className="nextData">Show More {">>"}</p></div>
-          )}
+               {visibleCount < sortedData.length && (
+  <div className="d-flex justify-content-end mt-3 px-2">
+    <p onClick={handleShowMore} className="nextData">Show More {">>"}</p>
+  </div>
+)}
+
               </div>
             </div>
           </div>

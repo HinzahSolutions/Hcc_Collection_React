@@ -18,6 +18,7 @@ function Client() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [ loading,setLoading] = useState(false)
   const [dashboardNav, setDashboardNav] = useState("client");
   const [show, setShow] = React.useState(false);
   const [sendModal, setSendModal] = React.useState(false);
@@ -184,6 +185,79 @@ const [showDistList, setShowDistList] = useState(false);
     }
   };
 
+  const filteredData = useMemo(() => {
+  if (!Array.isArray(users)) return [];
+
+  const today = format(new Date(), "dd-MM-yyyy");
+  const conformrole = localStorage.getItem("role");
+  const Dtpuserid = localStorage.getItem("user_id");
+
+  const query = searchQuery?.toLowerCase().trim() || "";
+  const queryUpper = searchQuery?.toUpperCase().trim() || "";
+  const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+
+  // Step 1: Try to match the searchQuery with an employee username
+  const matchedEmployee = employees?.find(
+    (emp) => emp.username?.toLowerCase().trim() === query
+  );
+
+  return users.filter((row) => {
+    const clientName = row.client_name?.toLowerCase().trim() || "";
+    const clientContact = row.client_contact || "";
+    const employeeName = row.employee_name?.toLowerCase().trim() || "";
+    const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+    const clientStatus = row.status?.toLowerCase().trim() || "";
+    const createdAt = row.date?.trim() || "";
+
+    const paidAndUnpaid = row.paid_and_unpaid;
+
+    const matchesQuery = !searchQuery
+      ? true
+      : isQueryDate
+        ? createdAt === searchQuery
+        : clientName.includes(query) ||
+          clientContact.includes(query) ||
+          employeeName.includes(query) ||
+          accountNumbers.includes(queryUpper);
+
+    const matchesDashboardFilter =
+      dashboardNav === "client" ||
+      (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+      (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+      !dashboardNav;
+
+    const matchesStatusFilter = selectedStatus
+      ? clientStatus === selectedStatus.toLowerCase()
+      : true;
+
+    const matchesDateFilter =
+      selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+        ? createdAt === format(selectedDate, "dd-MM-yyyy")
+        : true;
+
+    const matchesBankFilter = navselectedBank
+      ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+      : true;
+
+    const matchesDtpFilter =
+      conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
+
+    // Step 2: if an employee match was found, only allow clients with matching Distributor_id
+    const matchesDistributorFilter = matchedEmployee
+      ? String(row.Distributor_id) === String(matchedEmployee.user_id)
+      : true;
+
+    return (
+      matchesQuery &&
+      matchesDashboardFilter &&
+      matchesStatusFilter &&
+      matchesDateFilter &&
+      matchesBankFilter &&
+      matchesDtpFilter &&
+      matchesDistributorFilter
+    );
+  });
+}, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank, employees]);
 
 
 
@@ -242,67 +316,67 @@ const [showDistList, setShowDistList] = useState(false);
   // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
 
 
-   const filteredData = useMemo(() => {
-  if (!Array.isArray(users)) return [];
+//    const filteredData = useMemo(() => {
+//   if (!Array.isArray(users)) return [];
 
-  const today = format(new Date(), "dd-MM-yyyy");
+//   const today = format(new Date(), "dd-MM-yyyy");
 
-  const conformrole = localStorage.getItem("role");
-  const Dtpuserid = localStorage.getItem("user_id");
+//   const conformrole = localStorage.getItem("role");
+//   const Dtpuserid = localStorage.getItem("user_id");
 
-  return users.filter((row) => {
-    const clientName = row.client_name?.toLowerCase().trim() || "";
-    const clientContact = row.client_contact || "";
-    const employeeName = row.employee_name?.toLowerCase().trim() || "";
-    const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-    const clientStatus = row.status?.toLowerCase().trim() || "";
-    const createdAt = row.date?.trim() || "";
-    const query = searchQuery?.toLowerCase().trim() || "";
-    const queryUpper = searchQuery?.toUpperCase().trim() || "";
-    const paidAndUnpaid = row.paid_and_unpaid;
-    const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+//   return users.filter((row) => {
+//     const clientName = row.client_name?.toLowerCase().trim() || "";
+//     const clientContact = row.client_contact || "";
+//     const employeeName = row.employee_name?.toLowerCase().trim() || "";
+//     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+//     const clientStatus = row.status?.toLowerCase().trim() || "";
+//     const createdAt = row.date?.trim() || "";
+//     const query = searchQuery?.toLowerCase().trim() || "";
+//     const queryUpper = searchQuery?.toUpperCase().trim() || "";
+//     const paidAndUnpaid = row.paid_and_unpaid;
+//     const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
 
-    const matchesQuery = !searchQuery
-      ? true
-      : isQueryDate
-        ? createdAt === searchQuery
-        : clientName.includes(query) ||
-          clientContact.includes(query) ||
-          employeeName.includes(query) ||
-          accountNumbers.includes(queryUpper);
+//     const matchesQuery = !searchQuery
+//       ? true
+//       : isQueryDate
+//         ? createdAt === searchQuery
+//         : clientName.includes(query) ||
+//           clientContact.includes(query) ||
+//           employeeName.includes(query) ||
+//           accountNumbers.includes(queryUpper);
 
-    const matchesDashboardFilter =
-      dashboardNav === "client" ||
-      (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-      (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
-      !dashboardNav;
+//     const matchesDashboardFilter =
+//       dashboardNav === "client" ||
+//       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+//       (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+//       !dashboardNav;
 
-    const matchesStatusFilter = selectedStatus
-      ? clientStatus === selectedStatus.toLowerCase()
-      : true;
+//     const matchesStatusFilter = selectedStatus
+//       ? clientStatus === selectedStatus.toLowerCase()
+//       : true;
 
-    const matchesDateFilter =
-      selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-        ? createdAt === format(selectedDate, "dd-MM-yyyy")
-        : true;
+//     const matchesDateFilter =
+//       selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+//         ? createdAt === format(selectedDate, "dd-MM-yyyy")
+//         : true;
 
-    const matchesBankFilter = navselectedBank
-      ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-      : true;
+//     const matchesBankFilter = navselectedBank
+//       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+//       : true;
 
-    const matchesDtpFilter =
-      conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
+//     const matchesDtpFilter =
+//       conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
 
-    return (
-      matchesQuery &&
-      matchesDashboardFilter &&
-      matchesStatusFilter &&
-      matchesDateFilter &&
-      matchesBankFilter &&
-      matchesDtpFilter
-    );
-  });
-}, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
+//     return (
+//       matchesQuery &&
+//       matchesDashboardFilter &&
+//       matchesStatusFilter &&
+//       matchesDateFilter &&
+//       matchesBankFilter &&
+//       matchesDtpFilter
+//     );
+//   });
+// }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
 
 
 
@@ -380,73 +454,244 @@ const [showDistList, setShowDistList] = useState(false);
     }, 0);
 }, [filteredData]);
 
+
+
+
+// const totalTodayDTPLocalPaid = useMemo(() => {
+//   const Dtpuserid = localStorage.getItem("user_id");
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+//   return filteredData
+//     .filter(
+//       client =>
+//         String(client.dtp_id) === String(Dtpuserid) &&
+//         client.date === currentDate
+//     )
+//     .reduce((total, client) => {
+//       const amount = parseFloat(client.amount) || 0;
+//       const rate = parseFloat(client.today_rate) || 1;
+//       return total + (rate > 0 ? amount / rate : 0);
+//     }, 0);
+// }, [filteredData]);
+
+
+// const totalTodayDTPLocalPaid = useMemo(() => {
+//   const DtpUserId = localStorage.getItem("user_id");
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+//   return filteredData
+//     .filter(client =>
+//       String(client.dtp_id) === String(DtpUserId) &&
+//       client.date === currentDate
+//     )
+//     .reduce((total, client) => {
+//       const amount = parseFloat(client.amount) || 0;
+//       const todayRate = parseFloat(client.today_rate) || 1;
+//       return total + (todayRate > 0 ? amount / todayRate : 0);
+//     }, 0);
+// }, [filteredData]);
+
+
+// const totalTodayDTPLocalPaid = useMemo(() => {
+//   const DtpUserId = localStorage.getItem("user_id");
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+//   return filteredData
+//     .filter(client =>
+//       String(client.dtp_id) === String(DtpUserId) &&
+//       client.date === currentDate &&
+//       client.today_rate && Number(client.today_rate) > 0  // <-- filter here
+//     )
+//     .reduce((total, client) => {
+//       const amount = parseFloat(client.amount) || 0;
+//       const todayRate = parseFloat(client.today_rate);
+//       return total + amount / todayRate;
+//     }, 0);
+// }, [filteredData]);
+
+
+// const totalTodayDTPLocalPaid = useMemo(() => {
+//   const DtpUserId = localStorage.getItem("user_id");
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+//   const filteredClients = filteredData.filter(
+//     client =>
+//       String(client.dtp_id) === String(DtpUserId) &&
+//       client.date === currentDate &&
+//       client.today_rate && Number(client.today_rate) > 0
+//   );
+
+//   const total = filteredClients.reduce((sum, client) => {
+//     const amount = parseFloat(client.amount) || 0;
+//     const todayRate = parseFloat(client.today_rate);
+//     return sum + amount / todayRate;
+//   }, 0);
+
+//   const clientCount = filteredClients.length;
+
+//   return { total, clientCount };
+// }, [filteredData]);
+
+
 const totalTodayDTPLocalPaid = useMemo(() => {
-  const Dtpuserid = localStorage.getItem("user_id");
+  const DtpUserId = localStorage.getItem("user_id");
   const currentDate = format(new Date(), "dd-MM-yyyy");
 
+  // Count all clients with today's date and matching DTP ID — regardless of rate
+  const allTodayClients = filteredData.filter(
+    client =>
+      String(client.dtp_id) === String(DtpUserId) &&
+      client.date === currentDate
+  );
+
+  // Only calculate total for valid today_rate
+  const total = allTodayClients.reduce((sum, client) => {
+    const amount = parseFloat(client.amount) || 0;
+    const rate = parseFloat(client.today_rate);
+    return rate > 0 ? sum + amount / rate : sum;
+  }, 0);
+
+  const clientCount = allTodayClients.length;
+
+  return { total, clientCount };
+}, [filteredData]);
+
+
+
+// const totalLocalDTPLocalPaid = useMemo(() => {
+//   const Dtpuserid = localStorage.getItem("user_id");
+
+//   return filteredData
+//     .filter(client => String(client.dtp_id) === String(Dtpuserid))
+//     .reduce((total, client) => {
+//       const amount = parseFloat(client.amount) || 0;
+//       const rate = parseFloat(client.today_rate) || 1;
+
+//       return total + (rate > 0 ? amount / rate : 0);
+//     }, 0);
+// }, [filteredData]);
+
+
+// const totalLocalDTPLocalPaid = useMemo(() => {
+//   const DtpUserId = localStorage.getItem("user_id");
+
+//   return filteredData
+//     .filter(client => String(client.dtp_id) === String(DtpUserId))
+//     .reduce((total, client) => {
+//       const amount = parseFloat(client.amount) || 0;
+//       const todayRate = parseFloat(client.today_rate) || 1;
+//       return total + (todayRate > 0 ? amount / todayRate : 0);
+//     }, 0);
+// }, [filteredData]);
+
+const totalLocalDTPLocalPaid = useMemo(() => {
+  const DtpUserId = localStorage.getItem("user_id");
+
   return filteredData
-    .filter(
-      client =>
-        String(client.dtp_id) === String(Dtpuserid) &&
-        client.date === currentDate
+    .filter(client =>
+      String(client.dtp_id) === String(DtpUserId) &&
+      client.today_rate && parseFloat(client.today_rate) > 0
     )
     .reduce((total, client) => {
       const amount = parseFloat(client.amount) || 0;
-      const rate = parseFloat(client.today_rate) || 1;
-      return total + (rate > 0 ? amount / rate : 0);
+      const todayRate = parseFloat(client.today_rate);
+      return total + amount / todayRate;
     }, 0);
 }, [filteredData]);
 
 
 
-const totalLocalDTPLocalPaid = useMemo(() => {
-  const Dtpuserid = localStorage.getItem("user_id");
-
-  return filteredData
-    .filter(client => String(client.dtp_id) === String(Dtpuserid))
-    .reduce((total, client) => {
-      const amount = parseFloat(client.amount) || 0;
-      const rate = parseFloat(client.today_rate) || 1;
-
-      return total + (rate > 0 ? amount / rate : 0);
-    }, 0);
-}, [filteredData]);
 
 
-
+  // const totalLocalCurrency = useMemo(() => {
+  //   return filteredData.reduce((total, client) => {
+  //     const clientAmount = parseFloat(client.amount) || 0;
+  //     const clientRate = parseFloat(client.today_rate) || 1;
+  //     return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+  //   }, 0);
+  // }, [filteredData]);
+        
   const totalLocalCurrency = useMemo(() => {
-    return filteredData.reduce((total, client) => {
-      const clientAmount = parseFloat(client.amount) || 0;
-      const clientRate = parseFloat(client.today_rate) || 1;
-      return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-    }, 0);
-  }, [filteredData]);
+  return filteredData.reduce((total, client) => {
+    const clientAmount = parseFloat(client.amount);
+    const clientRate = parseFloat(client.today_rate);
+
+    // Only include clients with a valid, non-empty, and positive today_rate
+    if (!isNaN(clientAmount) && !isNaN(clientRate) && clientRate > 0) {
+      return total + clientAmount / clientRate;
+    }
+
+    return total;
+  }, 0);
+}, [filteredData]);
+
+
+  // const totalLocalBalance = useMemo(() => {
+  //   return filteredData.reduce((total, client) => {
+  //     const totalPaidForClient = (client.paid_amount_date || []).reduce(
+  //       (sum, payment) => sum + (parseFloat(payment.amount) || 0),
+  //       0
+  //     );
+  //     const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
+  //     const clientRate = parseFloat(client.today_rate) || 1;
+
+  //     return total + (clientRate > 0 ? clientBalance / clientRate : 0);
+  //   }, 0);
+  // }, [filteredData]);
 
 
   const totalLocalBalance = useMemo(() => {
-    return filteredData.reduce((total, client) => {
-      const totalPaidForClient = (client.paid_amount_date || []).reduce(
-        (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-        0
-      );
-      const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
-      const clientRate = parseFloat(client.today_rate) || 1;
+  return filteredData.reduce((total, client) => {
+    const totalPaidForClient = (client.paid_amount_date || []).reduce(
+      (sum, payment) => sum + (parseFloat(payment.amount) || 0),
+      0
+    );
 
-      return total + (clientRate > 0 ? clientBalance / clientRate : 0);
-    }, 0);
-  }, [filteredData]);
+    const clientAmount = parseFloat(client.amount);
+    const clientRate = parseFloat(client.today_rate);
+    const clientBalance = (!isNaN(clientAmount) ? clientAmount : 0) - totalPaidForClient;
 
+    // Only include client if today_rate is a valid positive number
+    if (!isNaN(clientRate) && clientRate > 0) {
+      return total + clientBalance / clientRate;
+    }
+
+    return total;
+  }, 0);
+}, [filteredData]);
+
+
+
+  // const totalLocalTodayAmount = useMemo(() => {
+  //   return users.reduce((total, client) => {
+  //     if (client.date === currentDate) {
+  //       const clientAmount = parseFloat(client.amount) || 0;
+  //       const clientRate = parseFloat(client.today_rate) || 1;
+  //       return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+  //     }
+  //     return total;
+  //   }, 0);
+  // }, [filteredData, currentDate]);
 
   const totalLocalTodayAmount = useMemo(() => {
-    return users.reduce((total, client) => {
-      if (client.date === currentDate) {
-        const clientAmount = parseFloat(client.amount) || 0;
-        const clientRate = parseFloat(client.today_rate) || 1;
-        return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-      }
-      return total;
-    }, 0);
-  }, [filteredData, currentDate]);
+  return users.reduce((total, client) => {
+    if (client.date === currentDate && client.today_rate > 0) {
+      const amount = parseFloat(client.amount) || 0;
+      const rate = parseFloat(client.today_rate) || 1;
+      return total + amount / rate;
+    }
+    return total;
+  }, 0);
+}, [users, currentDate]);
+
+
+const todayClientCount = useMemo(() => {
+  return users.filter(
+    client => client.date === currentDate 
+  ).length;
+}, [users, currentDate]);
+
+
 
 //   const totalINTERNALTodayAmount = useMemo(() => {
 //   return users.reduce((total, client) => {
@@ -583,7 +828,7 @@ const handleSubmit = (e) => {
   const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
 
   const clientData = {
-    client_name: (clientName || "UNKNOWN").toUpperCase(),
+    client_name: (clientName ).toUpperCase(),
     client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
     client_city: (city || "UNKNOWN").toUpperCase(),
     amount: amount || 0,
@@ -1088,79 +1333,154 @@ const handleSubmit = (e) => {
 
 
 
-  const handleDistributorSubmit = async (event) => {
-    event.preventDefault();
+  // const handleDistributorSubmit = async (event) => {
+  //   event.preventDefault();
   
    
-    if (!distributorname.trim() || !distributorcontact.trim()) {
-      alert("Please fill in all required fields (Name and Contact).");
-      return;
+  //   if (!distributorname.trim() || !distributorcontact.trim()) {
+  //     alert("Please fill in all required fields (Name and Contact).");
+  //     return;
+  //   }
+  
+  //   const Authorization = localStorage.getItem("authToken");
+  //   const currentDate = format(new Date(), "dd-MM-yyyy");
+  
+  //   if (!Authorization) {
+  //     console.error("Authorization token is missing");
+  //     return;
+  //   }
+  
+  //   try {
+  //     const distributorData = new FormData();
+  //     distributorData.append("username", distributorname);
+  //     distributorData.append("phone_number", distributorcontact);
+  //     distributorData.append("role", "Distributor"); 
+  //     distributorData.append("today_rate_date", currentDate);
+  //     distributorData.append("Distributor_today_rate", todayRate);
+  
+  //     const signupResponse = await fetch(
+  //       `${API_URL}/distrbutorCreated`,
+  //       {
+  //         method: "POST",
+  //         body: distributorData,
+  //         headers: {
+  //           Authorization: Authorization,
+  //         },
+  //       }
+  //     );
+  
+  //     if (!signupResponse.ok) {
+  //       throw new Error("Something went wrong while adding the distributor!");
+  //     }
+  
+  //     const data = await signupResponse.json();
+  //     alert("New Distributor successfully created!"); 
+  //     setDistributorname("");
+  //     setDistributorcontact("");
+  //     setTodayrate("");
+  //     setShow(true);
+  //     setShowNewDistributorModal(!showNewDistributorModal);
+  
+  //     if (Authorization) {
+  //       fetch(`${API_URL}/list`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: Authorization,
+  //         },
+  //       })
+  //         .then((response) => {
+  //           if (response.status === 401) {
+  //             console.error("Unauthorized access - redirecting to login");
+  //             handleUnauthorizedAccess();
+  //             return;
+  //           }
+  //           return response.json();
+  //         })
+  //         .then((data) => dispatch(setEmployees(data)))
+  //         .catch((error) => console.error("Fetch error:", error));
+  //     } else {
+  //       console.error("No authorization token found in localStorage");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
+
+  const handleDistributorSubmit = async (event) => {
+  event.preventDefault();
+
+  if (!distributorname.trim() || !distributorcontact.trim()) {
+    alert("Please fill in all required fields (Name and Contact).");
+    return;
+  }
+
+  const Authorization = localStorage.getItem("authToken");
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  if (!Authorization) {
+    console.error("Authorization token is missing");
+    return;
+  }
+
+  try {
+    const distributorData = new FormData();
+    distributorData.append("username", distributorname);
+    distributorData.append("phone_number", distributorcontact);
+    distributorData.append("role", "Distributor"); 
+    distributorData.append("today_rate_date", currentDate);
+    distributorData.append("Distributor_today_rate", todayRate);
+
+    const signupResponse = await fetch(`${API_URL}/distrbutorCreated`, {
+      method: "POST",
+      body: distributorData,
+      headers: {
+        Authorization: Authorization,
+      },
+    });
+
+    if (!signupResponse.ok) {
+      throw new Error("Something went wrong while adding the distributor!");
     }
-  
-    const Authorization = localStorage.getItem("authToken");
-    const currentDate = format(new Date(), "dd-MM-yyyy");
-  
-    if (!Authorization) {
-      console.error("Authorization token is missing");
-      return;
-    }
-  
-    try {
-      const distributorData = new FormData();
-      distributorData.append("username", distributorname);
-      distributorData.append("phone_number", distributorcontact);
-      distributorData.append("role", "Distributor"); 
-      distributorData.append("today_rate_date", currentDate);
-      distributorData.append("Distributor_today_rate", todayRate);
-  
-      const signupResponse = await fetch(
-        `${API_URL}/distrbutorCreated`,
-        {
-          method: "POST",
-          body: distributorData,
-          headers: {
-            Authorization: Authorization,
-          },
-        }
-      );
-  
-      if (!signupResponse.ok) {
-        throw new Error("Something went wrong while adding the distributor!");
-      }
-  
-      const data = await signupResponse.json();
-      alert("New Distributor successfully created!"); 
-      setDistributorname("");
-      setDistributorcontact("");
-      setTodayrate("");
-      setShow(true);
-      setShowNewDistributorModal(!showNewDistributorModal);
-  
-      if (Authorization) {
-        fetch(`${API_URL}/list`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: Authorization,
-          },
+
+    const data = await signupResponse.json();
+    alert("New Distributor successfully created!"); 
+    setDistributorname("");
+    setDistributorcontact("");
+    setTodayrate("");
+    setShow(true);
+    setShowNewDistributorModal(!showNewDistributorModal);
+
+    if (Authorization) {
+      await fetch(`${API_URL}/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: Authorization,
+        },
+      })
+        .then((response) => {
+          if (response.status === 401) {
+            console.error("Unauthorized access - redirecting to login");
+            handleUnauthorizedAccess();
+            return;
+          }
+          return response.json();
         })
-          .then((response) => {
-            if (response.status === 401) {
-              console.error("Unauthorized access - redirecting to login");
-              handleUnauthorizedAccess();
-              return;
-            }
-            return response.json();
-          })
-          .then((data) => dispatch(setEmployees(data)))
-          .catch((error) => console.error("Fetch error:", error));
-      } else {
-        console.error("No authorization token found in localStorage");
-      }
-    } catch (error) {
-      console.error("Error:", error);
+        .then((data) => dispatch(setEmployees(data)))
+        .catch((error) => console.error("Fetch error:", error));
+    } else {
+      console.error("No authorization token found in localStorage");
     }
-  };
+
+    // ✅ Refresh page after all done
+    window.location.reload();
+
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
 
 
   const handleDistributorChange = (e) => {
@@ -1308,7 +1628,7 @@ const handleSubmit = (e) => {
             </span>
           </div>
           <div className="card-progress">
-            <small>TODAY ORDER CLIENT</small>
+            <small>TODAY ORDER CLIENT { `    (${todayClientCount})`}</small>
           </div>
         </div>
 
@@ -1342,14 +1662,14 @@ const handleSubmit = (e) => {
 
          <div className="cardAction  cardgreen  bg-success" >
           <div className="card-head">
-            <h2>{totalTodayDTPLocalPaid.toFixed(3)}</h2>
+            <h2>{totalTodayDTPLocalPaid.total.toFixed(3)}</h2>
             <span className="las la-user-friends">
               <GiReceiveMoney />
               <HiUsers />
             </span>
           </div>
           <div className="card-progress">
-            <small>TODAY YOUR ORDER CLIENT</small>
+            <small>TODAY YOUR ORDER CLIENT{ `    (${totalTodayDTPLocalPaid.clientCount})`}</small>
           </div>
         </div>
 
@@ -1821,13 +2141,22 @@ const handleSubmit = (e) => {
           <p>
             <strong  style={{color:' #1246ac'}}>{emp.username.toUpperCase()}</strong>
           </p>
-          <input  
+          {/* <input  
             type="number"
             placeholder={ ` Date ${emp.today_rate_date}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
             value={amounts[emp.user_id] || ''}
             onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
             className="form-control"
-          />
+          /> */}
+          <input  
+  type="number"
+  min="1"
+  placeholder={`Date: ${emp.today_rate_date || 'N/A'}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
+  value={amounts?.[emp.user_id] || ''}
+  onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
+  className="form-control"
+/>
+
         </div>
       ))} 
          

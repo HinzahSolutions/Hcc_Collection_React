@@ -7,7 +7,7 @@ import { MdEmail } from "react-icons/md";
 import { IoMdCall } from "react-icons/io";
 import { setUsers, setSelectedClient } from '../Slicers/clientSlice';
 import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
-import { format } from "date-fns";
+import { format,parse } from "date-fns";
 import '../Css/info.css';
 
 const EmployeeInfo = () => {
@@ -65,12 +65,29 @@ const EmployeeInfo = () => {
       
   // );
 
-  const filteredUsers = users.filter(
-  (eid) =>
-    selectedEmployee?.user_id &&
-    (eid.Distributor_id === selectedEmployee.user_id || eid.dtp_id === selectedEmployee.user_id) &&
-    (!selectedClientDate || eid.date === selectedClientDate)
-);
+//   const filteredUsers = users.filter(
+//   (eid) =>
+//     selectedEmployee?.user_id &&
+//     (eid.Distributor_id === selectedEmployee.user_id || eid.dtp_id === selectedEmployee.user_id) &&
+//     (!selectedClientDate || eid.date === selectedClientDate)
+// );
+
+
+
+
+const filteredUsers = users
+  .filter(
+    (eid) =>
+      selectedEmployee?.user_id &&
+      (eid.Distributor_id === selectedEmployee.user_id || eid.dtp_id === selectedEmployee.user_id) &&
+      (!selectedClientDate || eid.date === selectedClientDate)
+  )
+  .sort((a, b) => {
+    const dateA = parse(a.date, "dd-MM-yyyy", new Date());
+    const dateB = parse(b.date, "dd-MM-yyyy", new Date());
+    return dateB - dateA; // Descending: newest first
+  });
+
 
 
 
@@ -378,57 +395,151 @@ console.log(filteredClients);
 };
 
 
+
+
+//  const sendDistributorCSVToWhatsApp = () => {
+//   if (!selectedEmployee?.phone_number) {
+//     alert("No phone number available for the employee.");
+//     return;
+//   }
+
+//   const today = new Date();
+//   const formattedDate = today.toLocaleDateString("en-GB"); // e.g., 27-05-2025
+
+//   let message = "🔹 *Distributor Report*\n\n";
+//   message += `Distributor Name :  ${selectedEmployee?.username || "Unknown"}\n`;
+//   message += `Date : ${formattedDate}, \n`;
+
+//   const todayRate = filteredUsers?.[0]?.today_rate ? parseFloat(filteredUsers[0].today_rate) : 1;
+//   message += `Today Rate : ${todayRate.toFixed(2)}, \n\n\n`;
+
+//   let totalINR = 0;
+//   let paidAmountSum = 0;
+
+//   filteredUsers.forEach((client, index) => {
+//     const amount = parseFloat(client.amount) || 0;
+//     totalINR += amount;
+
+//     // Accumulate paid amounts
+//     if (Array.isArray(client.paid_amount_date)) {
+//       client.paid_amount_date.forEach(payment => {
+//         paidAmountSum += parseFloat(payment.amount) || 0;
+//       });
+//     }
+
+//     message += `${index + 1} |  INR : ${amount.toFixed(2)},      \n`;
+//   });
+
+//   message += "--------------------------\n\n";
+
+//   const totalKD = totalINR / todayRate;
+//   const paidKD = paidAmountSum / todayRate;
+//   const balanceKD = totalKD - paidKD;
+
+//   message += `🔹 INR: ${totalINR.toFixed(2)}\n`;
+//   message += `🔹 TOTAL KD:  ${totalKD.toFixed(2)}\n`;
+//   message += `🔹 *PAID KD:  ${paidKD.toFixed(2)}\n`;
+//   message += `🔹 *BALANCE KD: ${balanceKD.toFixed(2)}\n`;
+
+//   const phone = selectedEmployee.phone_number;
+//   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+//   window.open(whatsappLink, "_blank");
+// };
+
+   
+//  const sendDistributorCSVToWhatsApp = () => {
+//   if (!selectedEmployee?.phone_number) {
+//     alert("No phone number available for the employee.");
+//     return;
+//   }
+
+//   let message = "🔹 *Distributor Report*\n\n";
+//   message += `Distributor Name :  ${selectedEmployee?.username || "Unknown"}\n\n`;
+
+//   const todayRate = filteredUsers?.[0]?.today_rate ? parseFloat(filteredUsers[0].today_rate) : 1;
+//   message += `Today Rate : ${todayRate.toFixed(2)}, \n\n\n`;
+
+//   let totalINR = 0;
+//   let paidAmountSum = 0;
+
+//   filteredUsers.forEach((client, index) => {
+//     const amount = parseFloat(client.amount) || 0;
+//     totalINR += amount;
+
+//     // Accumulate paid amounts
+//     if (Array.isArray(client.paid_amount_date)) {
+//       client.paid_amount_date.forEach(payment => {
+//         paidAmountSum += parseFloat(payment.amount) || 0;
+//       });
+//     }
+
+//     const clientDate = client.date || 'Unknown';
+
+//     message += `${index + 1} |  INR : ${amount.toFixed(2)}, `;
+//   });
+
+//   message += "--------------------------\n\n";
+
+//   const totalKD = totalINR / todayRate;
+//   const paidKD = paidAmountSum / todayRate;
+//   const balanceKD = totalKD - paidKD;
+
+//   message += `🔹 INR: ${totalINR.toFixed(2)}\n`;
+//   message += `🔹 TOTAL KD:  ${totalKD.toFixed(2)}\n`;
+//   message += `🔹 *PAID KD:  ${paidKD.toFixed(2)}\n`;
+//   message += `🔹 *BALANCE KD: ${balanceKD.toFixed(2)}\n`;
+
+//   const phone = selectedEmployee.phone_number;
+//   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+//   window.open(whatsappLink, "_blank");
+// };
+  
+
+
 const sendDistributorCSVToWhatsApp = () => {
   if (!selectedEmployee?.phone_number) {
-      alert("No phone number available for the employee.");
-      return;
+    alert("No phone number available for the employee.");
+    return;
   }
 
-  let message = "🔹 *Distributor Report*\n\n";
-  message +=  `Distributor Name :  ${selectedEmployee?.username}\n\n`
- 
+  // Get date from the first client
+  const formattedDate = filteredUsers?.[0]?.date || "Unknown Date";
 
-  let totalLocalAmount = 0;
-  let totalInterAmount = 0;
-  let totalCollectionLocalAmount = 0;
-  let totalCollectionInterAmount = 0;
+  let message = "🔹 *Distributor Report*\n\n";
+  message += `Distributor Name :  ${selectedEmployee?.username || "Unknown"}\n`;
+  message += `Date : ${formattedDate}, \n`;
+
+  const todayRate = filteredUsers?.[0]?.today_rate ? parseFloat(filteredUsers[0].today_rate) : 1;
+  message += `Today Rate : ${todayRate.toFixed(2)}, \n\n\n`;
+
+  let totalINR = 0;
+  let paidAmountSum = 0;
 
   filteredUsers.forEach((client, index) => {
-      const todayRate = client.today_rate ? parseFloat(client.today_rate) : 1; // Prevent division by zero
-      const localAmount = client.amount && client.today_rate
-          ? (parseFloat(client.amount) / todayRate).toFixed(3)
-          : "N/A";
-      
-      const interAmount = parseFloat(client.amount) || 0;
-      totalLocalAmount += parseFloat(localAmount) || 0;
-      totalInterAmount += interAmount;
+    const amount = parseFloat(client.amount) || 0;
+    totalINR += amount;
 
-      let collectionLocalAmount = 0;
-      let collectionInterAmount = 0;
+    if (Array.isArray(client.paid_amount_date)) {
+      client.paid_amount_date.forEach(payment => {
+        paidAmountSum += parseFloat(payment.amount) || 0;
+      });
+    }
 
-      if (Array.isArray(client.paid_amount_date)) {
-          client.paid_amount_date.forEach(payment => {
-              collectionInterAmount += parseFloat(payment.amount) || 0;
-              if (todayRate > 0) {
-                  collectionLocalAmount += (parseFloat(payment.amount) / todayRate) || 0;
-              }
-          });
-      }
-
-      totalCollectionLocalAmount += collectionLocalAmount;
-      totalCollectionInterAmount += collectionInterAmount;
-
-      message += `${index + 1} | Client Name : ${client.client_name || 'Unknown'}, \n     Date : ${client.date}, \n     Today Rate : ${todayRate.toFixed(2)}, \n     Local Amount : ${localAmount}, \n     International Amount : ${interAmount.toFixed(2)}, \n     Collection Local Amount : ${collectionLocalAmount.toFixed(3)}, \n     Collection Inter Amount : ${collectionInterAmount.toFixed(2)}.\n`;
-      message += "------------------------------------------------------------------------------------------------\n";
+    message += `${index + 1} |  INR : ${amount.toFixed(2)},      \n`;
   });
 
-  // Append totals
-  message += "\n🔹 *TOTAL CLIENT LOCAL AMOUNT:* " + totalLocalAmount.toFixed(3) + "\n";
-  message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT:* " + totalInterAmount.toFixed(2) + "\n";
-  message += "🔹 *TOTAL COLLECTION LOCAL AMOUNT:* " + totalCollectionLocalAmount.toFixed(3) + "\n";
-  message += "🔹 *TOTAL COLLECTION INTERNATIONAL AMOUNT:* " + totalCollectionInterAmount.toFixed(2) + "\n";
+  message += "--------------------------\n\n";
 
-  console.log(message);
+  const currentKD = totalINR / todayRate;
+  const oldKD = paidAmountSum / todayRate;
+  const totalKD = currentKD + oldKD;
+
+  message += `🔹 INR: ${totalINR.toFixed(2)}\n`;
+  message += `🔹 KD: ${currentKD.toFixed(2)} \n`;
+  message += `🔹 *0LD KD:  ${oldKD.toFixed(2)}\n`;
+  message += `🔹 *TOTAL KD:  ${totalKD.toFixed(2)}\n`;
 
   const phone = selectedEmployee.phone_number;
   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
@@ -438,7 +549,6 @@ const sendDistributorCSVToWhatsApp = () => {
 
 
 
-  
   const overallamount = filteredClients.reduce((total, client) => {
     return (
       total +
