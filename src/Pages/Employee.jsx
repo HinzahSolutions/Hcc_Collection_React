@@ -86,9 +86,13 @@ function Employee() {
   };
 
 
+  // useEffect(() => {
+  //   fetchEmployees();
+  // }, [dispatch]);
+  
   useEffect(() => {
-    fetchEmployees();
-  }, [dispatch]);
+  fetchEmployees();
+}, []); // Runs only once on mount — on page refresh too
 
 
   useEffect(() => {
@@ -526,75 +530,142 @@ const filteredData = useMemo(() => {
 
 
 
-  const sendtodayWA = (row) => {
-    // Find all clients for this distributor and today's date
-    const filteredClients = users.filter(client =>
-      client.Distributor_id === row.user_id &&
-      client.date === currentDate
-    );
+  // const sendtodayWA = (row) => {
+  //   // Find all clients for this distributor and today's date
+  //   const filteredClients = users.filter(client =>
+  //     client.Distributor_id === row.user_id &&
+  //     client.date === currentDate
+  //   );
   
-    if (!row.phone_number) {
-      alert("No phone number available for the distributor.");
-      return;
-    }
+  //   if (!row.phone_number) {
+  //     alert("No phone number available for the distributor.");
+  //     return;
+  //   }
   
-    if (filteredClients.length === 0) {
-      alert("No clients found for today.");
-      return;
-    }
+  //   if (filteredClients.length === 0) {
+  //     alert("No clients found for today.");
+  //     return;
+  //   }
   
-    let message = "🔹 *Distributor Report*\n\n";
-    message += `Distributor Name : ${row.username}\n\n`;
+  //   let message = "🔹 *Distributor Report*\n\n";
+  //   message += `Distributor Name : ${row.username}\n\n`;
   
-    let totalLocalAmount = 0;
-    let totalInterAmount = 0;
-    let totalCollectionLocalAmount = 0;
-    let totalCollectionInterAmount = 0;
+  //   let totalLocalAmount = 0;
+  //   let totalInterAmount = 0;
+  //   let totalCollectionLocalAmount = 0;
+  //   let totalCollectionInterAmount = 0;
   
-    filteredClients.forEach((client, index) => {
-      const todayRate = client.today_rate ? parseFloat(client.today_rate) : 1;
-      const localAmount = client.amount && client.today_rate
-        ? (parseFloat(client.amount) / todayRate).toFixed(3)
-        : "N/A";
+  //   filteredClients.forEach((client, index) => {
+  //     const todayRate = client.today_rate ? parseFloat(client.today_rate) : 1;
+  //     const localAmount = client.amount && client.today_rate
+  //       ? (parseFloat(client.amount) / todayRate).toFixed(3)
+  //       : "N/A";
   
-      const interAmount = parseFloat(client.amount) || 0;
-      totalLocalAmount += parseFloat(localAmount) || 0;
-      totalInterAmount += interAmount;
+  //     const interAmount = parseFloat(client.amount) || 0;
+  //     totalLocalAmount += parseFloat(localAmount) || 0;
+  //     totalInterAmount += interAmount;
   
-      let collectionLocalAmount = 0;
-      let collectionInterAmount = 0;
+  //     let collectionLocalAmount = 0;
+  //     let collectionInterAmount = 0;
   
-      if (Array.isArray(client.paid_amount_date)) {
-        client.paid_amount_date.forEach(payment => {
-          collectionInterAmount += parseFloat(payment.amount) || 0;
-          if (todayRate > 0) {
-            collectionLocalAmount += (parseFloat(payment.amount) / todayRate) || 0;
-          }
-        });
-      }
+  //     if (Array.isArray(client.paid_amount_date)) {
+  //       client.paid_amount_date.forEach(payment => {
+  //         collectionInterAmount += parseFloat(payment.amount) || 0;
+  //         if (todayRate > 0) {
+  //           collectionLocalAmount += (parseFloat(payment.amount) / todayRate) || 0;
+  //         }
+  //       });
+  //     }
   
-      totalCollectionLocalAmount += collectionLocalAmount;
-      totalCollectionInterAmount += collectionInterAmount;
+  //     totalCollectionLocalAmount += collectionLocalAmount;
+  //     totalCollectionInterAmount += collectionInterAmount;
   
-      message += `${index + 1} | Client Name : ${client.client_name || 'Unknown'}, \n     Date : ${client.date}, \n     Today Rate : ${todayRate.toFixed(2)}, \n     Local Amount : ${localAmount}, \n     International Amount : ${interAmount.toFixed(2)}, \n     Collection Local Amount : ${collectionLocalAmount.toFixed(3)}, \n     Collection Inter Amount : ${collectionInterAmount.toFixed(2)}.\n`;
-      message += "------------------------------------------------------------------------------------------------\n";
-    });
+  //     message += `${index + 1} | Client Name : ${client.client_name || 'Unknown'}, \n     Date : ${client.date}, \n     Today Rate : ${todayRate.toFixed(2)}, \n     Local Amount : ${localAmount}, \n     International Amount : ${interAmount.toFixed(2)}, \n     Collection Local Amount : ${collectionLocalAmount.toFixed(3)}, \n     Collection Inter Amount : ${collectionInterAmount.toFixed(2)}.\n`;
+  //     message += "------------------------------------------------------------------------------------------------\n";
+  //   });
   
-    // Append totals
-    message += "\n🔹 *TOTAL CLIENT LOCAL AMOUNT:* " + totalLocalAmount.toFixed(3) + "\n";
-    message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT:* " + totalInterAmount.toFixed(2) + "\n";
-    message += "🔹 *TOTAL COLLECTION LOCAL AMOUNT:* " + totalCollectionLocalAmount.toFixed(3) + "\n";
-    message += "🔹 *TOTAL COLLECTION INTERNATIONAL AMOUNT:* " + totalCollectionInterAmount.toFixed(2) + "\n";
+  //   // Append totals
+  //   message += "\n🔹 *TOTAL CLIENT LOCAL AMOUNT:* " + totalLocalAmount.toFixed(3) + "\n";
+  //   message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT:* " + totalInterAmount.toFixed(2) + "\n";
+  //   message += "🔹 *TOTAL COLLECTION LOCAL AMOUNT:* " + totalCollectionLocalAmount.toFixed(3) + "\n";
+  //   message += "🔹 *TOTAL COLLECTION INTERNATIONAL AMOUNT:* " + totalCollectionInterAmount.toFixed(2) + "\n";
   
-    console.log(message);
+  //   console.log(message);
   
-    const phone = row.phone_number;
-    const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+  //   const phone = row.phone_number;
+  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
   
-    window.open(whatsappLink, "_blank");
-  };
-  
+  //   window.open(whatsappLink, "_blank");
+  // };
+    
 
+  const sendtodayWA = (row) => {
+  // Filter clients for this distributor and today's date
+  const filteredClients = users.filter(client =>
+    client.Distributor_id === row.user_id &&
+    client.date === currentDate
+  );
+
+  if (!row.phone_number) {
+    alert("No phone number available for the distributor.");
+    return;
+  }
+
+  if (filteredClients.length === 0) {
+    alert("No clients found for today.");
+    return;
+  }
+
+  const todayRate = filteredClients[0]?.today_rate
+    ? parseFloat(filteredClients[0].today_rate)
+    : 1;
+
+  let message = "🔹 *Distributor Report*\n\n";
+  message += `Distributor Name : ${row.username || 'Unknown'}\n`;
+  message += `Date : ${currentDate}\n`;
+  message += `Today Rate : ${todayRate.toFixed(2)}\n\n`;
+
+  let totalLocalAmount = 0;
+  let totalInternationalAmount = 0;
+  let totalCollectedLocal = 0;
+  let totalCollectedInternational = 0;
+
+  filteredClients.forEach((client, index) => {
+    const amount = parseFloat(client.amount) || 0;
+    const localAmount = todayRate > 0 ? amount / todayRate : 0;
+
+    totalInternationalAmount += amount;
+    totalLocalAmount += localAmount;
+
+    let collectedInternational = 0;
+    let collectedLocal = 0;
+
+    if (Array.isArray(client.paid_amount_date)) {
+      client.paid_amount_date.forEach(payment => {
+        const paid = parseFloat(payment.amount) || 0;
+        collectedInternational += paid;
+        collectedLocal += todayRate > 0 ? paid / todayRate : 0;
+      });
+    }
+
+    totalCollectedInternational += collectedInternational;
+    totalCollectedLocal += collectedLocal;
+
+    message += `${index + 1} | `;
+    message += `    INR : ${amount.toFixed(2)}, \n`;
+    // message += `    Collected INR : ${collectedInternational.toFixed(2)}, Collected KD : ${collectedLocal.toFixed(3)}\n\n`;
+  });
+
+  message += "--------------------------\n\n";
+  message += `🔹 *TOTAL INR:* ${totalInternationalAmount.toFixed(2)}\n`;
+  message += `🔹 *TOTAL KD:* ${totalLocalAmount.toFixed(3)}\n`;
+  message += `🔹 *TOTAL COLLECTED INR:* ${totalCollectedInternational.toFixed(2)}\n`;
+  message += `🔹 *TOTAL COLLECTED KD:* ${totalCollectedLocal.toFixed(3)}\n`;
+
+  const phone = row.phone_number;
+  const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+  window.open(whatsappLink, "_blank");
+};
 
 
   const [todayRateModal, setTodayRateModal] = useState(false);
@@ -1204,7 +1275,7 @@ const autosetamount =() => {
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <div className="table-responsive-md table-responsive-sm">
                 <table className="table table-striped">
                   <thead>
@@ -1291,29 +1362,13 @@ const autosetamount =() => {
                                   color: "white",
                                   borderRadius: "10px",
                                 }}
-                                // onClick={() => showConfirm(row.user_id, row.username)}
+                               
                                 onClick={() => openTodayRateModal(row)}
                               >
                                 Today Rate
                               </span>) : (<span></span>)
                             }
-                            {/* {
-                              row.role === "Distributor" && row.today_rate_date === currentDate ? (
-                            <span
-                              className=""
-                              style={{
-                                cursor: "pointer",
-                                fontSize: "11px",
-                                backgroundColor: "#42b894",
-                                padding: "5px 10px",
-                                color: "white",
-                                borderRadius: "10px",
-                              }}
-                              onClick={() => sendtodayWA()}
-                            >
-                              WhatsApp
-                            </span>):(<span></span>)
-                            } */}
+                           
                             {row.role === "Distributor" && row.today_rate_date === currentDate ? (
   <span
     style={{
@@ -1324,7 +1379,7 @@ const autosetamount =() => {
       color: "white",
       borderRadius: "10px",
     }}
-    onClick={() => sendtodayWA(row)}  // PASS the row to the function
+    onClick={() => sendtodayWA(row)}  
   >
     WhatsApp
   </span>
@@ -1348,7 +1403,154 @@ const autosetamount =() => {
 )}
 
               </div>
-            </div>
+            </div> */}
+
+            <div>
+  <div className="table-responsive-md table-responsive-sm">
+    <table className="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>EMPLOYEE NAME</th>
+          <th>ROLE</th>
+          <th>CITY</th>
+          <th>EMAIL</th>
+          <th>Today Rate</th>
+          <th>Today Orders</th> {/* New column */}
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          sortedData.length > 0 ? (
+            sortedData.slice(0, visibleCount).map((row, index) => {
+              // Count today orders for the current distributor
+              const todayOrderCount = users.filter(
+                (user) =>
+                  user.Distributor_id === row.user_id &&
+                  user.date === currentDate
+              ).length;
+
+              return (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <div className="client">
+                      <div
+                        className="client-img bg-img"
+                        style={{
+                          backgroundImage: `url(${imageExists(
+                            "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
+                          )})`,
+                        }}
+                      ></div>
+                      <div className="client-info">
+                        <h4>{row.username ? row.username.toUpperCase() : "UNKNOWN"}</h4>
+                        <small>{row.phone_number ? row.phone_number.toUpperCase() : "NO PHONE NUMBER"}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
+                  <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
+                  <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
+                  <td>
+                    {row.role === "Distributor" && row.today_rate_date
+                      ? (row.today_rate_date === currentDate)
+                        ? row.Distributor_today_rate || "0"
+                        : "0"
+                      : "-"}
+                  </td>
+                  <td>{todayOrderCount}</td> {/* New column data */}
+                  <td>
+                    <div className="actions d-flex justify-content-start align-items-center pt-2">
+                      <span
+                        className=""
+                        style={{
+                          cursor: "pointer",
+                          fontSize: "11px",
+                          backgroundColor: "#42b883",
+                          padding: "5px 10px",
+                          color: "white",
+                          borderRadius: "10px",
+                        }}
+                        onClick={() => handlenav(row)}
+                      >
+                        VIEW
+                      </span>
+                      <span
+                        className=""
+                        style={{
+                          cursor: "pointer",
+                          fontSize: "11px",
+                          backgroundColor: "#dc2f2f",
+                          padding: "5px 10px",
+                          color: "white",
+                          borderRadius: "10px",
+                        }}
+                        onClick={() => showConfirm(row.user_id, row.username)}
+                      >
+                        DELETE
+                      </span>
+                      {
+                        row.role === "Distributor" ? (
+                          <span
+                            className=""
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "11px",
+                              backgroundColor: "#6957fc",
+                              padding: "5px 10px",
+                              color: "white",
+                              borderRadius: "10px",
+                            }}
+                            onClick={() => openTodayRateModal(row)}
+                          >
+                            Today Rate
+                          </span>
+                        ) : <span></span>
+                      }
+                      {
+                        row.role === "Distributor" && row.today_rate_date === currentDate ? (
+                          <span
+                            className=""
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "11px",
+                              backgroundColor: "#42b894",
+                              padding: "5px 10px",
+                              color: "white",
+                              borderRadius: "10px",
+                            }}
+                            onClick={() => sendtodayWA(row)}
+                          >
+                            WhatsApp
+                          </span>
+                        ) : <span></span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan="11" className="text-center">No data available</td>
+            </tr>
+          )
+        }
+      </tbody>
+    </table>
+
+    {
+      visibleCount < sortedData.length && (
+        <div className="d-flex justify-content-end mt-3 px-2">
+          <p onClick={handleShowMore} className="nextData">Show More {">>"}</p>
+        </div>
+      )
+    }
+  </div>
+</div>
+
           </div>
 
 
