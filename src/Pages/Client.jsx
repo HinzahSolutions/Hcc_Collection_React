@@ -185,79 +185,79 @@ const [showDistList, setShowDistList] = useState(false);
     }
   };
 
-  const filteredData = useMemo(() => {
-  if (!Array.isArray(users)) return [];
+//   const filteredData = useMemo(() => {
+//   if (!Array.isArray(users)) return [];
 
-  const today = format(new Date(), "dd-MM-yyyy");
-  const conformrole = localStorage.getItem("role");
-  const Dtpuserid = localStorage.getItem("user_id");
+//   const today = format(new Date(), "dd-MM-yyyy");
+//   const conformrole = localStorage.getItem("role");
+//   const Dtpuserid = localStorage.getItem("user_id");
 
-  const query = searchQuery?.toLowerCase().trim() || "";
-  const queryUpper = searchQuery?.toUpperCase().trim() || "";
-  const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+//   const query = searchQuery?.toLowerCase().trim() || "";
+//   const queryUpper = searchQuery?.toUpperCase().trim() || "";
+//   const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
 
-  // Step 1: Try to match the searchQuery with an employee username
-  const matchedEmployee = employees?.find(
-    (emp) => emp.username?.toLowerCase().trim() === query
-  );
+//   // Step 1: Try to match the searchQuery with an employee username
+//   const matchedEmployee = employees?.find(
+//     (emp) => emp.username?.toLowerCase().trim() === query
+//   );
 
-  return users.filter((row) => {
-    const clientName = row.client_name?.toLowerCase().trim() || "";
-    const clientContact = row.client_contact || "";
-    const employeeName = row.employee_name?.toLowerCase().trim() || "";
-    const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-    const clientStatus = row.status?.toLowerCase().trim() || "";
-    const createdAt = row.date?.trim() || "";
+//   return users.filter((row) => {
+//     const clientName = row.client_name?.toLowerCase().trim() || "";
+//     const clientContact = row.client_contact || "";
+//     const employeeName = row.employee_name?.toLowerCase().trim() || "";
+//     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+//     const clientStatus = row.status?.toLowerCase().trim() || "";
+//     const createdAt = row.date?.trim() || "";
 
-    const paidAndUnpaid = row.paid_and_unpaid;
+//     const paidAndUnpaid = row.paid_and_unpaid;
 
-    const matchesQuery = !searchQuery
-      ? true
-      : isQueryDate
-        ? createdAt === searchQuery
-        : clientName.includes(query) ||
-          clientContact.includes(query) ||
-          employeeName.includes(query) ||
-          accountNumbers.includes(queryUpper);
+//     const matchesQuery = !searchQuery
+//       ? true
+//       : isQueryDate
+//         ? createdAt === searchQuery
+//         : clientName.includes(query) ||
+//           clientContact.includes(query) ||
+//           employeeName.includes(query) ||
+//           accountNumbers.includes(queryUpper);
 
-    const matchesDashboardFilter =
-      dashboardNav === "client" ||
-      (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-      (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
-      !dashboardNav;
+//     const matchesDashboardFilter =
+//       dashboardNav === "client" ||
+//       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+//       (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+//       !dashboardNav;
 
-    const matchesStatusFilter = selectedStatus
-      ? clientStatus === selectedStatus.toLowerCase()
-      : true;
+//     const matchesStatusFilter = selectedStatus
+//       ? clientStatus === selectedStatus.toLowerCase()
+//       : true;
 
-    const matchesDateFilter =
-      selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-        ? createdAt === format(selectedDate, "dd-MM-yyyy")
-        : true;
+//     const matchesDateFilter =
+//       selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+//         ? createdAt === format(selectedDate, "dd-MM-yyyy")
+//         : true;
 
-    const matchesBankFilter = navselectedBank
-      ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-      : true;
+//     const matchesBankFilter = navselectedBank
+//       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+//       : true;
 
-    const matchesDtpFilter =
-      conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
+//     const matchesDtpFilter =
+//       conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
 
-    // Step 2: if an employee match was found, only allow clients with matching Distributor_id
-    const matchesDistributorFilter = matchedEmployee
-      ? String(row.Distributor_id) === String(matchedEmployee.user_id)
-      : true;
+//     // Step 2: if an employee match was found, only allow clients with matching Distributor_id
+//     const matchesDistributorFilter = matchedEmployee
+//       ? String(row.Distributor_id) === String(matchedEmployee.user_id)
+//       : true;
 
-    return (
-      matchesQuery &&
-      matchesDashboardFilter &&
-      matchesStatusFilter &&
-      matchesDateFilter &&
-      matchesBankFilter &&
-      matchesDtpFilter &&
-      matchesDistributorFilter
-    );
-  });
-}, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank, employees]);
+//     return (
+//       matchesQuery &&
+//       matchesDashboardFilter &&
+//       matchesStatusFilter &&
+//       matchesDateFilter &&
+//       matchesBankFilter &&
+//       matchesDtpFilter &&
+//       matchesDistributorFilter
+//     );
+//   });
+// }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank, employees]);
 
 
 
@@ -377,6 +377,94 @@ const [showDistList, setShowDistList] = useState(false);
 //     );
 //   });
 // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
+
+
+  
+  const filteredData = useMemo(() => {
+  if (!Array.isArray(users)) return [];
+
+  const today = format(new Date(), "dd-MM-yyyy");
+  const conformrole = localStorage.getItem("role");
+  const Dtpuserid = localStorage.getItem("user_id");
+
+  const query = searchQuery?.toLowerCase().trim() || "";
+  const queryUpper = searchQuery?.toUpperCase().trim() || "";
+  const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+
+  // Step 1: Try to match the searchQuery with an employee username
+  const matchedEmployee = employees?.find(
+    (emp) => emp.username?.toLowerCase().trim() === query
+  );
+
+  return users.filter((row) => {
+    const clientName = row.client_name?.toLowerCase().trim() || "";
+    const clientContact = row.client_contact || "";
+    const employeeName = row.employee_name?.toLowerCase().trim() || "";
+    const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+    const clientStatus = row.status?.toLowerCase().trim() || "";
+    const createdAt = row.date?.trim() || "";
+
+    // 🔍 Get Distributor Name using Distributor_id
+    const distributor = employees.find((emp) => emp.user_id === row.Distributor_id);
+    const distributorName = distributor?.username?.toLowerCase().trim() || "";
+
+    const paidAndUnpaid = row.paid_and_unpaid;
+
+    const matchesQuery = !searchQuery
+      ? true
+      : isQueryDate
+        ? createdAt === searchQuery
+        : clientName.includes(query) ||
+          clientContact.includes(query) ||
+          employeeName.includes(query) ||
+          accountNumbers.includes(queryUpper) ||
+          distributorName.includes(query); // ✅ Filter by distributor name
+
+    const matchesDashboardFilter =
+      dashboardNav === "client" ||
+      (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+      (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+      !dashboardNav;
+
+    const matchesStatusFilter = selectedStatus
+      ? clientStatus === selectedStatus.toLowerCase()
+      : true;
+
+    const matchesDateFilter =
+      selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+        ? createdAt === format(selectedDate, "dd-MM-yyyy")
+        : true;
+
+    const matchesBankFilter = navselectedBank
+      ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+      : true;
+
+    const matchesDtpFilter =
+      conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
+
+    const matchesDistributorFilter = matchedEmployee
+      ? String(row.Distributor_id) === String(matchedEmployee.user_id)
+      : true;
+
+    return (
+      matchesQuery &&
+      matchesDashboardFilter &&
+      matchesStatusFilter &&
+      matchesDateFilter &&
+      matchesBankFilter &&
+      matchesDtpFilter &&
+      matchesDistributorFilter
+    );
+  });
+}, [
+  users,
+  searchQuery,
+  dashboardNav,
+  selectedDate,
+  selectedStatus,
+  navselectedBank,
+  employees,
+]);
 
 
 

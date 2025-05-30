@@ -657,10 +657,10 @@ const filteredData = useMemo(() => {
   });
 
   message += "--------------------------\n\n";
-  message += `🔹 *TOTAL INR:* ${totalInternationalAmount.toFixed(2)}\n`;
-  message += `🔹 *TOTAL KD:* ${totalLocalAmount.toFixed(3)}\n`;
-  message += `🔹 *TOTAL COLLECTED INR:* ${totalCollectedInternational.toFixed(2)}\n`;
-  message += `🔹 *TOTAL COLLECTED KD:* ${totalCollectedLocal.toFixed(3)}\n`;
+  message += `🔹 * INR:* ${totalInternationalAmount.toFixed(2)}\n`;
+  message += `🔹 * KD:* ${totalLocalAmount.toFixed(3)}\n`;
+  message += `🔹 *OLD KD:* ${totalCollectedInternational.toFixed(2)}\n`;
+  message += `🔹 *TOTAL KD:* ${totalCollectedLocal.toFixed(3)}\n`;
 
   const phone = row.phone_number;
   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
