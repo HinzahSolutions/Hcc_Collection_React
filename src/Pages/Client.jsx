@@ -18,8 +18,8 @@ function Client() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [ loading,setLoading] = useState(false)
-  const [dashboardNav, setDashboardNav] = useState("client");
+  const [loading, setLoading] = useState(false)
+  const [dashboardNav, setDashboardNav] = useState("todayclient");
   const [show, setShow] = React.useState(false);
   const [sendModal, setSendModal] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState("");
@@ -32,7 +32,7 @@ function Client() {
   const [bname, setBname] = useState("")
   const [anumber, setAnumber] = useState("")
   const [ifsc, setIfsc] = useState("")
-  const [beneficiaryemailid,setBeneficiaryemailid] = useState("")
+  const [beneficiaryemailid, setBeneficiaryemailid] = useState("")
   const [holdername, setHoldername] = useState("")
   const [holderaddress, setHolderadderss] = useState("")
   const [distributor, setDistributor] = useState(null);
@@ -57,18 +57,18 @@ function Client() {
   const [visibleCount, setVisibleCount] = useState(50);
   const [sentAgent, setSentAgent] = useState(false)
   const [allClient, setAllClient] = useState(false)
-  const [showNewDistributorModal,setShowNewDistributorModal] = useState(false)
+  const [showNewDistributorModal, setShowNewDistributorModal] = useState(false)
   const currentDate = format(new Date(), "dd-MM-yyyy");
-  const [distributorname,setDistributorname] = useState("")
-  const [distributorcontact,setDistributorcontact] = useState()
-  const [todayRate,setTodayrate] = useState()
-  const [showupdateamountModal,setShowupdateamountModal] = useState(false)
-  const [amountSet,setAmountSet] = useState()
-  const [description,setDescription] = useState()
+  const [distributorname, setDistributorname] = useState("")
+  const [distributorcontact, setDistributorcontact] = useState()
+  const [todayRate, setTodayrate] = useState()
+  const [showupdateamountModal, setShowupdateamountModal] = useState(false)
+  const [amountSet, setAmountSet] = useState()
+  const [description, setDescription] = useState()
   const conformrole = localStorage.getItem('role');
-  const  Dtpuserid = localStorage.getItem('user_id');
+  const Dtpuserid = localStorage.getItem('user_id');
   const [searchText, setSearchText] = useState('');
-const [showDistList, setShowDistList] = useState(false);
+  const [showDistList, setShowDistList] = useState(false);
 
   console.log("user DTP id", Dtpuserid)
   useEffect(() => {
@@ -131,19 +131,19 @@ const [showDistList, setShowDistList] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const handlemodelClose = () => {
-    setShowupdateamountModal(false), 
-    setShow(true) ;
+    setShowupdateamountModal(false),
+      setShow(true);
   }
   const handlemodelShow = () => {
-                             setShowupdateamountModal(true),
-                             setShow(false)
-                            }
+    setShowupdateamountModal(true),
+      setShow(false)
+  }
   const handleClientClick = (client) => {
     dispatch(setSelectedClient(client));
     setSendModal(true);
   };
 
-  
+
 
   const totalCount = users.length;
   const paidCount = users.filter((paid) => paid.paid_and_unpaid == true).length;
@@ -161,9 +161,9 @@ const [showDistList, setShowDistList] = useState(false);
   };
 
 
-   const [amounts, setAmounts] = useState(() =>
-      employees.reduce((acc, emp) => ({ ...acc, [emp.user_id]: "" }), {})
-    );
+  const [amounts, setAmounts] = useState(() =>
+    employees.reduce((acc, emp) => ({ ...acc, [emp.user_id]: "" }), {})
+  );
 
   const handlenav1 = (client) => {
     dispatch(setSelectedEmployee(client));
@@ -175,6 +175,7 @@ const [showDistList, setShowDistList] = useState(false);
   const DashboardUnpaid = () => setDashboardNav("unpaid");
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
+  const DashboardTodayClient = () => setDashboardNav("todayclient")
 
 
   const handleDateChange = (date) => {
@@ -185,286 +186,98 @@ const [showDistList, setShowDistList] = useState(false);
     }
   };
 
-//   const filteredData = useMemo(() => {
-//   if (!Array.isArray(users)) return [];
-
-//   const today = format(new Date(), "dd-MM-yyyy");
-//   const conformrole = localStorage.getItem("role");
-//   const Dtpuserid = localStorage.getItem("user_id");
-
-//   const query = searchQuery?.toLowerCase().trim() || "";
-//   const queryUpper = searchQuery?.toUpperCase().trim() || "";
-//   const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
-
-//   // Step 1: Try to match the searchQuery with an employee username
-//   const matchedEmployee = employees?.find(
-//     (emp) => emp.username?.toLowerCase().trim() === query
-//   );
-
-//   return users.filter((row) => {
-//     const clientName = row.client_name?.toLowerCase().trim() || "";
-//     const clientContact = row.client_contact || "";
-//     const employeeName = row.employee_name?.toLowerCase().trim() || "";
-//     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-//     const clientStatus = row.status?.toLowerCase().trim() || "";
-//     const createdAt = row.date?.trim() || "";
-
-//     const paidAndUnpaid = row.paid_and_unpaid;
-
-//     const matchesQuery = !searchQuery
-//       ? true
-//       : isQueryDate
-//         ? createdAt === searchQuery
-//         : clientName.includes(query) ||
-//           clientContact.includes(query) ||
-//           employeeName.includes(query) ||
-//           accountNumbers.includes(queryUpper);
-
-//     const matchesDashboardFilter =
-//       dashboardNav === "client" ||
-//       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-//       (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
-//       !dashboardNav;
-
-//     const matchesStatusFilter = selectedStatus
-//       ? clientStatus === selectedStatus.toLowerCase()
-//       : true;
-
-//     const matchesDateFilter =
-//       selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-//         ? createdAt === format(selectedDate, "dd-MM-yyyy")
-//         : true;
-
-//     const matchesBankFilter = navselectedBank
-//       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-//       : true;
-
-//     const matchesDtpFilter =
-//       conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
-
-//     // Step 2: if an employee match was found, only allow clients with matching Distributor_id
-//     const matchesDistributorFilter = matchedEmployee
-//       ? String(row.Distributor_id) === String(matchedEmployee.user_id)
-//       : true;
-
-//     return (
-//       matchesQuery &&
-//       matchesDashboardFilter &&
-//       matchesStatusFilter &&
-//       matchesDateFilter &&
-//       matchesBankFilter &&
-//       matchesDtpFilter &&
-//       matchesDistributorFilter
-//     );
-//   });
-// }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank, employees]);
 
 
-
-  // const filteredData = useMemo(() => {
-  //   if (!Array.isArray(users)) return [];
-
-  //   const today = format(new Date(), "dd-MM-yyyy");
-
-  //   return users.filter((row) => {
-  //     const clientName = row.client_name?.toLowerCase().trim() || "";
-  //     const clientContact = row.client_contact || "";
-  //     const employeeName = row.employee_name?.toLowerCase().trim() || "";
-  //     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-  //     const clientStatus = row.status?.toLowerCase().trim() || "";
-  //     const createdAt = row.date?.trim() || "";
-  //     const query = searchQuery?.toLowerCase().trim() || "";
-  //     const queryUpper = searchQuery?.toUpperCase().trim() || "";
-  //     const paidAndUnpaid = row.paid_and_unpaid;
-  //     const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
-
-
-  //     const matchesQuery = !searchQuery
-  //       ? true
-  //       : isQueryDate
-  //         ? createdAt === searchQuery
-  //         : clientName.includes(query) ||
-  //         clientContact.includes(query) ||
-  //         employeeName.includes(query) ||
-  //         accountNumbers.includes(queryUpper);
-
-
-  //     const matchesDashboardFilter =
-  //       dashboardNav === "client" ||
-  //       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-  //       (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
-  //       !dashboardNav;
-
-
-  //     const matchesStatusFilter = selectedStatus
-  //       ? clientStatus === selectedStatus.toLowerCase()
-  //       : true;
-
-
-  //     const matchesDateFilter =
-  //       selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-  //         ? createdAt === format(selectedDate, "dd-MM-yyyy")
-  //         : true;
-
-
-  //     const matchesBankFilter = navselectedBank
-  //       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-  //       : true;
-
-  //     return (matchesQuery && matchesDashboardFilter && matchesStatusFilter && matchesDateFilter && matchesBankFilter);
-  //   });
-  // }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
-
-
-//    const filteredData = useMemo(() => {
-//   if (!Array.isArray(users)) return [];
-
-//   const today = format(new Date(), "dd-MM-yyyy");
-
-//   const conformrole = localStorage.getItem("role");
-//   const Dtpuserid = localStorage.getItem("user_id");
-
-//   return users.filter((row) => {
-//     const clientName = row.client_name?.toLowerCase().trim() || "";
-//     const clientContact = row.client_contact || "";
-//     const employeeName = row.employee_name?.toLowerCase().trim() || "";
-//     const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-//     const clientStatus = row.status?.toLowerCase().trim() || "";
-//     const createdAt = row.date?.trim() || "";
-//     const query = searchQuery?.toLowerCase().trim() || "";
-//     const queryUpper = searchQuery?.toUpperCase().trim() || "";
-//     const paidAndUnpaid = row.paid_and_unpaid;
-//     const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
-
-//     const matchesQuery = !searchQuery
-//       ? true
-//       : isQueryDate
-//         ? createdAt === searchQuery
-//         : clientName.includes(query) ||
-//           clientContact.includes(query) ||
-//           employeeName.includes(query) ||
-//           accountNumbers.includes(queryUpper);
-
-//     const matchesDashboardFilter =
-//       dashboardNav === "client" ||
-//       (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-//       (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
-//       !dashboardNav;
-
-//     const matchesStatusFilter = selectedStatus
-//       ? clientStatus === selectedStatus.toLowerCase()
-//       : true;
-
-//     const matchesDateFilter =
-//       selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-//         ? createdAt === format(selectedDate, "dd-MM-yyyy")
-//         : true;
-
-//     const matchesBankFilter = navselectedBank
-//       ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-//       : true;
-
-//     const matchesDtpFilter =
-//       conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
-
-//     return (
-//       matchesQuery &&
-//       matchesDashboardFilter &&
-//       matchesStatusFilter &&
-//       matchesDateFilter &&
-//       matchesBankFilter &&
-//       matchesDtpFilter
-//     );
-//   });
-// }, [users, searchQuery, dashboardNav, selectedDate, selectedStatus, navselectedBank]);
-
-
-  
   const filteredData = useMemo(() => {
-  if (!Array.isArray(users)) return [];
+    if (!Array.isArray(users)) return [];
 
-  const today = format(new Date(), "dd-MM-yyyy");
-  const conformrole = localStorage.getItem("role");
-  const Dtpuserid = localStorage.getItem("user_id");
+    const today = format(new Date(), "dd-MM-yyyy");
+    const conformrole = localStorage.getItem("role");
+    const Dtpuserid = localStorage.getItem("user_id");
 
-  const query = searchQuery?.toLowerCase().trim() || "";
-  const queryUpper = searchQuery?.toUpperCase().trim() || "";
-  const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
+    const query = searchQuery?.toLowerCase().trim() || "";
+    const queryUpper = searchQuery?.toUpperCase().trim() || "";
+    const isQueryDate = /^\d{2}-\d{2}-\d{4}$/.test(searchQuery);
 
-  // Step 1: Try to match the searchQuery with an employee username
-  const matchedEmployee = employees?.find(
-    (emp) => emp.username?.toLowerCase().trim() === query
-  );
+    // Step 1: Try to match the searchQuery with an employee username
+    const matchedEmployee = employees?.find(
+      (emp) => emp.username?.toLowerCase().trim() === query
+    );
 
-  return users.filter((row) => {
-    const clientName = row.client_name?.toLowerCase().trim() || "";
-    const clientContact = row.client_contact || "";
-    const employeeName = row.employee_name?.toLowerCase().trim() || "";
-    const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
-    const clientStatus = row.status?.toLowerCase().trim() || "";
-    const createdAt = row.date?.trim() || "";
+    return users.filter((row) => {
+      const clientName = row.client_name?.toLowerCase().trim() || "";
+      const clientContact = row.client_contact || "";
+      const employeeName = row.employee_name?.toLowerCase().trim() || "";
+      const accountNumbers = row.accno ? String(row.accno).toUpperCase().trim() : "";
+      const clientStatus = row.status?.toLowerCase().trim() || "";
+      const createdAt = row.date?.trim() || "";
 
-    // 🔍 Get Distributor Name using Distributor_id
-    const distributor = employees.find((emp) => emp.user_id === row.Distributor_id);
-    const distributorName = distributor?.username?.toLowerCase().trim() || "";
+      // 🔍 Get Distributor Name using Distributor_id
+      const distributor = employees.find((emp) => emp.user_id === row.Distributor_id);
+      const distributorName = distributor?.username?.toLowerCase().trim() || "";
 
-    const paidAndUnpaid = row.paid_and_unpaid;
+      const paidAndUnpaid = row.paid_and_unpaid;
 
-    const matchesQuery = !searchQuery
-      ? true
-      : isQueryDate
-        ? createdAt === searchQuery
-        : clientName.includes(query) ||
+      const date = row.date
+
+      const matchesQuery = !searchQuery
+        ? true
+        : isQueryDate
+          ? createdAt === searchQuery
+          : clientName.includes(query) ||
           clientContact.includes(query) ||
           employeeName.includes(query) ||
           accountNumbers.includes(queryUpper) ||
-          distributorName.includes(query); // ✅ Filter by distributor name
+          distributorName.includes(query);
 
-    const matchesDashboardFilter =
-      dashboardNav === "client" ||
-      (dashboardNav === "paid" && paidAndUnpaid === 1) ||
-      (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
-      !dashboardNav;
 
-    const matchesStatusFilter = selectedStatus
-      ? clientStatus === selectedStatus.toLowerCase()
-      : true;
+const matchesDashboardFilter =
+  dashboardNav === "client" ||
+  (dashboardNav === "paid" && paidAndUnpaid === 1) ||
+  (dashboardNav === "unpaid" && paidAndUnpaid === 0) ||
+  (dashboardNav === "todayclient" && date === currentDate) ||
+  !dashboardNav;
 
-    const matchesDateFilter =
-      selectedDate instanceof Date && !isNaN(selectedDate.getTime())
-        ? createdAt === format(selectedDate, "dd-MM-yyyy")
+
+      const matchesStatusFilter = selectedStatus
+        ? clientStatus === selectedStatus.toLowerCase()
         : true;
 
-    const matchesBankFilter = navselectedBank
-      ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
-      : true;
+      const matchesDateFilter =
+        selectedDate instanceof Date && !isNaN(selectedDate.getTime())
+          ? createdAt === format(selectedDate, "dd-MM-yyyy")
+          : true;
 
-    const matchesDtpFilter =
-      conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
+      const matchesBankFilter = navselectedBank
+        ? row.bank_type?.toLowerCase() === navselectedBank.toLowerCase()
+        : true;
 
-    const matchesDistributorFilter = matchedEmployee
-      ? String(row.Distributor_id) === String(matchedEmployee.user_id)
-      : true;
+      const matchesDtpFilter =
+        conformrole === "Dtp" ? String(row.dtp_id) === String(Dtpuserid) : true;
 
-    return (
-      matchesQuery &&
-      matchesDashboardFilter &&
-      matchesStatusFilter &&
-      matchesDateFilter &&
-      matchesBankFilter &&
-      matchesDtpFilter &&
-      matchesDistributorFilter
-    );
-  });
-}, [
-  users,
-  searchQuery,
-  dashboardNav,
-  selectedDate,
-  selectedStatus,
-  navselectedBank,
-  employees,
-]);
+      const matchesDistributorFilter = matchedEmployee
+        ? String(row.Distributor_id) === String(matchedEmployee.user_id)
+        : true;
+
+      return (
+        matchesQuery &&
+        matchesDashboardFilter &&
+        matchesStatusFilter &&
+        matchesDateFilter &&
+        matchesBankFilter &&
+        matchesDtpFilter &&
+        matchesDistributorFilter
+      );
+    });
+  }, [
+    users,
+    searchQuery,
+    dashboardNav,
+    selectedDate,
+    selectedStatus,
+    navselectedBank,
+    employees,
+  ]);
 
 
 
@@ -474,507 +287,254 @@ const [showDistList, setShowDistList] = useState(false);
 
 
 
-  const totalLocalPaid = useMemo(() => {
-    return filteredData.reduce((total, client) => {
-      const totalPaidForClient = (client.paid_amount_date || []).reduce(
-        (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-        0
-      );
-      const clientRate = parseFloat(client.today_rate) || 1;
-      return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
-    }, 0);
-  }, [filteredData]);
-
-
-
-//   const totalDTPLocalPaid = useMemo(() => {
-//   const conformrole = localStorage.getItem("role");
-//   const Dtpuserid = localStorage.getItem("user_id");
-
-//   // Optional filtering before reduce
-//   const dtpFilteredData =
-//     conformrole === "Dtp"
-//       ? filteredData.filter((client) => String(client.dtp_id) === String(Dtpuserid))
-//       : filteredData;
-
-//   return dtpFilteredData.reduce((total, client) => {
-//     const payments = client.paid_amount_date || [];
-//     const totalPaidForClient = payments.reduce((sum, payment) => {
-//       return sum + (parseFloat(payment.amount) || 0);
-//     }, 0);
-
-//     const clientRate = parseFloat(client.today_rate) || 1;
-//     return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
-//   }, 0);
-// }, [filteredData]);
- 
-
-// const totalDTPLocalPaid = useMemo(() => {
-//   const conformrole = localStorage.getItem("role");
-//   const Dtpuserid = localStorage.getItem("user_id");
-
-//   // If role is DTP, filter clients by matching DTP ID
-//   const relevantClients = conformrole === "Dtp"
-//     ? filteredData.filter((client) => String(client.dtp_id) === String(Dtpuserid))
-//     : filteredData;
-
-//   return relevantClients.reduce((total, client) => {
-//     const payments = client.paid_amount_date || [];
-//     const totalPaidForClient = payments.reduce((sum, payment) => {
-//       return sum + (parseFloat(payment.amount) || 0);
-//     }, 0);
-
-//     const clientRate = parseFloat(client.today_rate) || 1;
-//     return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
-//   }, 0);
-// }, [filteredData]);
-
-
-
-
- const totalDTPLocalPaid = useMemo(() => {
-  const Dtpuserid = localStorage.getItem("user_id");
-
-  return filteredData
-    .filter(client => String(client.dtp_id) === String(Dtpuserid))
-    .reduce((total, client) => {
-      return total + (parseFloat(client.amount) || 0);
-    }, 0);
-}, [filteredData]);
-
-
-
-
-// const totalTodayDTPLocalPaid = useMemo(() => {
-//   const Dtpuserid = localStorage.getItem("user_id");
-//   const currentDate = format(new Date(), "dd-MM-yyyy");
-
-//   return filteredData
-//     .filter(
-//       client =>
-//         String(client.dtp_id) === String(Dtpuserid) &&
-//         client.date === currentDate
-//     )
-//     .reduce((total, client) => {
-//       const amount = parseFloat(client.amount) || 0;
-//       const rate = parseFloat(client.today_rate) || 1;
-//       return total + (rate > 0 ? amount / rate : 0);
-//     }, 0);
-// }, [filteredData]);
-
-
-// const totalTodayDTPLocalPaid = useMemo(() => {
-//   const DtpUserId = localStorage.getItem("user_id");
-//   const currentDate = format(new Date(), "dd-MM-yyyy");
-
-//   return filteredData
-//     .filter(client =>
-//       String(client.dtp_id) === String(DtpUserId) &&
-//       client.date === currentDate
-//     )
-//     .reduce((total, client) => {
-//       const amount = parseFloat(client.amount) || 0;
-//       const todayRate = parseFloat(client.today_rate) || 1;
-//       return total + (todayRate > 0 ? amount / todayRate : 0);
-//     }, 0);
-// }, [filteredData]);
-
-
-// const totalTodayDTPLocalPaid = useMemo(() => {
-//   const DtpUserId = localStorage.getItem("user_id");
-//   const currentDate = format(new Date(), "dd-MM-yyyy");
-
-//   return filteredData
-//     .filter(client =>
-//       String(client.dtp_id) === String(DtpUserId) &&
-//       client.date === currentDate &&
-//       client.today_rate && Number(client.today_rate) > 0  // <-- filter here
-//     )
-//     .reduce((total, client) => {
-//       const amount = parseFloat(client.amount) || 0;
-//       const todayRate = parseFloat(client.today_rate);
-//       return total + amount / todayRate;
-//     }, 0);
-// }, [filteredData]);
-
-
-// const totalTodayDTPLocalPaid = useMemo(() => {
-//   const DtpUserId = localStorage.getItem("user_id");
-//   const currentDate = format(new Date(), "dd-MM-yyyy");
-
-//   const filteredClients = filteredData.filter(
-//     client =>
-//       String(client.dtp_id) === String(DtpUserId) &&
-//       client.date === currentDate &&
-//       client.today_rate && Number(client.today_rate) > 0
-//   );
-
-//   const total = filteredClients.reduce((sum, client) => {
-//     const amount = parseFloat(client.amount) || 0;
-//     const todayRate = parseFloat(client.today_rate);
-//     return sum + amount / todayRate;
-//   }, 0);
-
-//   const clientCount = filteredClients.length;
-
-//   return { total, clientCount };
-// }, [filteredData]);
-
-
-const totalTodayDTPLocalPaid = useMemo(() => {
-  const DtpUserId = localStorage.getItem("user_id");
-  const currentDate = format(new Date(), "dd-MM-yyyy");
-
-  // Count all clients with today's date and matching DTP ID — regardless of rate
-  const allTodayClients = filteredData.filter(
-    client =>
-      String(client.dtp_id) === String(DtpUserId) &&
-      client.date === currentDate
-  );
-
-  // Only calculate total for valid today_rate
-  const total = allTodayClients.reduce((sum, client) => {
-    const amount = parseFloat(client.amount) || 0;
-    const rate = parseFloat(client.today_rate);
-    return rate > 0 ? sum + amount / rate : sum;
-  }, 0);
-
-  const clientCount = allTodayClients.length;
-
-  return { total, clientCount };
-}, [filteredData]);
-
-
-
-// const totalLocalDTPLocalPaid = useMemo(() => {
-//   const Dtpuserid = localStorage.getItem("user_id");
-
-//   return filteredData
-//     .filter(client => String(client.dtp_id) === String(Dtpuserid))
-//     .reduce((total, client) => {
-//       const amount = parseFloat(client.amount) || 0;
-//       const rate = parseFloat(client.today_rate) || 1;
-
-//       return total + (rate > 0 ? amount / rate : 0);
-//     }, 0);
-// }, [filteredData]);
-
-
-// const totalLocalDTPLocalPaid = useMemo(() => {
-//   const DtpUserId = localStorage.getItem("user_id");
-
-//   return filteredData
-//     .filter(client => String(client.dtp_id) === String(DtpUserId))
-//     .reduce((total, client) => {
-//       const amount = parseFloat(client.amount) || 0;
-//       const todayRate = parseFloat(client.today_rate) || 1;
-//       return total + (todayRate > 0 ? amount / todayRate : 0);
-//     }, 0);
-// }, [filteredData]);
-
-const totalLocalDTPLocalPaid = useMemo(() => {
-  const DtpUserId = localStorage.getItem("user_id");
-
-  return filteredData
-    .filter(client =>
-      String(client.dtp_id) === String(DtpUserId) &&
-      client.today_rate && parseFloat(client.today_rate) > 0
-    )
-    .reduce((total, client) => {
-      const amount = parseFloat(client.amount) || 0;
-      const todayRate = parseFloat(client.today_rate);
-      return total + amount / todayRate;
-    }, 0);
-}, [filteredData]);
-
-
-
-
-
-  // const totalLocalCurrency = useMemo(() => {
-  //   return filteredData.reduce((total, client) => {
-  //     const clientAmount = parseFloat(client.amount) || 0;
-  //     const clientRate = parseFloat(client.today_rate) || 1;
-  //     return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-  //   }, 0);
-  // }, [filteredData]);
-        
-  const totalLocalCurrency = useMemo(() => {
-  return filteredData.reduce((total, client) => {
-    const clientAmount = parseFloat(client.amount);
-    const clientRate = parseFloat(client.today_rate);
-
-    // Only include clients with a valid, non-empty, and positive today_rate
-    if (!isNaN(clientAmount) && !isNaN(clientRate) && clientRate > 0) {
-      return total + clientAmount / clientRate;
-    }
-
-    return total;
-  }, 0);
-}, [filteredData]);
-
-
-  // const totalLocalBalance = useMemo(() => {
+  // const totalLocalPaid = useMemo(() => {
   //   return filteredData.reduce((total, client) => {
   //     const totalPaidForClient = (client.paid_amount_date || []).reduce(
   //       (sum, payment) => sum + (parseFloat(payment.amount) || 0),
   //       0
   //     );
-  //     const clientBalance = (parseFloat(client.amount) || 0) - totalPaidForClient;
   //     const clientRate = parseFloat(client.today_rate) || 1;
-
-  //     return total + (clientRate > 0 ? clientBalance / clientRate : 0);
+  //     return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
   //   }, 0);
   // }, [filteredData]);
 
 
-  const totalLocalBalance = useMemo(() => {
+  const totalLocalPaid = useMemo(() => {
   return filteredData.reduce((total, client) => {
+    const clientRate = parseFloat(client.today_rate);
+
+    // Skip if rate is 0, empty, or invalid
+    if (!clientRate || clientRate === 0) return total;
+
     const totalPaidForClient = (client.paid_amount_date || []).reduce(
       (sum, payment) => sum + (parseFloat(payment.amount) || 0),
       0
     );
 
-    const clientAmount = parseFloat(client.amount);
-    const clientRate = parseFloat(client.today_rate);
-    const clientBalance = (!isNaN(clientAmount) ? clientAmount : 0) - totalPaidForClient;
-
-    // Only include client if today_rate is a valid positive number
-    if (!isNaN(clientRate) && clientRate > 0) {
-      return total + clientBalance / clientRate;
-    }
-
-    return total;
+    return total + totalPaidForClient / clientRate;
   }, 0);
 }, [filteredData]);
 
 
 
-  // const totalLocalTodayAmount = useMemo(() => {
-  //   return users.reduce((total, client) => {
-  //     if (client.date === currentDate) {
-  //       const clientAmount = parseFloat(client.amount) || 0;
-  //       const clientRate = parseFloat(client.today_rate) || 1;
-  //       return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-  //     }
-  //     return total;
-  //   }, 0);
-  // }, [filteredData, currentDate]);
+
+
+
+
+
+
+  const totalDTPLocalPaid = useMemo(() => {
+    const Dtpuserid = localStorage.getItem("user_id");
+
+    return filteredData
+      .filter(client => String(client.dtp_id) === String(Dtpuserid))
+      .reduce((total, client) => {
+        return total + (parseFloat(client.amount) || 0);
+      }, 0);
+  }, [filteredData]);
+
+
+
+
+
+
+  const totalTodayDTPLocalPaid = useMemo(() => {
+    const DtpUserId = localStorage.getItem("user_id");
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+
+    // Count all clients with today's date and matching DTP ID — regardless of rate
+    const allTodayClients = filteredData.filter(
+      client =>
+        String(client.dtp_id) === String(DtpUserId) &&
+        client.date === currentDate
+    );
+
+    // Only calculate total for valid today_rate
+    const total = allTodayClients.reduce((sum, client) => {
+      const amount = parseFloat(client.amount) || 0;
+      const rate = parseFloat(client.today_rate);
+      return rate > 0 ? sum + amount / rate : sum;
+    }, 0);
+
+    const clientCount = allTodayClients.length;
+
+    return { total, clientCount };
+  }, [filteredData]);
+
+
+
+
+  const totalLocalDTPLocalPaid = useMemo(() => {
+    const DtpUserId = localStorage.getItem("user_id");
+
+    return filteredData
+      .filter(client =>
+        String(client.dtp_id) === String(DtpUserId) &&
+        client.today_rate && parseFloat(client.today_rate) > 0
+      )
+      .reduce((total, client) => {
+        const amount = parseFloat(client.amount) || 0;
+        const todayRate = parseFloat(client.today_rate);
+        return total + amount / todayRate;
+      }, 0);
+  }, [filteredData]);
+
+
+
+
+
+
+  const totalLocalCurrency = useMemo(() => {
+    return filteredData.reduce((total, client) => {
+      const clientAmount = parseFloat(client.amount);
+      const clientRate = parseFloat(client.today_rate);
+
+      // Only include clients with a valid, non-empty, and positive today_rate
+      if (!isNaN(clientAmount) && !isNaN(clientRate) && clientRate > 0) {
+        return total + clientAmount / clientRate;
+      }
+
+      return total;
+    }, 0);
+  }, [filteredData]);
+
+
+
+
+  const totalLocalBalance = useMemo(() => {
+    return filteredData.reduce((total, client) => {
+      const totalPaidForClient = (client.paid_amount_date || []).reduce(
+        (sum, payment) => sum + (parseFloat(payment.amount) || 0),
+        0
+      );
+
+      const clientAmount = parseFloat(client.amount);
+      const clientRate = parseFloat(client.today_rate);
+      const clientBalance = (!isNaN(clientAmount) ? clientAmount : 0) - totalPaidForClient;
+
+      // Only include client if today_rate is a valid positive number
+      if (!isNaN(clientRate) && clientRate > 0) {
+        return total + clientBalance / clientRate;
+      }
+
+      return total;
+    }, 0);
+  }, [filteredData]);
+
+
+
+
 
   const totalLocalTodayAmount = useMemo(() => {
-  return users.reduce((total, client) => {
-    if (client.date === currentDate && client.today_rate > 0) {
-      const amount = parseFloat(client.amount) || 0;
-      const rate = parseFloat(client.today_rate) || 1;
-      return total + amount / rate;
-    }
-    return total;
-  }, 0);
-}, [users, currentDate]);
+    return users.reduce((total, client) => {
+      if (client.date === currentDate && client.today_rate > 0) {
+        const amount = parseFloat(client.amount) || 0;
+        const rate = parseFloat(client.today_rate) || 1;
+        return total + amount / rate;
+      }
+      return total;
+    }, 0);
+  }, [users, currentDate]);
 
 
-const todayClientCount = useMemo(() => {
-  return users.filter(
-    client => client.date === currentDate 
-  ).length;
-}, [users, currentDate]);
-
-
-
-//   const totalINTERNALTodayAmount = useMemo(() => {
-//   return users.reduce((total, client) => {
-//     if (client.date === currentDate) {
-//       const clientAmount = parseFloat(client.amount) || 0;
-//       return total + clientAmount;
-//     }
-//     return total;
-//   }, 0);
-// }, [users, currentDate]);
-
-
-const totalINTERNALTodayAmount = useMemo(() => {
-  const rawTotal = users.reduce((total, client) => {
-    if (client.date === currentDate) {
-      const clientAmount = parseFloat(client.amount) || 0;
-      return total + clientAmount;
-    }
-    return total;
-  }, 0);
-
-  const decimalPart = rawTotal - Math.floor(rawTotal);
-  const roundedTotal = decimalPart >= 0.5 ? Math.ceil(rawTotal) : Math.floor(rawTotal);
-
-  return roundedTotal;
-}, [users, currentDate]);
+  const todayClientCount = useMemo(() => {
+    return users.filter(
+      client => client.date === currentDate
+    ).length;
+  }, [users, currentDate]);
 
 
 
 
- 
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     const currentDate = format(new Date(), "dd-MM-yyyy");
-
-//     // const clientData = {
-//     //   client_name: (clientName || "UNKNOWN").toUpperCase(),
-//     //   client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
-//     //   client_city: (city || "UNKNOWN").toUpperCase(),
-//     //   amount: amount || 0,
-//     //   today_rate: todayrate || 0,
-//     //   date: currentDate || new Date().toISOString(),
-//     //   sent: false,
-//     //   message: (message || "").toUpperCase(),
-//     //   paid_and_unpaid: false,
-//     //   success_and_unsuccess: false,
-//     //   bank_name: (bname || "").toUpperCase(),
-//     //   accno: (anumber || "").toUpperCase(),
-//     //   ifsc_code: (ifsc || "").toUpperCase(),
-//     //   accoun_type: (type || "10").toUpperCase(),
-//     //   Distributor_id: distributorId || null,
-//     //   name_of_the_beneficiary: (holdername || "").toUpperCase(),
-//     //   address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
-//     //   sender_information: (senderinfo || "STOCK").toUpperCase(),
-//     //   bank_type: (clientType || "").toUpperCase(),
-//     //   narration: (narration || "STOCK").toUpperCase(),
-//     //   description :(description || "STOCK").toUpperCase(),
-//     //   beneficiary_email_id :(beneficiaryemailid || "")
-//     // };
-//     const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
-
-//     const clientData = {
-//   client_name: (clientName || "UNKNOWN").toUpperCase(),
-//   client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
-//   client_city: (city || "UNKNOWN").toUpperCase(),
-//   amount: amount || 0,
-//   today_rate: todayrate || 0,
-//   date: currentDate || new Date().toISOString(),
-//   sent: false,
-//   message: (message || "").toUpperCase(),
-//   paid_and_unpaid: false,
-//   success_and_unsuccess: false,
-//   bank_name: (bname || "").toUpperCase(),
-//   accno: (anumber || "").toUpperCase(),
-//   ifsc_code: (ifsc || "").toUpperCase(),
-//   accoun_type: (type || "10").toUpperCase(),
-//   Distributor_id: distributorId || null,
-//   name_of_the_beneficiary: (holdername || "").toUpperCase(),
-//   address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
-//   sender_information: (senderinfo || "STOCK").toUpperCase(),
-//   bank_type: (clientType || "STOCK").toUpperCase(),
-//   narration: (narration || "STOCK").toUpperCase(),
-//   description: (description || "STOCK").toUpperCase(),
-//   beneficiary_email_id: (beneficiaryemailid || ""),
-//   ...(dtp_id && { dtp_id }),
-   
-// };
 
 
-//     console.log(clientData)
+  const totalINTERNALTodayAmount = useMemo(() => {
+    const rawTotal = users.reduce((total, client) => {
+      if (client.date === currentDate) {
+        const clientAmount = parseFloat(client.amount) || 0;
+        return total + clientAmount;
+      }
+      return total;
+    }, 0);
 
-//     fetch(`${API_URL}/acc_insertarrays`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(clientData),
-//     })
-//       .then((response) => {
-//         if (response.ok) {
-//           return response.json();
-//         }
-//         throw new Error("Something went wrong!");
-//       })
-//       .then((data) => {
-//         console.log("Response data:", data);
-//         alert("New Client Created");
+    const decimalPart = rawTotal - Math.floor(rawTotal);
+    const roundedTotal = decimalPart >= 0.5 ? Math.ceil(rawTotal) : Math.floor(rawTotal);
 
-//         resetForm();
-
-//         fetch(`${API_URL}/acc_list`, {
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: localStorage.getItem("authToken"),
-//           },
-//         })
-//           .then((response) => response.json())
-//           .then((updatedData) => dispatch(setUsers(updatedData)))
-//           .catch((error) => console.error("Error fetching updated data:", error));
-
-//       })
-//       .catch((error) => {
-//         console.error("Error:", error);
-//       });
-//   };
-    
+    return roundedTotal;
+  }, [users, currentDate]);
 
 
-const handleSubmit = (e) => {
-  e.preventDefault();
-  const currentDate = format(new Date(), "dd-MM-yyyy");
 
-  const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
 
-  const clientData = {
-    client_name: (clientName ).toUpperCase(),
-    client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
-    client_city: (city || "UNKNOWN").toUpperCase(),
-    amount: amount || 0,
-    today_rate: todayrate || 0,
-    date: currentDate || new Date().toISOString(),
-    sent: false,
-    message: (message || "").toUpperCase(),
-    paid_and_unpaid: false,
-    success_and_unsuccess: false,
-    bank_name: (bname || "").toUpperCase(),
-    accno: (anumber || "").toUpperCase(),
-    ifsc_code: (ifsc || "").toUpperCase(),
-    accoun_type: (type || "10" ).toUpperCase(), // ✅ fixed typo here
-    Distributor_id: distributorId || null,
-    name_of_the_beneficiary: (holdername || "").toUpperCase(),
-    address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
-    sender_information: (senderinfo || "STOCK").toUpperCase(),
-    bank_type: (clientType || "STOCK").toUpperCase(),
-    narration: (narration || "STOCK").toUpperCase(),
-    description: (description || "STOCK").toUpperCase(),
-    beneficiary_email_id: (beneficiaryemailid || ""),
-    ...(dtp_id && { dtp_id }),
-  };
 
-  console.log(clientData);
 
-  fetch(`${API_URL}/acc_insertarrays`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(clientData),
-  })
-    .then((response) => {
-      if (response.ok) return response.json();
-      throw new Error("Something went wrong!");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+
+    const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
+
+    const clientData = {
+      client_name: (clientName).toUpperCase(),
+      client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
+      client_city: (city || "UNKNOWN").toUpperCase(),
+      amount: amount || 0,
+      today_rate: todayrate || 0,
+      date: currentDate || new Date().toISOString(),
+      sent: false,
+      message: (message || "").toUpperCase(),
+      paid_and_unpaid: false,
+      success_and_unsuccess: false,
+      bank_name: (bname || "").toUpperCase(),
+      accno: (anumber || "").toUpperCase(),
+      ifsc_code: (ifsc || "").toUpperCase(),
+      accoun_type: (type || "10").toUpperCase(), // ✅ fixed typo here
+      Distributor_id: distributorId || null,
+      name_of_the_beneficiary: (holdername || "").toUpperCase(),
+      address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
+      sender_information: (senderinfo || "STOCK").toUpperCase(),
+      bank_type: (clientType || "STOCK").toUpperCase(),
+      narration: (narration || "STOCK").toUpperCase(),
+      description: (description || "STOCK").toUpperCase(),
+      beneficiary_email_id: (beneficiaryemailid || ""),
+      ...(dtp_id && { dtp_id }),
+    };
+
+    console.log(clientData);
+
+    fetch(`${API_URL}/acc_insertarrays`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(clientData),
     })
-    .then((data) => {
-      console.log("Response data:", data);
-      alert("New Client Created");
-      resetForm();
-
-      // Refresh the data
-      fetch(`${API_URL}/acc_list`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: localStorage.getItem("authToken"),
-        },
+      .then((response) => {
+        if (response.ok) return response.json();
+        throw new Error("Something went wrong!");
       })
-        .then((response) => response.json())
-        .then((updatedData) => dispatch(setUsers(updatedData)))
-        .catch((error) => console.error("Error fetching updated data:", error));
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-};
+      .then((data) => {
+        console.log("Response data:", data);
+        alert("New Client Created");
+        resetForm();
+
+        // Refresh the data
+        fetch(`${API_URL}/acc_list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: localStorage.getItem("authToken"),
+          },
+        })
+          .then((response) => response.json())
+          .then((updatedData) => dispatch(setUsers(updatedData)))
+          .catch((error) => console.error("Error fetching updated data:", error));
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
 
   const resetForm = () => {
@@ -992,19 +552,46 @@ const handleSubmit = (e) => {
     setSenderinfo("");
     setBeneficiaryemailid("")
   };
+
+
+  // const sortedData = useMemo(() => {
+  //   return [...filteredData].sort((a, b) => {
+  //     if (b.client_id !== a.client_id) {
+  //       return b.client_id - a.client_id;
+  //     }
+  //     const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
+  //     const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
+  //     if (a.sent === b.sent) {
+  //       return dateB - dateA;
+  //     }
+  //     return a.sent ? 1 : -1;
+  //   });
+  // }, [filteredData]);
+
+
   const sortedData = useMemo(() => {
+  if (dashboardNav === "todayclient") {
     return [...filteredData].sort((a, b) => {
-      if (b.client_id !== a.client_id) {
-        return b.client_id - a.client_id;
-      }
       const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
       const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
-      if (a.sent === b.sent) {
-        return dateB - dateA;
-      }
-      return a.sent ? 1 : -1;
+      return dateA - dateB; // FIFO: older first
     });
-  }, [filteredData]);
+  }
+
+  return [...filteredData].sort((a, b) => {
+    if (b.client_id !== a.client_id) {
+      return b.client_id - a.client_id;
+    }
+    const dateA = parse(a.date, "yyyy-MM-dd HH:mm:ss", new Date());
+    const dateB = parse(b.date, "yyyy-MM-dd HH:mm:ss", new Date());
+    if (a.sent === b.sent) {
+      return dateB - dateA;
+    }
+    return a.sent ? 1 : -1;
+  });
+}, [filteredData, dashboardNav]);
+
+
 
   const handleDelete = (clientId) => {
     const Authorization = localStorage.getItem("authToken");
@@ -1132,21 +719,18 @@ const handleSubmit = (e) => {
     console.log(selectedClient)
   };
 
-  // const handleBankSelection = (bankType) => {
-  //   setSelectedBank(bankType);
-  // };
- 
+
 
   const bankNames = {
     bank1: "IOB ONLY",
     bank2: "IOB OTHERS",
     bank3: "IDBANK OTHERS",
   };
-  
+
   const handleBankSelection = (bankType) => {
     setSelectedBank(bankType);
   };
-  
+
 
 
   const confirmExport = () => {
@@ -1168,76 +752,43 @@ const handleSubmit = (e) => {
       return;
     }
 
-    // const csvData = filteredRows.map((client) => {
-    //   let clientData = {
-    //     "ACCOUNT NUMBER": `${client.accno}`,
-    //     " AMOUNT": ` ${client.amount.toFixed(2)}`,
-    //   };
 
-    //   if (selectedBank === "bank1") {
-    //     clientData[" NARRATION"] = ` ${client.narration || ""}`;
-    //   } else if (selectedBank === "bank2") {
-    //     clientData = {
-    //       " IFSC CODE": ` ${client.ifsc_code}`,
-    //       " ACCOUNT TYPE": ` ${client.accoun_type || ""}`,
-    //       " ACCOUNT NUMBER": ` ${client.accno}`,
-    //       " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
-    //       " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}`,
-    //       " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}`,
-    //       ...clientData,
-    //     };
-    //   }  else if(selectedBank === "bank3"){
-    //         clientData = {
-    //            "CUSTOMER_NAME": `${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
-    //            " CITY": ` ${client.city?.toUpperCase() || "UNKNOWN CITY NAME"}`,
-    //            " ACCOUNT_NUMBER": ` ${client.accno}`,
-    //            " AMOUNT": ` ${client.amount.toFixed(2)}`,
-    //            " DESCRIPTION": ` ${""}`,
-    //            " IFSC_CODE": ` ${client.ifsc_code}`,
-    //            " BANK_NAME": ` ${client.bank_name?.toUpperCase() || "UNKNOWN  NAME"}`,
-    //            " BENEFICIARY_EMAIL_ID": ` ${client.bank_name?.toUpperCase() || "UNKNOWN  EMAIL ID"}`,
-    //         };
-    //   }
-
-    //   return clientData;
-    // });
-           
 
     const csvData = filteredRows.map((client) => {
       let clientData = {
         "ACCOUNT NUMBER": `${client.accno}`,
-        " AMOUNT": ` ${client.amount.toFixed(2)}` ,
+        " AMOUNT": ` ${client.amount.toFixed(2)}`,
       };
-    
+
       if (selectedBank === "bank1") {
-        clientData[" NARRATION"] = ` ${client.narration}`  || "";
+        clientData[" NARRATION"] = ` ${client.narration}` || "";
       } else if (selectedBank === "bank2") {
         clientData = {
-          "IFSC CODE": `${client.ifsc_code}` ,
-          " ACCOUNT TYPE": ` ${client.accoun_type}` || "" ,
-          " ACCOUNT NUMBER": ` ${client.accno}` ,
-          " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}` ,
-          " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}` ,
-          " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}` ,
+          "IFSC CODE": `${client.ifsc_code}`,
+          " ACCOUNT TYPE": ` ${client.accoun_type}` || "",
+          " ACCOUNT NUMBER": ` ${client.accno}`,
+          " BENEFICIARY NAME": ` ${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
+          " BENEFICIARY ADDRESS": ` ${client.address_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY ADDRESS"}`,
+          " SENDER INFORMATION": ` ${client.sender_information?.toUpperCase() || "UNKNOWN SENDER INFORMATION"}`,
           // " ACCOUNT NUMBER": ` ${client.accno}` ,
-          " AMOUNT": ` ${client.amount.toFixed(2)}` ,
+          " AMOUNT": ` ${client.amount.toFixed(2)}`,
         };
       } else if (selectedBank === "bank3") {
         clientData = {
-          "CUSTOMER_NAME": `${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}` ,
-          " CITY": ` ${client.client_city?.toUpperCase() || "UNKNOWN CITY NAME"}` ,
+          "CUSTOMER_NAME": `${client.name_of_the_beneficiary?.toUpperCase() || "UNKNOWN BENEFICIARY NAME"}`,
+          " CITY": ` ${client.client_city?.toUpperCase() || "UNKNOWN CITY NAME"}`,
           " ACCOUNT_NUMBER": ` ${client.accno}`,
-          " AMOUNT": ` ${ client.amount.toFixed(2)}`,
-          " DESCRIPTION": ` ${ client.description?.toUpperCase() || "UNKNOWN NAME"}`,
-          " IFSC_CODE": ` ${client.ifsc_code}` ,
-          " BANK_NAME": ` ${ client.bank_name?.toUpperCase() || "UNKNOWN NAME"}`,
-          " BENEFICIARY_EMAIL_ID": ` ${ client.beneficiary_email_id?.toLowerCase() || "UNKNOWN EMAIL ID"}`,
+          " AMOUNT": ` ${client.amount.toFixed(2)}`,
+          " DESCRIPTION": ` ${client.description?.toUpperCase() || "UNKNOWN NAME"}`,
+          " IFSC_CODE": ` ${client.ifsc_code}`,
+          " BANK_NAME": ` ${client.bank_name?.toUpperCase() || "UNKNOWN NAME"}`,
+          " BENEFICIARY_EMAIL_ID": ` ${client.beneficiary_email_id?.toLowerCase() || "UNKNOWN EMAIL ID"}`,
         };
       }
-    
+
       return clientData;
     });
-    
+
 
     const headers = [...new Set(csvData.flatMap((row) => Object.keys(row)))];
     const csvContent = [headers, ...csvData.map((row) => headers.map((header) => row[header] || "")),]
@@ -1258,16 +809,6 @@ const handleSubmit = (e) => {
   }, []);
 
 
-  // const handleDistributorChange = (e) => {
-  //   const selectedId = e.target.value;
-  //   setDistributorId(selectedId);
-  //   const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
-  //   if (selectedDistributor) {
-  //     setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
-  //   } else {
-  //     setTodayRate("");
-  //   }
-  // };
 
 
   const handleAmountChange = (userId, value) => {
@@ -1279,6 +820,8 @@ const handleSubmit = (e) => {
 
   const handleAssignsend = async () => {
     const currentDate = format(new Date(), "dd-MM-yyyy");
+
+
 
     const sendData = selectedRows.map((client) => ({
       client_id: client.client_id,
@@ -1323,69 +866,50 @@ const handleSubmit = (e) => {
 
 
   const clientsWithMissingDetails = Array.isArray(selectedRows)
-  ? selectedRows.filter(client => !client.accno || !client.ifsc_code)
-  : [];
+    ? selectedRows.filter(client => !client.accno || !client.ifsc_code)
+    : [];
 
 
-    // const fetchdata  = async () =>{
-    //   setLoading(true);
-    //   const Authorization = localStorage.getItem("authToken")
 
 
-    //  if(Authorization) {
-    //   try {
-    //     const response = await fetch(`${API_URL}/list`, {
-    //       method: "GET",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: Authorization,
-    //    },
-    //    cache{
-      
-    //    }
-    //  }
-       
-    // }
+  const fetchEmployees = async () => {
+    setLoading(true);
+    const Authorization = localStorage.getItem("authToken");
 
 
-   const fetchEmployees = async () => {
-      setLoading(true);
-      const Authorization = localStorage.getItem("authToken");
-  
-  
-      if (Authorization) {
-        try {
-          const response = await fetch(`${API_URL}/list`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: Authorization,
-            },
-  
-          });
-  
-          if (response.status === 401) {
-            console.error("Unauthorized access - redirecting to login");
-            handleUnauthorizedAccess();
-            return;
-          }
-          const data = await response.json();
-  
-          dispatch(setEmployees(data));
-        } catch (error) {
-          console.error("Fetch error:", error);
-  
-        } finally {
-          setLoading(false);
+    if (Authorization) {
+      try {
+        const response = await fetch(`${API_URL}/list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: Authorization,
+          },
+
+        });
+
+        if (response.status === 401) {
+          console.error("Unauthorized access - redirecting to login");
+          handleUnauthorizedAccess();
+          return;
         }
-      } else {
-        console.error("No authorization token found in localStorage");
+        const data = await response.json();
+
+        dispatch(setEmployees(data));
+      } catch (error) {
+        console.error("Fetch error:", error);
+
+      } finally {
         setLoading(false);
       }
-    };
-    
+    } else {
+      console.error("No authorization token found in localStorage");
+      setLoading(false);
+    }
+  };
+
   const handleSubmitUpdate2 = async () => {
- 
+
 
     const data = employees
       .filter((emp) => emp.role === "Distributor" && emp.user_id)
@@ -1396,9 +920,9 @@ const handleSubmit = (e) => {
           : emp.today_rate_date, // Retain previous date if no change
         Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
       }));
-  
+
     console.log("Sending data:", data);
-  
+
     try {
       const response = await fetch(`${API_URL}/update-distributor-amounts`, {
         method: "POST",
@@ -1420,165 +944,90 @@ const handleSubmit = (e) => {
 
 
 
-
-  // const handleDistributorSubmit = async (event) => {
-  //   event.preventDefault();
-  
-   
-  //   if (!distributorname.trim() || !distributorcontact.trim()) {
-  //     alert("Please fill in all required fields (Name and Contact).");
-  //     return;
-  //   }
-  
-  //   const Authorization = localStorage.getItem("authToken");
-  //   const currentDate = format(new Date(), "dd-MM-yyyy");
-  
-  //   if (!Authorization) {
-  //     console.error("Authorization token is missing");
-  //     return;
-  //   }
-  
-  //   try {
-  //     const distributorData = new FormData();
-  //     distributorData.append("username", distributorname);
-  //     distributorData.append("phone_number", distributorcontact);
-  //     distributorData.append("role", "Distributor"); 
-  //     distributorData.append("today_rate_date", currentDate);
-  //     distributorData.append("Distributor_today_rate", todayRate);
-  
-  //     const signupResponse = await fetch(
-  //       `${API_URL}/distrbutorCreated`,
-  //       {
-  //         method: "POST",
-  //         body: distributorData,
-  //         headers: {
-  //           Authorization: Authorization,
-  //         },
-  //       }
-  //     );
-  
-  //     if (!signupResponse.ok) {
-  //       throw new Error("Something went wrong while adding the distributor!");
-  //     }
-  
-  //     const data = await signupResponse.json();
-  //     alert("New Distributor successfully created!"); 
-  //     setDistributorname("");
-  //     setDistributorcontact("");
-  //     setTodayrate("");
-  //     setShow(true);
-  //     setShowNewDistributorModal(!showNewDistributorModal);
-  
-  //     if (Authorization) {
-  //       fetch(`${API_URL}/list`, {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: Authorization,
-  //         },
-  //       })
-  //         .then((response) => {
-  //           if (response.status === 401) {
-  //             console.error("Unauthorized access - redirecting to login");
-  //             handleUnauthorizedAccess();
-  //             return;
-  //           }
-  //           return response.json();
-  //         })
-  //         .then((data) => dispatch(setEmployees(data)))
-  //         .catch((error) => console.error("Fetch error:", error));
-  //     } else {
-  //       console.error("No authorization token found in localStorage");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-
   const handleDistributorSubmit = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  if (!distributorname.trim() || !distributorcontact.trim()) {
-    alert("Please fill in all required fields (Name and Contact).");
-    return;
-  }
-
-  const Authorization = localStorage.getItem("authToken");
-  const currentDate = format(new Date(), "dd-MM-yyyy");
-
-  if (!Authorization) {
-    console.error("Authorization token is missing");
-    return;
-  }
-
-  try {
-    const distributorData = new FormData();
-    distributorData.append("username", distributorname);
-    distributorData.append("phone_number", distributorcontact);
-    distributorData.append("role", "Distributor"); 
-    distributorData.append("today_rate_date", currentDate);
-    distributorData.append("Distributor_today_rate", todayRate);
-
-    const signupResponse = await fetch(`${API_URL}/distrbutorCreated`, {
-      method: "POST",
-      body: distributorData,
-      headers: {
-        Authorization: Authorization,
-      },
-    });
-
-    if (!signupResponse.ok) {
-      throw new Error("Something went wrong while adding the distributor!");
+    if (!distributorname.trim() || !distributorcontact.trim()) {
+      alert("Please fill in all required fields (Name and Contact).");
+      return;
     }
 
-    const data = await signupResponse.json();
-    alert("New Distributor successfully created!"); 
-    setDistributorname("");
-    setDistributorcontact("");
-    setTodayrate("");
-    setShow(true);
-    setShowNewDistributorModal(!showNewDistributorModal);
+    const Authorization = localStorage.getItem("authToken");
+    const currentDate = format(new Date(), "dd-MM-yyyy");
 
-    if (Authorization) {
-      await fetch(`${API_URL}/list`, {
-        method: "GET",
+    if (!Authorization) {
+      console.error("Authorization token is missing");
+      return;
+    }
+
+    try {
+      const distributorData = new FormData();
+      distributorData.append("username", distributorname);
+      distributorData.append("phone_number", distributorcontact);
+      distributorData.append("role", "Distributor");
+      distributorData.append("today_rate_date", currentDate);
+      distributorData.append("Distributor_today_rate", todayRate);
+
+      const signupResponse = await fetch(`${API_URL}/distrbutorCreated`, {
+        method: "POST",
+        body: distributorData,
         headers: {
-          "Content-Type": "application/json",
           Authorization: Authorization,
         },
-      })
-        .then((response) => {
-          if (response.status === 401) {
-            console.error("Unauthorized access - redirecting to login");
-            handleUnauthorizedAccess();
-            return;
-          }
-          return response.json();
+      });
+
+      if (!signupResponse.ok) {
+        throw new Error("Something went wrong while adding the distributor!");
+      }
+
+      const data = await signupResponse.json();
+      alert("New Distributor successfully created!");
+      setDistributorname("");
+      setDistributorcontact("");
+      setTodayrate("");
+      setShow(true);
+      setShowNewDistributorModal(!showNewDistributorModal);
+
+      if (Authorization) {
+        await fetch(`${API_URL}/list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: Authorization,
+          },
         })
-        .then((data) => dispatch(setEmployees(data)))
-        .catch((error) => console.error("Fetch error:", error));
-    } else {
-      console.error("No authorization token found in localStorage");
+          .then((response) => {
+            if (response.status === 401) {
+              console.error("Unauthorized access - redirecting to login");
+              handleUnauthorizedAccess();
+              return;
+            }
+            return response.json();
+          })
+          .then((data) => dispatch(setEmployees(data)))
+          .catch((error) => console.error("Fetch error:", error));
+      } else {
+        console.error("No authorization token found in localStorage");
+      }
+
+      // ✅ Refresh page after all done
+      window.location.reload();
+
+    } catch (error) {
+      console.error("Error:", error);
     }
-
-    // ✅ Refresh page after all done
-    window.location.reload();
-
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
+  };
 
 
 
   const handleDistributorChange = (e) => {
     const selectedId = e.target.value;
     setDistributorId(selectedId);
-  
+
     const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
-    
+
     const currentDate = format(new Date(), "dd-MM-yyyy");
-  
+
     if (selectedDistributor) {
       if (selectedDistributor.today_rate_date === currentDate) {
         setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
@@ -1589,7 +1038,6 @@ const handleSubmit = (e) => {
       setTodayRate(0);
     }
   };
-      // const conformrole = localStorage.getItem('role');
 
 
 
@@ -1597,11 +1045,12 @@ const handleSubmit = (e) => {
 
 
 
-  
 
 
 
-  
+
+
+
 
 
 
@@ -1614,171 +1063,162 @@ const handleSubmit = (e) => {
         <small>Client / Dash</small>
       </div>
       {
-        conformrole === "Admin" ?(
-                  <div className="analytics">
-        <div
-          className={dashboardNav === "client" ? "cardAction" : "card"}
-          onClick={DashboardClient}
-        >
-          <div className="card-head">
-            <h2>{totalCount}</h2>{" "}
-            <span className="las la-user-friends">
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small>CLIENT</small>
-          </div>
-        </div>
-
-        <div
-          className={dashboardNav === "paid" ? "cardAction" : "card"}
-          onClick={DashboardPaid}
-        >
-          <div className="card-head">
-            <h2>{paidCount}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small> PAID CLIENT</small>
-          </div>
-        </div>
-        <div
-          className={dashboardNav === "unpaid" ? "cardAction" : "card"}
-          onClick={DashboardUnpaid}
-        >
-          <div className="card-head">
-            <h2>{unpaidCount}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small>PENDING CLIENT</small>
-          </div>
-        </div>
-
-
-        <div className="cardAction  bg-warning Cardyellow">
-          <div className="card-head">
-            <h2>{totalLocalCurrency.toFixed(3)}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small> TOTAL AMOUNT</small>
-          </div>
-        </div>
-
-        <div className="cardAction  cardgreen  bg-success" >
-          <div className="card-head">
-            <h2>{totalLocalPaid.toFixed(3)}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small>TOTAL PAID AMOUNT</small>
-          </div>
-        </div>
-
-
-        <div className="cardAction bg-danger cardred" >
-          <div className="card-head">
-            <h2>{totalLocalBalance.toFixed(3)}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small>BALANCE PAID AMOUNT</small>
-          </div>
-        </div>
-
-
-        <div className="cardAction  cardgreen  bg-primary" >
-          <div className="card-head  ">
-          <div   className="d-flex flex-column">
-            <h2>{totalLocalTodayAmount.toFixed(3)}</h2> 
-            <h2>{totalINTERNALTodayAmount.toFixed(2)}</h2>
+        conformrole === "Admin" ? (
+          <div className="analytics">
+            <div
+              className={dashboardNav === "client" ? "cardAction" : "card"}
+              onClick={DashboardClient}
+            >
+              <div className="card-head">
+                <h2>{totalCount}</h2>{" "}
+                <span className="las la-user-friends">
+                  <HiUsers />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small>CLIENT</small>
+              </div>
             </div>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
-          </div>
-          <div className="card-progress">
-            <small>TODAY ORDER CLIENT { `    (${todayClientCount})`}</small>
-          </div>
-        </div>
 
-        {/* <div className="card-head    cardgreen  bg-primary "  >
-  <h2>{totalLocalTodayAmount.toFixed(3)}</h2><h2>/</h2>
-  <br />
-  <h2>{totalINTERNALTodayAmount.toFixed(2)}</h2>
-  <span className="las la-user-friends">
-    <GiReceiveMoney />
-    <HiUsers />
-  </span>
-</div> */}
+            <div
+              className={dashboardNav === "paid" ? "cardAction" : "card"}
+              onClick={DashboardPaid}
+            >
+              <div className="card-head">
+                <h2>{paidCount}</h2>
+                <span className="las la-user-friends">
+                  <GiReceiveMoney />
+                  <HiUsers />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small> PAID CLIENT</small>
+              </div>
+            </div>
+            <div
+              className={dashboardNav === "unpaid" ? "cardAction" : "card"}
+              onClick={DashboardUnpaid}
+            >
+              <div className="card-head">
+                <h2>{unpaidCount}</h2>
+                <span className="las la-user-friends">
+                  <GiReceiveMoney />
+                  <HiUsers />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small>PENDING CLIENT</small>
+              </div>
+            </div>
 
 
+            <div className="cardAction  bg-warning Cardyellow">
+              <div className="card-head">
+                <h2>{totalLocalCurrency.toFixed(3)}</h2>
+                <span className="las la-user-friends">
+                  <GiReceiveMoney />
+                  <HiUsers />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small> TOTAL AMOUNT</small>
+              </div>
+            </div>
 
-      </div>
-        ):(<div  className="analytics" >
+            <div className="cardAction  cardgreen  bg-success" >
+              <div className="card-head">
+                <h2>{totalLocalPaid.toFixed(3)}</h2>
+                <span className="las la-user-friends">
+                  <GiReceiveMoney />
+                  <HiUsers />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small>TOTAL PAID AMOUNT</small>
+              </div>
+            </div>
 
-                <div className="cardAction  cardgreen  bg-primary" >
-          <div className="card-head">
-            <h2>{totalLocalDTPLocalPaid.toFixed(3)}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
+
+            <div className="cardAction bg-danger cardred" >
+              <div className="card-head">
+                <h2>{totalLocalBalance.toFixed(3)}</h2>
+                <span className="las la-user-friends">
+                  <GiReceiveMoney />
+                  <HiUsers />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small>BALANCE PAID AMOUNT</small>
+              </div>
+            </div>
+
+
+            <div  className={dashboardNav === "todayclient" ? "cardAction" : "card"} onClick={DashboardTodayClient} >
+              <div className="card-head  ">
+                <div className="d-flex flex-column">
+                  <h2>{totalLocalTodayAmount.toFixed(3)}</h2>
+                  <h2>{totalINTERNALTodayAmount.toFixed(2)}</h2>
+                </div>
+                <span className="las la-user-friends">
+                  <GiReceiveMoney />
+                  <HiUsers />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small>TODAY ORDER CLIENT {`    (${todayClientCount})`}</small>
+              </div>
+            </div>
+
+         
+
+
           </div>
-          <div className="card-progress">
-            <small>TOTAL YOUR ORDER CLIENT</small>
-          </div>
-        </div>
+        ) : (<div className="analytics" >
 
-         <div className="cardAction  cardgreen  bg-success" >
-          <div className="card-head">
-            <h2>{totalTodayDTPLocalPaid.total.toFixed(3)}</h2>
-            <span className="las la-user-friends">
-              <GiReceiveMoney />
-              <HiUsers />
-            </span>
+          <div className="cardAction  cardgreen  bg-primary" >
+            <div className="card-head">
+              <h2>{totalLocalDTPLocalPaid.toFixed(3)}</h2>
+              <span className="las la-user-friends">
+                <GiReceiveMoney />
+                <HiUsers />
+              </span>
+            </div>
+            <div className="card-progress">
+              <small>TOTAL YOUR ORDER CLIENT</small>
+            </div>
           </div>
-          <div className="card-progress">
-            <small>TODAY YOUR ORDER CLIENT{ `    (${totalTodayDTPLocalPaid.clientCount})`}</small>
+
+          <div className="cardAction  cardgreen  bg-success" >
+            <div className="card-head">
+              <h2>{totalTodayDTPLocalPaid.total.toFixed(3)}</h2>
+              <span className="las la-user-friends">
+                <GiReceiveMoney />
+                <HiUsers />
+              </span>
+            </div>
+            <div className="card-progress">
+              <small>TODAY YOUR ORDER CLIENT{`    (${totalTodayDTPLocalPaid.clientCount})`}</small>
+            </div>
           </div>
-        </div>
 
 
         </div>)
       }
-     
+
       <div className="">
         <div className="record-header d-flex justify-content-between align-items-center flex-wrap gap-1 py-2 px-1">
           <div className="d-flex align-items-center gap-2 ">
 
-          { conformrole === "Admin" ?(
-                 <button
-              onClick={handleSelectAll}
-              className={`btn ${selectAll ? "btn-danger" : "btn-success"} btn-sm`}
-              style={{ minWidth: "100px" }}
-            >
-              {selectAll ? "Deselect All" : "Select All"}
-            </button>
-          ) :(<span></span>)}
-           
+            {conformrole === "Admin" ? (
+              <button
+                onClick={handleSelectAll}
+                className={`btn ${selectAll ? "btn-danger" : "btn-success"} btn-sm`}
+                style={{ minWidth: "100px" }}
+              >
+                {selectAll ? "Deselect All" : "Select All"}
+              </button>
+            ) : (<span></span>)}
+
 
 
             <Button className="btn btn-primary btn-sm" style={{ minWidth: "80px" }} onClick={handleShow}>
@@ -1786,40 +1226,40 @@ const handleSubmit = (e) => {
             </Button>
 
             {
-              conformrole === "Admin" ?(
-                     <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }} onClick={() => setAllClient(true)} >
-              Assign{selectedRows.length > 0 && (
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  {selectedRows.length}
-                </span>
-              )}
-            </Button>
-              ):(<span></span>)
+              conformrole === "Admin" ? (
+                <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }} onClick={() => setAllClient(true)} >
+                  Assign{selectedRows.length > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {selectedRows.length}
+                    </span>
+                  )}
+                </Button>
+              ) : (<span></span>)
             }
 
-            
+
 
 
           </div>
 
 
           <div className="d-flex align-items-center gap-2 ">
-           {
-            conformrole === "Admin" ?(
-                 <Button
-              onClick={exportToCSV}
-              className="btn btn-primary position-relative text-nowrap"
-              style={{ minWidth: "120px" }} >
-              Export to CSV
-              {selectedRows.length > 0 && (
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  {selectedRows.length}
-                </span>
-              )}
-            </Button>
-            ):(<span></span>)
-           }
-           
+            {
+              conformrole === "Admin" ? (
+                <Button
+                  onClick={exportToCSV}
+                  className="btn btn-primary position-relative text-nowrap"
+                  style={{ minWidth: "120px" }} >
+                  Export to CSV
+                  {selectedRows.length > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {selectedRows.length}
+                    </span>
+                  )}
+                </Button>
+              ) : (<span></span>)
+            }
+
 
 
             <InputGroup className="d-flex gap-2 flex-wrap align-items-center">
@@ -1851,24 +1291,25 @@ const handleSubmit = (e) => {
                 <th># </th>
                 <th>CLIENT</th>
                 <th>Distributor Name</th>
+                <th>IFSC NUMBER</th>
                 <th>TOTAL</th>
                 <th>RATE</th>
                 <th>STATUS</th>
                 <th>DATE</th>
-                <th>PAID AMOUNT</th>
-                <th>BALANCE AMOUNT</th>
+                {/* <th>PAID AMOUNT</th>
+                <th>BALANCE AMOUNT</th> */}
                 <th>AGENT</th>
                 <th>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
-              {
-                sortedData.length > 0 ? (
-                  sortedData.slice(0, visibleCount).map((row, index) => (
-                    <tr 
-  key={index}
-  className={row.date === currentDate ? "table-success" : ""}
->
+              
+                 {sortedData.length > 0 ? (
+    (dashboardNav === "todayclient" ? sortedData : sortedData.slice(0, visibleCount)).map((row, index) => (
+                    <tr
+                      key={index}
+                      className={row.date === currentDate ? "table-success" : ""}
+                    >
                       <td>
                         <input
                           type="checkbox"
@@ -1888,6 +1329,7 @@ const handleSubmit = (e) => {
                       </td>
                       {/* <td>{row.client_city ? row.client_city.replace(/"/g, "").toUpperCase() : "---"}</td> */}
 
+
                       <td>
                         {employees.length > 0 && row.Distributor_id ? (
                           employees.some((eid) => eid.user_id === row.Distributor_id) ? (
@@ -1906,6 +1348,12 @@ const handleSubmit = (e) => {
                         )}
                       </td>
 
+
+                      {row.ifsc_code ? (
+                        <td>{row.ifsc_code}</td>
+                      ) : (<td>------</td>)}
+
+
                       <td>
                         <div className="client-info">
                           <h4 style={{ color: "blue", fontWeight: "500" }}>
@@ -1922,14 +1370,14 @@ const handleSubmit = (e) => {
                         </div>
                       </td>
                       <td>{row.today_rate ? parseFloat(row.today_rate).toFixed(2) : "---"}</td>
-                      
+
                       <td>
                         <p className={`badge ${row.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"}`}>
                           {row.paid_and_unpaid == 1 ? "PAID" : "UNPAID"}
                         </p>
                       </td>
                       <td>{row.date || "---"}</td>
-                      <td>
+                      {/* <td>
                         <div className="client-info">
                           <h4 style={{ color: "blue", fontWeight: "500" }}>
                             INTER:{" "}
@@ -1963,8 +1411,10 @@ const handleSubmit = (e) => {
                             </span>
                           </h4>
                         </div>
-                      </td>
-                      <td>
+                      </td> */}
+
+
+                      {/* <td>
                         <div className="client-info">
                           <h4 style={{ color: "blue", fontWeight: "500" }}>
                             INTER:{" "}
@@ -2017,7 +1467,7 @@ const handleSubmit = (e) => {
                             </span>
                           </h4>
                         </div>
-                      </td>
+                      </td> */}
                       <td>
                         {employees.length > 0 && row.user_id ? (
                           employees.some((eid) => eid.user_id === row.user_id) ? (
@@ -2169,14 +1619,14 @@ const handleSubmit = (e) => {
         <Modal.Body>
           {(
             <form>
-            <div>
-                   <p>Total Selected Client : <span  className="text-danger">{selectedRows.length}</span> </p> 
+              <div>
+                <p>Total Selected Client : <span className="text-danger">{selectedRows.length}</span> </p>
 
 
-                  <div>
-                      
-                  </div>
-            </div>
+                <div>
+
+                </div>
+              </div>
               <div>
                 <h4>Assign Employee</h4>
                 <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} style={{ padding: "0px", border: "none" }} >
@@ -2204,7 +1654,7 @@ const handleSubmit = (e) => {
             variant="primary"
             onClick={() => handleAssignsend()}
           >
-           ASSIGN
+            ASSIGN
           </Button>
         </Modal.Footer>
       </Modal>
@@ -2216,40 +1666,40 @@ const handleSubmit = (e) => {
               <Modal.Title  >Update Amount</Modal.Title>  </div>
           </Modal.Header>
           <Modal.Body>
-          <form onSubmit={handleDistributorSubmit}>
-                   <div> 
-                    {employees
-      .filter(
-        (emp) =>
-          emp.role === 'Distributor' &&
-          emp.username.toLowerCase().includes(searchQuery)
-      )
-      .map((emp) => (
-        <div key={emp.user_id} className="mb-3">
-          <p>
-            <strong  style={{color:' #1246ac'}}>{emp.username.toUpperCase()}</strong>
-          </p>
-          {/* <input  
+            <form onSubmit={handleDistributorSubmit}>
+              <div>
+                {employees
+                  .filter(
+                    (emp) =>
+                      emp.role === 'Distributor' &&
+                      emp.username.toLowerCase().includes(searchQuery)
+                  )
+                  .map((emp) => (
+                    <div key={emp.user_id} className="mb-3">
+                      <p>
+                        <strong style={{ color: ' #1246ac' }}>{emp.username.toUpperCase()}</strong>
+                      </p>
+                      {/* <input  
             type="number"
             placeholder={ ` Date ${emp.today_rate_date}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
             value={amounts[emp.user_id] || ''}
             onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
             className="form-control"
           /> */}
-          <input  
-  type="number"
-  min="1"
-  placeholder={`Date: ${emp.today_rate_date || 'N/A'}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
-  value={amounts?.[emp.user_id] || ''}
-  onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
-  className="form-control"
-/>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder={`Date: ${emp.today_rate_date || 'N/A'}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
+                        value={amounts?.[emp.user_id] || ''}
+                        onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
+                        className="form-control"
+                      />
 
-        </div>
-      ))} 
-         
-      </div>          
-          <Modal.Footer className="w-100 justify-content-center">
+                    </div>
+                  ))}
+
+              </div>
+              <Modal.Footer className="w-100 justify-content-center">
                 <Button variant="secondary" className="w-15" onClick={handlemodelClose}  >
                   Close
                 </Button>
@@ -2257,7 +1707,7 @@ const handleSubmit = (e) => {
                   Save Changes
                 </Button>
               </Modal.Footer>
-          </form>
+            </form>
           </Modal.Body>
         </div>
       </Modal>
@@ -2292,84 +1742,84 @@ const handleSubmit = (e) => {
                       ))}
                   </select>
                 </div> */}
-              
 
-    <div className="txt_field col-lg-5 col-md-10 col-sm-10" style={{ position: 'relative' }}>
-  <input
-    type="text"
-    placeholder="SELECT DISTRIBUTOR"
-    value={searchText}
-    onChange={(e) => {
-      setSearchText(e.target.value);
-      setShowDistList(true);
-      
-    }}
-    onFocus={() => setShowDistList(true)}
-    style={{
-      border: 'none',
-      background: 'none',
-      color: 'black',
-      fontWeight: 'bold',
-      outline: 'none',
-      boxShadow: 'none',
-      margin: '0px',
-      padding: '0px',
-      paddingTop: '20px',
-      width: '100%',
-    
-    }}
-  />
-  {showDistList && (
-    <ul
-      style={{
-        position: 'absolute',
-        top: '100%',
-        left: 0,
-        right: 0,
-        background: '#fff',
-        border: '1px solid #ccc',
-        maxHeight: '200px',
-        overflowY: 'auto',
-        zIndex: 1000,
-        listStyle: 'none',
-        padding: 0,
-        marginTop: '4px',
-      }}
-    >
-      {employees
-        .filter(
-          (emp) =>
-            emp.role === 'Distributor' &&
-            emp.username.toLowerCase().startsWith(searchText.toLowerCase())
-        )
-        .map((emp) => (
-          <li
-            key={emp.user_id}
-            onClick={() => {
-              const fakeEvent = { target: { value: emp.user_id } };
-              handleDistributorChange(fakeEvent);
-              setSearchText(emp.username);
-              setShowDistList(false);
-            }}
-            style={{
-              padding: '10px',
-              cursor: 'pointer',
-              borderBottom: '1px solid #eee',
-            }}
-          >
-            {emp.username.toUpperCase()}
-          </li>
-        ))}
-      {employees.filter(
-        (emp) =>
-          emp.role === 'Distributor' &&
-          emp.username.toLowerCase().startsWith(searchText.toLowerCase())
-      ).length === 0 && (
-        <li style={{ padding: '10px', color: '#999' }}>No match found</li>
-      )}
-    </ul>
-  )}
-</div>
+
+                <div className="txt_field col-lg-5 col-md-10 col-sm-10" style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    placeholder="SELECT DISTRIBUTOR"
+                    value={searchText}
+                    onChange={(e) => {
+                      setSearchText(e.target.value);
+                      setShowDistList(true);
+
+                    }}
+                    onFocus={() => setShowDistList(true)}
+                    style={{
+                      border: 'none',
+                      background: 'none',
+                      color: 'black',
+                      fontWeight: 'bold',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      margin: '0px',
+                      padding: '0px',
+                      paddingTop: '20px',
+                      width: '100%',
+
+                    }}
+                  />
+                  {showDistList && (
+                    <ul
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        background: '#fff',
+                        border: '1px solid #ccc',
+                        maxHeight: '200px',
+                        overflowY: 'auto',
+                        zIndex: 1000,
+                        listStyle: 'none',
+                        padding: 0,
+                        marginTop: '4px',
+                      }}
+                    >
+                      {employees
+                        .filter(
+                          (emp) =>
+                            emp.role === 'Distributor' &&
+                            emp.username.toLowerCase().startsWith(searchText.toLowerCase())
+                        )
+                        .map((emp) => (
+                          <li
+                            key={emp.user_id}
+                            onClick={() => {
+                              const fakeEvent = { target: { value: emp.user_id } };
+                              handleDistributorChange(fakeEvent);
+                              setSearchText(emp.username);
+                              setShowDistList(false);
+                            }}
+                            style={{
+                              padding: '10px',
+                              cursor: 'pointer',
+                              borderBottom: '1px solid #eee',
+                            }}
+                          >
+                            {emp.username.toUpperCase()}
+                          </li>
+                        ))}
+                      {employees.filter(
+                        (emp) =>
+                          emp.role === 'Distributor' &&
+                          emp.username.toLowerCase().startsWith(searchText.toLowerCase())
+                      ).length === 0 && (
+                          <li style={{ padding: '10px', color: '#999' }}>No match found</li>
+                        )}
+                    </ul>
+                  )}
+                </div>
 
                 <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                   <input
@@ -2388,7 +1838,7 @@ const handleSubmit = (e) => {
                     type="text"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    // required
+                  // required
                   />
                   <label>CLIENT NAME</label>
                 </div>
@@ -2423,29 +1873,29 @@ const handleSubmit = (e) => {
               </div>
               <div className="row d-flex  justify-content-end col-12">
                 <Button className={!showBankModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={() => setShowBankModal(!showBankModal)}>
-                {showBankModal ? "Clear Bank" : "Add Bank"}
-                 </Button>
+                  {showBankModal ? "Clear Bank" : "Add Bank"}
+                </Button>
 
-                 <Button className={!showNewDistributorModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={() => setShowNewDistributorModal(!showNewDistributorModal)}>
-                 {showNewDistributorModal ? "Clear Distributor" : "Add New Distributor"}
-                  </Button>
+                <Button className={!showNewDistributorModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={() => setShowNewDistributorModal(!showNewDistributorModal)}>
+                  {showNewDistributorModal ? "Clear Distributor" : "Add New Distributor"}
+                </Button>
 
 
-                  <Button className={!showupdateamountModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={handlemodelShow }>
-                 {showupdateamountModal ? "Clear " : "Distributor Today Rate"}
-                  </Button>
+                <Button className={!showupdateamountModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={handlemodelShow}>
+                  {showupdateamountModal ? "Clear " : "Distributor Today Rate"}
+                </Button>
 
 
               </div>
               {
-                showNewDistributorModal  ? (
+                showNewDistributorModal ? (
                   <>
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
                           type="text"
                           value={distributorname}
-                          onChange={(e) =>setDistributorname(e.target.value)}
+                          onChange={(e) => setDistributorname(e.target.value)}
                         // required
                         />
                         <label>ENTER THE DISTRIBUTOR NAME</label>
@@ -2473,22 +1923,22 @@ const handleSubmit = (e) => {
                       </div>
                     </div>
 
-                    <Button variant="primary"  onClick={handleDistributorSubmit} className="w-15" >
-                  Save Distributor 
-                </Button>
+                    <Button variant="primary" onClick={handleDistributorSubmit} className="w-15" >
+                      Save Distributor
+                    </Button>
                   </>
                 ) : (<>
                 </>)}
 
-                {
-                  showBankModal ? (
+              {
+                showBankModal ? (
                   <>
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
                           type="text"
                           value={holdername}
-                          onChange={(e) =>setHoldername(e.target.value)}
+                          onChange={(e) => setHoldername(e.target.value)}
                         // required
                         />
                         <label>NAME OF THE  BENEFICIARY</label>
@@ -2530,7 +1980,7 @@ const handleSubmit = (e) => {
                 ) : (<>
                 </>)}
 
-                {/* {
+              {/* {
                   showupdateamountModal ? (
                   <>
                   
@@ -2614,28 +2064,28 @@ const handleSubmit = (e) => {
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
 
-<Modal show={showModal} onHide={() => setShowModal(false)}>
-  <Modal.Header closeButton>
-    <Modal.Title>Select Bank</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    {clientsWithMissingDetails.length > 0 ? (
-      <div className="alert alert-warning text-center">
-        <strong  className="text-danger">Clients with Missing accountNumber and IFSC code:</strong>
-        <ul className="mt-2 text-left">
-          {clientsWithMissingDetails.map((client,index) => (
-            <li key={client.id || client.client_name || Math.random()}>
-             {index+1 } {client.client_name?.trim() ? client.client_name : "Unknown Client"}
-            </li>
-          ))}
-        </ul>
-      </div>
-    ) : (
-      <p className="text-success text-center">All clients have complete details.</p>
-    )}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select Bank</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {clientsWithMissingDetails.length > 0 ? (
+            <div className="alert alert-warning text-center">
+              <strong className="text-danger">Clients with Missing accountNumber and IFSC code:</strong>
+              <ul className="mt-2 text-left">
+                {clientsWithMissingDetails.map((client, index) => (
+                  <li key={client.id || client.client_name || Math.random()}>
+                    {index + 1} {client.client_name?.trim() ? client.client_name : "Unknown Client"}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-success text-center">All clients have complete details.</p>
+          )}
 
-    {/* Bank selection buttons */}
-    {/* <div className="d-flex justify-content-center mt-3">
+          {/* Bank selection buttons */}
+          {/* <div className="d-flex justify-content-center mt-3">
       {["bank1","bank2","bank3"].map(bank => (
         <Button
           key={bank}
@@ -2647,32 +2097,32 @@ const handleSubmit = (e) => {
         </Button>
       ))}
     </div> */}
-    {/* const bankNames = {
+          {/* const bankNames = {
   bank1: "IOB ONLY",
   bank2: "IOB OTHERS",
   bank3: "IDBANK OTHERS",
 }; */}
 
-<div className="d-flex justify-content-center mt-3">
-  {Object.entries(bankNames).map(([bankKey, bankLabel]) => (
-    <Button
-      key={bankKey}
-      variant={selectedBank === bankKey ? "primary" : "secondary"}
-      onClick={() => handleBankSelection(bankKey)}
-      className="mx-2"
-    >
-      {bankLabel}
-    </Button>
-  ))}
-</div>
-  </Modal.Body>
-  <Modal.Footer className="d-flex justify-content-center">
-    <Button variant="danger" onClick={() => setShowModal(false)}>Cancel</Button>
-    <Button variant="success" onClick={confirmExport} disabled={!selectedBank}>
-      Confirm & Export
-    </Button>
-  </Modal.Footer>
-</Modal>
+          <div className="d-flex justify-content-center mt-3">
+            {Object.entries(bankNames).map(([bankKey, bankLabel]) => (
+              <Button
+                key={bankKey}
+                variant={selectedBank === bankKey ? "primary" : "secondary"}
+                onClick={() => handleBankSelection(bankKey)}
+                className="mx-2"
+              >
+                {bankLabel}
+              </Button>
+            ))}
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="d-flex justify-content-center">
+          <Button variant="danger" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button variant="success" onClick={confirmExport} disabled={!selectedBank}>
+            Confirm & Export
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
     </div>
   );

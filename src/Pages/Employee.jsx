@@ -31,7 +31,7 @@ function Employee() {
   const [Confirmpassword, setConfirmpassword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
-  
+  const [sendModal, setSendModal] = React.useState(false);
   const employees = useSelector((state) => state.employees.employees);
   const users = useSelector((state) => state.clients.users || []);
   const [loading, setLoading] = useState(false);
@@ -42,9 +42,24 @@ function Employee() {
   const [employeeNameToDelete, setemployeeNameToDelete] = useState('');
   const currentDate = format(new Date(), "dd-MM-yyyy");
   const date = new Date();  // Current date
-  const formattedDate = date.toISOString(); 
+  const formattedDate = date.toISOString();
   console.log(formattedDate);
   console.log(employees)
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [allClient, setAllClient] = useState(false)
+  const [employeeId, setEmployeeId] = React.useState("");
+  const [clientIdArray, setClientIdArray] = useState([]);
+
+
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(sortedData);
+    }
+    setSelectAll(!selectAll);
+  };
 
   const selectedDistributor = employees.find(emp => emp.role === "Distributor");
   const [visibleCount, setVisibleCount] = useState(30);
@@ -86,13 +101,11 @@ function Employee() {
   };
 
 
-  // useEffect(() => {
-  //   fetchEmployees();
-  // }, [dispatch]);
-  
+
+
   useEffect(() => {
-  fetchEmployees();
-}, []); // Runs only once on mount — on page refresh too
+    fetchEmployees();
+  }, []);
 
 
   useEffect(() => {
@@ -236,7 +249,7 @@ function Employee() {
   const Dashboardpaid = () => setDashboardnav("Collection Manager");
   const Dashboardunpaid = () => setDashboardnav("Collection Agent");
   const DashboardAll = () => setDashboardnav("All");
-  const DashDtp=() => setDashboardnav("Dtp")
+  const DashDtp = () => setDashboardnav("Dtp")
   const Dashboardother = () => setDashboardnav("Distributor");
 
 
@@ -251,105 +264,53 @@ function Employee() {
     return url;
   };
 
-  // const filteredData = useMemo(() => {
-  //   return employees.filter((row) => {
-  //     const username = row.username || "";
-  //     const phonenumber = row.phone_number || "";
-  //     const query = searchQuery || "";
-
-  //     return (
-  //       (username.toLowerCase().includes(query.toLowerCase()) ||
-  //         phonenumber.includes(query)) &&
-  //       (dashboardnav === "All" ||
-  //         (dashboardnav === "Admin" && row.role === "Admin") ||
-  //         (dashboardnav === "Collection Manager" &&
-  //           row.role === "Collection Manager") ||
-  //         (dashboardnav === "Collection Agent" &&
-  //           row.role === "Collection Agent") ||
-  //         (dashboardnav === "Distributor" &&
-  //           row.role === "Distributor")  ||
-  //            (dashboardnav === "Dtp" &&
-  //           row.role === "Dtp"
-  //         ) )
-  //     );
-  //   });
-  // });
-  
 
 
-// const filteredData = useMemo(() => {
-//   return employees.filter((row) => {
-//     const username = row.username || "";
-//     const phonenumber = row.phone_number || "";
-//     const query = searchQuery || "";
-
-//     const matchesSearch =
-//       username.toLowerCase().includes(query.toLowerCase()) ||
-//       phonenumber.includes(query);
-
-//     const matchesRole =
-//       dashboardnav === "All" ||
-//       (dashboardnav === "Admin" && row.role === "Admin") ||
-//       (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
-//       (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
-//       (dashboardnav === "Distributor" && row.role === "Distributor") ||
-//       (dashboardnav === "Dtp" && row.role === "Dtp");
-
-//     // Extra condition: if role is Distributor, make sure client matches
-//     const hasTodayClient =
-//       row.role !== "Distributor" ||
-//       users.some(
-//         (client) =>
-//           client.Distributor_id === row.user_id && client.date === currentDate
-//       );
-
-//     return matchesSearch && matchesRole && hasTodayClient;
-//   });
-// }, [employees, searchQuery, dashboardnav,users, currentDate]);
-
-const filteredData = useMemo(() => {
-  if (dashboardnav === "All") {
-    return employees;
-  }
-
-  const query = searchQuery?.toLowerCase().trim() || "";
-
-  return employees.filter((row) => {
-    const username = row.username?.toLowerCase().trim() || "";
-    const phonenumber = row.phone_number || "";
-
-    const matchesSearch =
-      !query ||
-      username.includes(query) ||
-      phonenumber.includes(query);
-
-    const matchesRole =
-      (dashboardnav === "Admin" && row.role === "Admin") ||
-      (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
-      (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
-      (dashboardnav === "Distributor" && row.role === "Distributor") ||
-      (dashboardnav === "Dtp" && row.role === "Dtp");
-
-    const hasTodayClient =
-      row.role !== "Distributor" ||
-      users.some(
-        (client) =>
-          String(client.Distributor_id) === String(row.user_id) &&
-          client.date === currentDate
-      );
-
-    return matchesSearch && matchesRole && hasTodayClient;
-  });
-}, [employees, searchQuery, dashboardnav, users, currentDate]);
 
 
- console.log(filteredData)
-   
+  const filteredData = useMemo(() => {
+    if (dashboardnav === "All") {
+      return employees;
+    }
+
+    const query = searchQuery?.toLowerCase().trim() || "";
+
+    return employees.filter((row) => {
+      const username = row.username?.toLowerCase().trim() || "";
+      const phonenumber = row.phone_number || "";
+
+      const matchesSearch =
+        !query ||
+        username.includes(query) ||
+        phonenumber.includes(query);
+
+      const matchesRole =
+        (dashboardnav === "Admin" && row.role === "Admin") ||
+        (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
+        (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
+        (dashboardnav === "Distributor" && row.role === "Distributor") ||
+        (dashboardnav === "Dtp" && row.role === "Dtp");
+
+      const hasTodayClient =
+        row.role !== "Distributor" ||
+        users.some(
+          (client) =>
+            String(client.Distributor_id) === String(row.user_id) &&
+            client.date === currentDate
+        );
+
+      return matchesSearch && matchesRole && hasTodayClient;
+    });
+  }, [employees, searchQuery, dashboardnav, users, currentDate]);
+
+
+  console.log(filteredData)
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
- 
+
   const collectionManagerCount = employees.filter(
     (employee) => employee.role === "Collection Manager"
   ).length;
@@ -363,7 +324,7 @@ const filteredData = useMemo(() => {
     (employee) => employee.role === "Distributor"
   ).length;
 
-    const Dtp = employees.filter(
+  const Dtp = employees.filter(
     (employee) => employee.role === "Dtp"
   ).length;
 
@@ -371,7 +332,7 @@ const filteredData = useMemo(() => {
 
 
 
-   const handlenav = (client) => {
+  const handlenav = (client) => {
     dispatch(setSelectedEmployee(client));
     console.log(client)
     navigate("/employee/employeeinfo");
@@ -449,223 +410,105 @@ const filteredData = useMemo(() => {
 
 
 
-  
 
-  // const sortedData = useMemo(() => {
-  //   return [...filteredData].sort((a, b) => {
-
-  //     if (b.client_id !== a.client_id) {
-  //       return b.client_id - a.client_id;
-  //     }
-
-
-  //     return a.sent ? 1 : -1;
-  //   });
-  // }, [filteredData]);
-  
-
-  // const sortedData = useMemo(() => {
-  //   const currentDateObj = new Date(); // current date object
-  
-  //   return [...filteredData].sort((a, b) => {
-  //     // Parse dates (null dates will be pushed to end)
-  //     const aDate = a.today_rate_date
-  //       ? new Date(a.today_rate_date.split("-").reverse().join("-"))
-  //       : null;
-  //     const bDate = b.today_rate_date
-  //       ? new Date(b.today_rate_date.split("-").reverse().join("-"))
-  //       : null;
-  
-  //     // First, push nulls to bottom
-  //     if (aDate === null && bDate === null) return 0;
-  //     if (aDate === null) return 1;
-  //     if (bDate === null) return -1;
-  
-  //     // Then sort by most recent date first
-  //     return bDate - aDate;
-  //   });
-  // }, [filteredData]);
-  
-// const sortedData = useMemo(() => {
-//   return [...filteredData].sort((a, b) => {
-//     const aDate = a.today_rate_date
-//       ? new Date(a.today_rate_date.split("-").reverse().join("-"))
-//       : null;
-//     const bDate = b.today_rate_date
-//       ? new Date(b.today_rate_date.split("-").reverse().join("-"))
-//       : null;
-
-//     if (aDate === null && bDate === null) return 0;
-//     if (aDate === null) return 1;
-//     if (bDate === null) return -1;
-
-//     return bDate - aDate;
-//   });
-// }, [filteredData]);
-
-  const sortedData = useMemo(() => {
-  return [...filteredData].sort((a, b) => {
-    // Show Distributors first
-    const isADistributor = a.role === "Distributor";
-    const isBDistributor = b.role === "Distributor";
-
-    if (isADistributor && !isBDistributor) return -1;
-    if (!isADistributor && isBDistributor) return 1;
-
-    // Then sort by today_rate_date (most recent first)
-    const aDate = a.today_rate_date
-      ? new Date(a.today_rate_date.split("-").reverse().join("-"))
-      : null;
-    const bDate = b.today_rate_date
-      ? new Date(b.today_rate_date.split("-").reverse().join("-"))
-      : null;
-
-    if (aDate === null && bDate === null) return 0;
-    if (aDate === null) return 1;
-    if (bDate === null) return -1;
-
-    return bDate - aDate;
-  });
-}, [filteredData]);
 
 
 
-  // const sendtodayWA = (row) => {
-  //   // Find all clients for this distributor and today's date
-  //   const filteredClients = users.filter(client =>
-  //     client.Distributor_id === row.user_id &&
-  //     client.date === currentDate
-  //   );
-  
-  //   if (!row.phone_number) {
-  //     alert("No phone number available for the distributor.");
-  //     return;
-  //   }
-  
-  //   if (filteredClients.length === 0) {
-  //     alert("No clients found for today.");
-  //     return;
-  //   }
-  
-  //   let message = "🔹 *Distributor Report*\n\n";
-  //   message += `Distributor Name : ${row.username}\n\n`;
-  
-  //   let totalLocalAmount = 0;
-  //   let totalInterAmount = 0;
-  //   let totalCollectionLocalAmount = 0;
-  //   let totalCollectionInterAmount = 0;
-  
-  //   filteredClients.forEach((client, index) => {
-  //     const todayRate = client.today_rate ? parseFloat(client.today_rate) : 1;
-  //     const localAmount = client.amount && client.today_rate
-  //       ? (parseFloat(client.amount) / todayRate).toFixed(3)
-  //       : "N/A";
-  
-  //     const interAmount = parseFloat(client.amount) || 0;
-  //     totalLocalAmount += parseFloat(localAmount) || 0;
-  //     totalInterAmount += interAmount;
-  
-  //     let collectionLocalAmount = 0;
-  //     let collectionInterAmount = 0;
-  
-  //     if (Array.isArray(client.paid_amount_date)) {
-  //       client.paid_amount_date.forEach(payment => {
-  //         collectionInterAmount += parseFloat(payment.amount) || 0;
-  //         if (todayRate > 0) {
-  //           collectionLocalAmount += (parseFloat(payment.amount) / todayRate) || 0;
-  //         }
-  //       });
-  //     }
-  
-  //     totalCollectionLocalAmount += collectionLocalAmount;
-  //     totalCollectionInterAmount += collectionInterAmount;
-  
-  //     message += `${index + 1} | Client Name : ${client.client_name || 'Unknown'}, \n     Date : ${client.date}, \n     Today Rate : ${todayRate.toFixed(2)}, \n     Local Amount : ${localAmount}, \n     International Amount : ${interAmount.toFixed(2)}, \n     Collection Local Amount : ${collectionLocalAmount.toFixed(3)}, \n     Collection Inter Amount : ${collectionInterAmount.toFixed(2)}.\n`;
-  //     message += "------------------------------------------------------------------------------------------------\n";
-  //   });
-  
-  //   // Append totals
-  //   message += "\n🔹 *TOTAL CLIENT LOCAL AMOUNT:* " + totalLocalAmount.toFixed(3) + "\n";
-  //   message += "🔹 *TOTAL CLIENT INTERNATIONAL AMOUNT:* " + totalInterAmount.toFixed(2) + "\n";
-  //   message += "🔹 *TOTAL COLLECTION LOCAL AMOUNT:* " + totalCollectionLocalAmount.toFixed(3) + "\n";
-  //   message += "🔹 *TOTAL COLLECTION INTERNATIONAL AMOUNT:* " + totalCollectionInterAmount.toFixed(2) + "\n";
-  
-  //   console.log(message);
-  
-  //   const phone = row.phone_number;
-  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-  
-  //   window.open(whatsappLink, "_blank");
-  // };
-    
+  const sortedData = useMemo(() => {
+    return [...filteredData].sort((a, b) => {
+      // Show Distributors first
+      const isADistributor = a.role === "Distributor";
+      const isBDistributor = b.role === "Distributor";
+
+      if (isADistributor && !isBDistributor) return -1;
+      if (!isADistributor && isBDistributor) return 1;
+
+      // Then sort by today_rate_date (most recent first)
+      const aDate = a.today_rate_date
+        ? new Date(a.today_rate_date.split("-").reverse().join("-"))
+        : null;
+      const bDate = b.today_rate_date
+        ? new Date(b.today_rate_date.split("-").reverse().join("-"))
+        : null;
+
+      if (aDate === null && bDate === null) return 0;
+      if (aDate === null) return 1;
+      if (bDate === null) return -1;
+
+      return bDate - aDate;
+    });
+  }, [filteredData]);
+
+
+
 
   const sendtodayWA = (row) => {
-  // Filter clients for this distributor and today's date
-  const filteredClients = users.filter(client =>
-    client.Distributor_id === row.user_id &&
-    client.date === currentDate
-  );
+    // Filter clients for this distributor and today's date
+    const filteredClients = users.filter(client =>
+      client.Distributor_id === row.user_id &&
+      client.date === currentDate
+    );
 
-  if (!row.phone_number) {
-    alert("No phone number available for the distributor.");
-    return;
-  }
-
-  if (filteredClients.length === 0) {
-    alert("No clients found for today.");
-    return;
-  }
-
-  const todayRate = filteredClients[0]?.today_rate
-    ? parseFloat(filteredClients[0].today_rate)
-    : 1;
-
-  let message = "🔹 *Distributor Report*\n\n";
-  message += `Distributor Name : ${row.username || 'Unknown'}\n`;
-  message += `Date : ${currentDate}\n`;
-  message += `Today Rate : ${todayRate.toFixed(2)}\n\n`;
-
-  let totalLocalAmount = 0;
-  let totalInternationalAmount = 0;
-  let totalCollectedLocal = 0;
-  let totalCollectedInternational = 0;
-
-  filteredClients.forEach((client, index) => {
-    const amount = parseFloat(client.amount) || 0;
-    const localAmount = todayRate > 0 ? amount / todayRate : 0;
-
-    totalInternationalAmount += amount;
-    totalLocalAmount += localAmount;
-
-    let collectedInternational = 0;
-    let collectedLocal = 0;
-
-    if (Array.isArray(client.paid_amount_date)) {
-      client.paid_amount_date.forEach(payment => {
-        const paid = parseFloat(payment.amount) || 0;
-        collectedInternational += paid;
-        collectedLocal += todayRate > 0 ? paid / todayRate : 0;
-      });
+    if (!row.phone_number) {
+      alert("No phone number available for the distributor.");
+      return;
     }
 
-    totalCollectedInternational += collectedInternational;
-    totalCollectedLocal += collectedLocal;
+    if (filteredClients.length === 0) {
+      alert("No clients found for today.");
+      return;
+    }
 
-    message += `${index + 1} | `;
-    message += `    INR : ${amount.toFixed(2)}, \n`;
-    // message += `    Collected INR : ${collectedInternational.toFixed(2)}, Collected KD : ${collectedLocal.toFixed(3)}\n\n`;
-  });
+    const todayRate = filteredClients[0]?.today_rate
+      ? parseFloat(filteredClients[0].today_rate)
+      : 1;
 
-  message += "--------------------------\n\n";
-  message += `🔹 * INR:* ${totalInternationalAmount.toFixed(2)}\n`;
-  message += `🔹 * KD:* ${totalLocalAmount.toFixed(3)}\n`;
-  message += `🔹 *OLD KD:* ${totalCollectedInternational.toFixed(2)}\n`;
-  message += `🔹 *TOTAL KD:* ${totalCollectedLocal.toFixed(3)}\n`;
+    let message = "🔹 *Distributor Report*\n\n";
+    message += `Distributor Name : ${row.username || 'Unknown'}\n`;
+    message += `Date : ${currentDate}\n`;
+    message += `Today Rate : ${todayRate.toFixed(2)}\n\n`;
 
-  const phone = row.phone_number;
-  const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-  window.open(whatsappLink, "_blank");
-};
+    let totalLocalAmount = 0;
+    let totalInternationalAmount = 0;
+    let totalCollectedLocal = 0;
+    let totalCollectedInternational = 0;
+
+    filteredClients.forEach((client, index) => {
+      const amount = parseFloat(client.amount) || 0;
+      const localAmount = todayRate > 0 ? amount / todayRate : 0;
+
+      totalInternationalAmount += amount;
+      totalLocalAmount += localAmount;
+
+      let collectedInternational = 0;
+      let collectedLocal = 0;
+
+      if (Array.isArray(client.paid_amount_date)) {
+        client.paid_amount_date.forEach(payment => {
+          const paid = parseFloat(payment.amount) || 0;
+          collectedInternational += paid;
+          collectedLocal += todayRate > 0 ? paid / todayRate : 0;
+        });
+      }
+
+      totalCollectedInternational += collectedInternational;
+      totalCollectedLocal += collectedLocal;
+
+      message += `${index + 1} | `;
+      message += `    INR : ${amount.toFixed(2)}, \n`;
+      // message += `    Collected INR : ${collectedInternational.toFixed(2)}, Collected KD : ${collectedLocal.toFixed(3)}\n\n`;
+    });
+
+    message += "--------------------------\n\n";
+    message += `🔹 * INR:* ${totalInternationalAmount.toFixed(2)}\n`;
+    message += `🔹 * KD:* ${totalLocalAmount.toFixed(3)}\n`;
+    message += `🔹 *OLD KD:* ${totalCollectedInternational.toFixed(2)}\n`;
+    message += `🔹 *TOTAL KD:* ${totalCollectedLocal.toFixed(3)}\n`;
+
+    const phone = row.phone_number;
+    const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+    window.open(whatsappLink, "_blank");
+  };
 
 
   const [todayRateModal, setTodayRateModal] = useState(false);
@@ -678,67 +521,24 @@ const filteredData = useMemo(() => {
   };
 
 
-  // const handleSubmitupdate = async () => {
-  //   if (!amount || !showData) {
-  //     alert("Please enter an amount");
-  //     return;
-  //   }
 
-  //   const currentDate = format(new Date(), "dd-MM-yyyy");
-
-  //   const data = {
-  //     user_id: showData.user_id,
-  //     today_rate_date: currentDate,
-  //     Distributor_today_rate: amount,
-  //   };
-
-  //   console.log("Sending data:", data);
-
-  //   try {
-  //     const response = await fetch(
-  //       `${API_URL}/update-distributor-amount/${showData.user_id}`,
-  //       {
-  //         method: "PUT",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(data),
-  //       }
-  //     );
-
-  //     if (response.ok) {
-  //       alert("Rate updated successfully!");
-  //       setTodayRateModal(false);
-  //       setAmount("");
-  //       fetchEmployees();
-  //     } else {
-  //       const errorText = await response.text();
-  //       console.error("Failed to update rate:", errorText);
-  //       alert(`Failed to update rate: ${errorText}`);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating rate:", error);
-  //     alert("An error occurred.");
-  //   }
-  // };
- 
 
   const handleSubmitupdate = async () => {
     if (!amount || !showData) {
       alert("Please enter an amount");
       return;
     }
-  
+
     const currentDate = format(new Date(), "dd-MM-yyyy");
-  
+
     const data = {
       user_id: showData.user_id,
       today_rate_date: currentDate,
       Distributor_today_rate: amount,
     };
-  
+
     console.log("Sending data:", data);
-  
+
     try {
       const response = await fetch(
         `${API_URL}/update-distributor-amount/${showData.user_id}`,
@@ -750,19 +550,19 @@ const filteredData = useMemo(() => {
           body: JSON.stringify(data),
         }
       );
-  
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Failed to update rate:", errorText);
         alert(`Failed to update rate: ${errorText}`);
         return;
       }
-  
+
       alert("Rate updated successfully!");
       setTodayRateModal(false);
       setAmount("");
       fetchEmployees();
-  
+
       // 🟡 Step 2: Fetch clients
       const authToken = localStorage.getItem("authToken");
       const clientRes = await fetch(`${API_URL}/acc_list`, {
@@ -772,22 +572,22 @@ const filteredData = useMemo(() => {
           Authorization: authToken,
         },
       });
-  
+
       if (!clientRes.ok) {
         console.error("Failed to fetch clients");
         return;
       }
-  
+
       const clients = await clientRes.json();
-  
+
       const targetClients = clients.filter(
         (client) =>
           client.Distributor_id === showData.user_id &&
           client.date === currentDate &&
           !client.today_rate
       );
-  
-     
+
+
       const updatePromises = targetClients.map((client) =>
         fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
           method: "PUT",
@@ -801,16 +601,16 @@ const filteredData = useMemo(() => {
           }),
         })
       );
-  
+
       await Promise.all(updatePromises);
       console.log("Updated clients with new today_rate");
-  
+
     } catch (error) {
       console.error("Error updating rate:", error);
       alert("An error occurred.");
     }
   };
-  
+
 
 
   const handleShowMore = () => {
@@ -827,170 +627,242 @@ const filteredData = useMemo(() => {
     setAmounts((prev) => ({ ...prev, [userId]: value }));
   };
 
-  
-  
-
-// const handleSubmitUpdate2 = async () => {
- 
-
-//   const data = employees
-//     .filter((emp) => emp.role === "Distributor" && emp.user_id)
-//     .map((emp) => ({
-//       user_id: emp.user_id,
-//       today_rate_date: amounts[emp.user_id] 
-//         ? currentDate
-//         : emp.today_rate_date,
-//       Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
-//     }));
-
-//   console.log("Sending data:", data);
-
-//   try {
-//     const response = await fetch(`${API_URL}/update-distributor-amounts`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(data),
-//     });
-
-//     if (response.ok) {
-//       alert("Rates updated successfully!");
-//       setAmountSet(false);
-//       fetchEmployees();
-//       setSearchQuery("");
-//     } else {
-//       const errorText = await response.text();
-//       console.error("Failed to update rates:", errorText);
-//       alert(`Failed to update rates`);
-//     }
-//   } catch (error) {
-//     console.error("Error updating rates:", error);
-//     alert("An error occurred.");
-//   }
-// };
 
 
 
-const handleSubmitUpdate2 = async () => {
-  const currentDate = format(new Date(), "dd-MM-yyyy");
 
-  // Step 1: Prepare distributor update data
-  const data = employees
-    .filter((emp) => emp.role === "Distributor" && emp.user_id)
-    .map((emp) => ({
-      user_id: emp.user_id,
-      today_rate_date: amounts[emp.user_id] ? currentDate : emp.today_rate_date,
-      Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
-    }));
 
-  console.log("Sending data to update distributors:", data);
+  const handleSubmitUpdate2 = async () => {
+    const currentDate = format(new Date(), "dd-MM-yyyy");
 
-  try {
-    // Step 2: Update distributor rates
-    const response = await fetch(`${API_URL}/update-distributor-amounts`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    console.log("Distributor update response status:", response.status);
-    if (response.ok) {
-      const errorText = await response.text();
-      console.error("Failed to update distributor rates:", errorText);
-      alert("Failed to update distributor rates");
-      return;
-    }
+    // Step 1: Prepare distributor update data
+    const data = employees
+      .filter((emp) => emp.role === "Distributor" && emp.user_id)
+      .map((emp) => ({
+        user_id: emp.user_id,
+        today_rate_date: amounts[emp.user_id] ? currentDate : emp.today_rate_date,
+        Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
+      }));
 
-    alert("Distributor rates updated successfully!");
-    setAmountSet(false);
-    fetchEmployees();
-    setSearchQuery("");
+    console.log("Sending data to update distributors:", data);
 
-    // Step 3: Fetch all clients
-    const authToken = localStorage.getItem("authToken");
-    const clientRes = await fetch(`${API_URL}/acc_list`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: authToken,
-      },
-    });
+    try {
+      // Step 2: Update distributor rates
+      const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      console.log("Distributor update response status:", response.status);
+      if (response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to update distributor rates:", errorText);
+        alert("Failed to update distributor rates");
+        return;
+      }
 
-    if (!clientRes.ok) {
-      console.error("Failed to fetch clients");
-      alert("Client fetch failed");
-      return;
-    }
+      alert("Distributor rates updated successfully!");
+      setAmountSet(false);
+      fetchEmployees();
+      setSearchQuery("");
 
-    const clients = await clientRes.json();
-    console.log("Fetched clients:", clients);
-
-    // Step 4: Filter and prepare client update requests
-    const updatePromises = [];
-
-    data.forEach((dist) => {
-      const distributorClients = clients.filter((client) => {
-        const clientDateFormatted = client.date
-          ? format(new Date(client.date), "dd-MM-yyyy")
-          : null;
-
-        return (
-          String(client.Distributor_id) === String(dist.user_id) &&
-          clientDateFormatted === currentDate &&
-          (client.today_rate === null ||
-            client.today_rate === "" ||
-            client.today_rate === 0)
-        );
+      // Step 3: Fetch all clients
+      const authToken = localStorage.getItem("authToken");
+      const clientRes = await fetch(`${API_URL}/acc_list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authToken,
+        },
       });
 
-      console.log(
-        `Clients to update for distributor ${dist.user_id}:`,
-        distributorClients
+      if (!clientRes.ok) {
+        console.error("Failed to fetch clients");
+        alert("Client fetch failed");
+        return;
+      }
+
+      const clients = await clientRes.json();
+      console.log("Fetched clients:", clients);
+
+      // Step 4: Filter and prepare client update requests
+      const updatePromises = [];
+
+      data.forEach((dist) => {
+        const distributorClients = clients.filter((client) => {
+          const clientDateFormatted = client.date
+            ? format(new Date(client.date), "dd-MM-yyyy")
+            : null;
+
+          return (
+            String(client.Distributor_id) === String(dist.user_id) &&
+            clientDateFormatted === currentDate &&
+            (client.today_rate === null ||
+              client.today_rate === "" ||
+              client.today_rate === 0)
+          );
+        });
+
+        console.log(
+          `Clients to update for distributor ${dist.user_id}:`,
+          distributorClients
+        );
+
+        distributorClients.forEach((client) => {
+          updatePromises.push(
+            fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: authToken,
+              },
+              body: JSON.stringify({
+                ...client,
+                today_rate: dist.Distributor_today_rate,
+              }),
+            })
+          );
+        });
+      });
+
+      // Step 5: Execute all client update requests
+      await Promise.all(updatePromises);
+      console.log("All relevant clients updated with new today_rate");
+
+    } catch (error) {
+      console.error("Error during multi-rate update:", error);
+      // alert("An error occurred while updating rates or clients.");
+    }
+  };
+
+
+
+
+  const autosetamount = () => {
+
+  }
+
+
+
+  const [filteredClientData, setFilteredClientData] = useState([]);
+
+
+  const formatDate = (dateObj) => {
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const yyyy = dateObj.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  };
+
+  // const currentDate = formatDate(new Date());
+
+
+
+  const [otherFilteredClients, setOtherFilteredClients] = useState([]); // ✅ NEW useState
+
+
+
+
+
+
+  const handleCheckboxChange = (row) => {
+    setSelectedRows((prevSelected) => {
+      const alreadySelected = prevSelected.some(item => item.user_id === row.user_id);
+      const updatedSelection = alreadySelected
+        ? prevSelected.filter(item => item.user_id !== row.user_id)
+        : [...prevSelected, row];
+
+      const selectedIds = updatedSelection.map(item => item.user_id);
+
+      // ✅ Filter clients matching Distributor_id and currentDate
+      const matchedClients = users.filter(
+        user =>
+          selectedIds.includes(user.Distributor_id) &&
+          user.date === currentDate &&
+          user.user_id
+
       );
 
-      distributorClients.forEach((client) => {
-        updatePromises.push(
-          fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: authToken,
-            },
-            body: JSON.stringify({
-              ...client,
-              today_rate: dist.Distributor_today_rate,
-            }),
-          })
-        );
-      });
+      const matchedClientIds = matchedClients.map(client => client.client_id);
+
+      setFilteredClientData(matchedClients); // Store in original
+      setOtherFilteredClients(matchedClients); // ✅ Store in new state too
+      setClientIdArray(matchedClientIds);
+
+      console.log("✅ Selected distributors:", selectedIds);
+      console.log("✅ Filtered clients:", matchedClients);
+      console.log("✅ Client IDs:", matchedClientIds);
+
+      return updatedSelection;
     });
+  };
 
-    // Step 5: Execute all client update requests
-    await Promise.all(updatePromises);
-    console.log("All relevant clients updated with new today_rate");
 
-  } catch (error) {
-    console.error("Error during multi-rate update:", error);
-    // alert("An error occurred while updating rates or clients.");
-  }
-};
+  const handleAssignsend = async () => {
+    const currentDate = format(new Date(), "dd-MM-yyyy");
 
 
 
+    const sendData = otherFilteredClients.map((client) => ({
+      client_id: client.client_id,
+      user_id: employeeId,
+      assigned_date: currentDate,
+      sent: true
+    }));
 
-const autosetamount =() => {
-         
-}
- 
+    try {
+      const response = await fetch(`${API_URL}/client_IDupdateds`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sendData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update client");
+      }
+
+      const result = await response.json();
+      console.log("Updated client response:", result);
+      setSendModal(false);
+      alert("Employee assignment successful");
+
+      fetch(`${API_URL}/acc_list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("authToken"),
+        },
+      })
+        .then((response) => response.json())
+        .then((updatedData) => dispatch(setUsers(updatedData)))
+        .catch((error) => console.error("Error fetching updated data:", error));
+
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
+
+
+
+
+
   return (
-    <div style={{ marginTop: "50px" }}>
+    <div  style={{
+    marginTop: "50px",
+    
+    
+
+  }}>
 
       {loading ? (
         <div></div>
       ) : (
-        <div style={{ marginTop: "50px" }}>
+        <div style={{ marginTop: "50px", width:"100%",  scrollbarWidth: "none", // Firefox
+    msOverflowStyle: "none",  }}>
           <div className="page-header">
             <h1>Employee</h1>
             <small>Employee / Dash</small>
@@ -1041,11 +913,11 @@ const autosetamount =() => {
               </div>
               <div className="card-progress">
                 <small>COLLECTION MANAGER</small>
-              </div>  
+              </div>
             </div>
 
 
-               <div
+            <div
               className={
                 dashboardnav === "Dtp" ? "cardAction" : "card"
               }
@@ -1059,10 +931,10 @@ const autosetamount =() => {
               </div>
               <div className="card-progress">
                 <small>DTP</small>
-              </div>  
+              </div>
             </div>
 
-            
+
 
             <div
               className={
@@ -1107,8 +979,18 @@ const autosetamount =() => {
                   Add New Distributor
                 </Button>
 
+
+
                 <Button className="w-auto text-white" onClick={() => setAmountSet(true)} >
                   Set Amount
+                </Button>
+
+                <Button className="w-auto text-white" onClick={() => setAllClient(true)} >
+                  Assign{selectedRows.length > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {selectedRows.length}
+                    </span>
+                  )}
                 </Button>
 
 
@@ -1161,7 +1043,7 @@ const autosetamount =() => {
                               <option value="Collection Manager">
                                 Collection Manager
                               </option>
-                               <option value="Dtp">
+                              <option value="Dtp">
                                 Dtp
                               </option>
                               <option value="Collection Agent">Collection Agent</option>
@@ -1275,281 +1157,163 @@ const autosetamount =() => {
               </div>
             </div>
 
-            {/* <div>
-              <div className="table-responsive-md table-responsive-sm">
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>EMPLOYEE NAME</th>
-                      <th>ROLE</th>
-                      <th>CITY</th>
-                      <th>EMAIL</th>
-                      <th>Today Rate</th>
-                      <th>ACTIONS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+        
+            <div className="table-responsive-md table-responsive-sm">
+              <table className="table table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>EMPLOYEE NAME</th>
+                    <th>ROLE</th>
+                    <th>CITY</th>
+                    <th>EMAIL</th>
+                    <th>Today Rate</th>
+                    <th>Today Orders</th> {/* New column */}
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {
-                sortedData.length > 0 ? (
-                  sortedData.slice(0, visibleCount).map((row, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>
-                          <div className="client">
-                            <div
-                              className="client-img bg-img"
-                              style={{
-                                backgroundImage: `url(${imageExists(
-                                  "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
-                                )})`,
-                              }}
-                            ></div>
-                            <div className="client-info">
-                              <h4>{row.username ? row.username.toUpperCase() : "UNKNOWN"}</h4>
-                              <small>{row.phone_number ? row.phone_number.toUpperCase() : "NO PHONE NUMBER"}</small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
-                        <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
-                        <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
-                        <td>
-                          {row.role === "Distributor" && row.today_rate_date
-                            ? (row.today_rate_date === currentDate)
-                              ? row.Distributor_today_rate || "0"
-                              : "0"
-                            : "-"}
-                        </td>
-                        <td>
-                          <div className="actions d-flex justify-content-start align-items-center pt-2">
-                            <span
-                              className=""
-                              style={{
-                                cursor: "pointer",
-                                fontSize: "11px",
-                                backgroundColor: "#42b883",
-                                padding: "5px 10px",
-                                color: "white",
-                                borderRadius: "10px",
-                              }}
-                              onClick={() => handlenav(row)}
-                            >
-                              VIEW
-                            </span>
-                            <span
-                              className=""
-                              style={{
-                                cursor: "pointer",
-                                fontSize: "11px",
-                                backgroundColor: "#dc2f2f",
-                                padding: "5px 10px",
-                                color: "white",
-                                borderRadius: "10px",
-                              }}
-                              onClick={() => showConfirm(row.user_id, row.username)}
-                            >
-                              DELETE
-                            </span>
-                            {
-                              row.role === "Distributor" ? (<span
-                                className=""
-                                style={{
-                                  cursor: "pointer",
-                                  fontSize: "11px",
-                                  backgroundColor: "#6957fc",
-                                  padding: "5px 10px",
-                                  color: "white",
-                                  borderRadius: "10px",
-                                }}
-                               
-                                onClick={() => openTodayRateModal(row)}
-                              >
-                                Today Rate
-                              </span>) : (<span></span>)
-                            }
-                           
-                            {row.role === "Distributor" && row.today_rate_date === currentDate ? (
-  <span
-    style={{
-      cursor: "pointer",
-      fontSize: "11px",
-      backgroundColor: "#42b894",
-      padding: "5px 10px",
-      color: "white",
-      borderRadius: "10px",
-    }}
-    onClick={() => sendtodayWA(row)}  
-  >
-    WhatsApp
-  </span>
-) : (
-  <span></span>
-)}
+                    sortedData.length > 0 ? (
+                      sortedData.slice(0, visibleCount).map((row, index) => {
+                        // Count today orders for the current distributor
 
 
-                          </div>
-                        </td>
+                        const todayOrderCount = users.filter(
+                          (user) =>
+                            user.Distributor_id === row.user_id &&
+                            user.date === currentDate
+                        ).length;
+
+
+
+                        return (
+                          <tr key={index}>
+                            <td style={{ verticalAlign: "middle", height: "40px" }}>
+                              <input
+                                type="checkbox"
+                                style={{ width: "20px", height: "15px", }}
+                                onChange={() => handleCheckboxChange(row)}
+                              />
+                              {index + 1}
+                            </td>
+
+                            <td>
+                              <div className="client">
+                                <div
+                                  className="client-img bg-img"
+                                  style={{
+                                    backgroundImage: `url(${imageExists(
+                                      "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
+                                    )})`,
+                                  }}
+                                ></div>
+                                <div className="client-info">
+                                  <h4>{row.username ? row.username.toUpperCase() : "UNKNOWN"}</h4>
+                                  <small>{row.phone_number ? row.phone_number.toUpperCase() : "NO PHONE NUMBER"}</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
+                            <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
+                            <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
+                            <td>
+                              {row.role === "Distributor" && row.today_rate_date
+                                ? (row.today_rate_date === currentDate)
+                                  ? row.Distributor_today_rate || "0"
+                                  : "0"
+                                : "-"}
+                            </td>
+                            <td>{todayOrderCount}</td> {/* New column data */}
+                            <td>
+                              <div className="actions d-flex justify-content-start align-items-center pt-2">
+                                <span
+                                  className=""
+                                  style={{
+                                    cursor: "pointer",
+                                    fontSize: "11px",
+                                    backgroundColor: "#42b883",
+                                    padding: "5px 10px",
+                                    color: "white",
+                                    borderRadius: "10px",
+                                  }}
+                                  onClick={() => handlenav(row)}
+                                >
+                                  VIEW
+                                </span>
+                                <span
+                                  className=""
+                                  style={{
+                                    cursor: "pointer",
+                                    fontSize: "11px",
+                                    backgroundColor: "#dc2f2f",
+                                    padding: "5px 10px",
+                                    color: "white",
+                                    borderRadius: "10px",
+                                  }}
+                                  onClick={() => showConfirm(row.user_id, row.username)}
+                                >
+                                  DELETE
+                                </span>
+                                {
+                                  row.role === "Distributor" ? (
+                                    <span
+                                      className=""
+                                      style={{
+                                        cursor: "pointer",
+                                        fontSize: "11px",
+                                        backgroundColor: "#6957fc",
+                                        padding: "5px 10px",
+                                        color: "white",
+                                        borderRadius: "10px",
+                                      }}
+                                      onClick={() => openTodayRateModal(row)}
+                                    >
+                                      Today Rate
+                                    </span>
+                                  ) : <span></span>
+                                }
+                                {
+                                  row.role === "Distributor" && row.today_rate_date === currentDate ? (
+                                    <span
+                                      className=""
+                                      style={{
+                                        cursor: "pointer",
+                                        fontSize: "11px",
+                                        backgroundColor: "#42b894",
+                                        padding: "5px 10px",
+                                        color: "white",
+                                        borderRadius: "10px",
+                                      }}
+                                      onClick={() => sendtodayWA(row)}
+                                    >
+                                      WhatsApp
+                                    </span>
+                                  ) : <span></span>
+                                }
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan="11" className="text-center">No data available</td>
                       </tr>
-                    ))):<tr>
-                    <td colSpan="11" className="text-center">No data available</td>
-                  </tr>}
-                  </tbody>
-                </table>
-               {visibleCount < sortedData.length && (
-  <div className="d-flex justify-content-end mt-3 px-2">
-    <p onClick={handleShowMore} className="nextData">Show More {">>"}</p>
-  </div>
-)}
+                    )
+                  }
+                </tbody>
+              </table>
 
-              </div>
-            </div> */}
+              {
+                visibleCount < sortedData.length && (
+                  <div className="d-flex justify-content-end mt-3 px-2">
+                    <p onClick={handleShowMore} className="nextData">Show More {">>"}</p>
+                  </div>
+                )
+              }
+            </div>
 
-            <div>
-  <div className="table-responsive-md table-responsive-sm">
-    <table className="table table-striped">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>EMPLOYEE NAME</th>
-          <th>ROLE</th>
-          <th>CITY</th>
-          <th>EMAIL</th>
-          <th>Today Rate</th>
-          <th>Today Orders</th> {/* New column */}
-          <th>ACTIONS</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          sortedData.length > 0 ? (
-            sortedData.slice(0, visibleCount).map((row, index) => {
-              // Count today orders for the current distributor
-              const todayOrderCount = users.filter(
-                (user) =>
-                  user.Distributor_id === row.user_id &&
-                  user.date === currentDate
-              ).length;
-
-              return (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>
-                    <div className="client">
-                      <div
-                        className="client-img bg-img"
-                        style={{
-                          backgroundImage: `url(${imageExists(
-                            "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
-                          )})`,
-                        }}
-                      ></div>
-                      <div className="client-info">
-                        <h4>{row.username ? row.username.toUpperCase() : "UNKNOWN"}</h4>
-                        <small>{row.phone_number ? row.phone_number.toUpperCase() : "NO PHONE NUMBER"}</small>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
-                  <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
-                  <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
-                  <td>
-                    {row.role === "Distributor" && row.today_rate_date
-                      ? (row.today_rate_date === currentDate)
-                        ? row.Distributor_today_rate || "0"
-                        : "0"
-                      : "-"}
-                  </td>
-                  <td>{todayOrderCount}</td> {/* New column data */}
-                  <td>
-                    <div className="actions d-flex justify-content-start align-items-center pt-2">
-                      <span
-                        className=""
-                        style={{
-                          cursor: "pointer",
-                          fontSize: "11px",
-                          backgroundColor: "#42b883",
-                          padding: "5px 10px",
-                          color: "white",
-                          borderRadius: "10px",
-                        }}
-                        onClick={() => handlenav(row)}
-                      >
-                        VIEW
-                      </span>
-                      <span
-                        className=""
-                        style={{
-                          cursor: "pointer",
-                          fontSize: "11px",
-                          backgroundColor: "#dc2f2f",
-                          padding: "5px 10px",
-                          color: "white",
-                          borderRadius: "10px",
-                        }}
-                        onClick={() => showConfirm(row.user_id, row.username)}
-                      >
-                        DELETE
-                      </span>
-                      {
-                        row.role === "Distributor" ? (
-                          <span
-                            className=""
-                            style={{
-                              cursor: "pointer",
-                              fontSize: "11px",
-                              backgroundColor: "#6957fc",
-                              padding: "5px 10px",
-                              color: "white",
-                              borderRadius: "10px",
-                            }}
-                            onClick={() => openTodayRateModal(row)}
-                          >
-                            Today Rate
-                          </span>
-                        ) : <span></span>
-                      }
-                      {
-                        row.role === "Distributor" && row.today_rate_date === currentDate ? (
-                          <span
-                            className=""
-                            style={{
-                              cursor: "pointer",
-                              fontSize: "11px",
-                              backgroundColor: "#42b894",
-                              padding: "5px 10px",
-                              color: "white",
-                              borderRadius: "10px",
-                            }}
-                            onClick={() => sendtodayWA(row)}
-                          >
-                            WhatsApp
-                          </span>
-                        ) : <span></span>
-                      }
-                    </div>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan="11" className="text-center">No data available</td>
-            </tr>
-          )
-        }
-      </tbody>
-    </table>
-
-    {
-      visibleCount < sortedData.length && (
-        <div className="d-flex justify-content-end mt-3 px-2">
-          <p onClick={handleShowMore} className="nextData">Show More {">>"}</p>
-        </div>
-      )
-    }
-  </div>
-</div>
 
           </div>
 
@@ -1606,63 +1370,63 @@ const autosetamount =() => {
 
 
 
-      
 
 
-        
 
 
-<Modal show={amountSet} onHide={() => { setAmountSet(false); setSearchQuery(""); }}>
-  <Modal.Header closeButton>
-    <Modal.Title>Amount Set</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    {/* Search Bar for Filtering Distributors */}
-    <input   style={{border:" solid  #1246ac", color:'#1246ac'}}
-      
-      type="text"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
-      className="form-control mb-3 custom-placeholder "
-      placeholder="Search Distributor"
-    />
 
-    {employees
-      .filter(
-        (emp) =>
-          emp.role === 'Distributor' &&
-          emp.username.toLowerCase().includes(searchQuery)
-      )
-      .map((emp) => (
-        <div key={emp.user_id} className="mb-3">
-          <p>
-            <strong  style={{color:' #1246ac'}}>{emp.username.toUpperCase()}</strong>
-          </p>
-          <input  
-            type="number"
-            placeholder={ ` Date ${emp.today_rate_date}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
-            value={amounts[emp.user_id] || ''}
-            onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
-            className="form-control"
-          />
-        </div>
-      ))}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button
-      variant="secondary"
-      onClick={() => {
-        setAmountSet(false);
-        setSearchQuery("");
-      }}
-    >
-      Cancel
-    </Button>
-    <Button variant="primary" onClick={handleSubmitUpdate2}>
-      Update
-    </Button>
-  </Modal.Footer>
-</Modal>
+
+          <Modal show={amountSet} onHide={() => { setAmountSet(false); setSearchQuery(""); }}>
+            <Modal.Header closeButton>
+              <Modal.Title>Amount Set</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {/* Search Bar for Filtering Distributors */}
+              <input style={{ border: " solid  #1246ac", color: '#1246ac' }}
+
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
+                className="form-control mb-3 custom-placeholder "
+                placeholder="Search Distributor"
+              />
+
+              {employees
+                .filter(
+                  (emp) =>
+                    emp.role === 'Distributor' &&
+                    emp.username.toLowerCase().includes(searchQuery)
+                )
+                .map((emp) => (
+                  <div key={emp.user_id} className="mb-3">
+                    <p>
+                      <strong style={{ color: ' #1246ac' }}>{emp.username.toUpperCase()}</strong>
+                    </p>
+                    <input
+                      type="number"
+                      placeholder={` Date ${emp.today_rate_date}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
+                      value={amounts[emp.user_id] || ''}
+                      onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
+                      className="form-control"
+                    />
+                  </div>
+                ))}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setAmountSet(false);
+                  setSearchQuery("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleSubmitUpdate2}>
+                Update
+              </Button>
+            </Modal.Footer>
+          </Modal>
 
           <Toast
             style={{
@@ -1699,6 +1463,120 @@ const autosetamount =() => {
       >
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
+
+
+      {/* <Modal show={sendModal} onHide={() => setSendModal(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Assign Employee</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                {selectedClient ? (
+                  <form>
+                    <div className="txt_field">
+                      <h4>Client Name</h4>
+                      <input
+                        type="text"
+                        value={
+                          selectedClient.client_name
+                            ? selectedClient.client_name.replace(/"/g, "").toUpperCase()
+                            : ""
+                        }
+                        readOnly
+                      />
+                    </div>
+                    <div className="txt_field">
+                      <h4>Client Contact Number</h4>
+                      <input
+                        type="text"
+                        value={
+                          selectedClient.client_contact
+                            ? selectedClient.client_contact
+                            : ""
+                        }
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <h4>Assign Employee</h4>
+                      <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} style={{ padding: "0px", border: "none" }} >
+                        <option value="" disabled>
+                          Select Employee
+                        </option>
+                        {employees
+                          .filter((emp) => emp.role === "Collection Agent")
+                          .map((emp) => (
+                            <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
+                              {emp.username.toUpperCase()}
+                            </option>
+                          ))}
+                      </select>
+      
+                    </div>
+                  </form>
+                ) : (
+                  <p>No client selected</p>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setSendModal(false)}>
+                  Close
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => handlesend(selectedClient.client_id)}
+                >
+                  Assign
+                </Button>
+              </Modal.Footer>
+            </Modal> */}
+
+
+      <Modal show={allClient} onHide={() => setAllClient(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign Employee</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {(
+            <form>
+              <div>
+                <p>Total Selected Client : <span className="text-danger">{otherFilteredClients.length}</span> </p>
+
+
+                <div>
+
+                </div>
+              </div>
+              <div>
+                <h4>Assign Employee</h4>
+                <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} style={{ padding: "0px", border: "none" }} >
+                  <option value="" disabled>
+                    SELECT EMPLOYEE
+                  </option>
+                  {employees
+                    .filter((emp) => emp.role === "Collection Agent")
+                    .map((emp) => (
+                      <option key={emp.user_id} value={emp.user_id} style={{ fontSize: "15px" }}>
+                        {emp.username.toUpperCase()}
+                      </option>
+                    ))}
+                </select>
+
+              </div>
+            </form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setAllClient(false)}>
+            CLOSE
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => handleAssignsend()}
+          >
+            ASSIGN
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

@@ -6,3 +6,10 @@
   box-sizing: border-box;
   font-family: 'popins';
 }
+
+/* Hide scrollbars cross-browser */
+body {
+  overflow-x: hidden; /* hides both vertical and horizontal scrollbars */
+  margin: 0;
+  padding: 0;
+}
