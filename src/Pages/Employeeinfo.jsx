@@ -199,22 +199,65 @@ const filteredUsers = users
   //   })).filter(client => client.paid_amount_date.length > 0)
   //   : employeeClients;
 
-  const filteredClients = employeeClients
-  .map(client => ({
-    ...client,
-    paid_amount_date: Array.isArray(client.paid_amount_date)
-      ? client.paid_amount_date.filter(payment => {
-          if (!payment?.date || !payment?.userID) return false; // Ensure valid data
+  // const filteredClients = employeeClients
+  // .map(client => ({
+  //   ...client,
+  //   paid_amount_date: Array.isArray(client.paid_amount_date)
+  //     ? client.paid_amount_date.filter(payment => {
+  //         if (!payment?.date || !payment?.userID) return false; // Ensure valid data
+
+  //         const [year, month, day] = selectedDate?.split("-") || [];
+  //         const matchesDate = selectedDate ? payment.date === `${day}-${month}-${year}` : true;
+  //         const matchesEmployee = selectedEmployee ? payment.userID === selectedEmployee.user_id : true;
+          
+  //         return matchesDate && matchesEmployee;
+  //       })
+  //     : []
+  // }))
+  // .filter(client => client.paid_amount_date.length > 0); // Keep only clients with valid payments
+
+
+const filteredClients = employeeClients
+  .map(client => {
+    let filteredPayments = [];
+
+    if (Array.isArray(client.paid_amount_date)) {
+      filteredPayments = client.paid_amount_date
+        .filter(payment => {
+          if (!payment?.date || !payment?.userID) return false;
 
           const [year, month, day] = selectedDate?.split("-") || [];
           const matchesDate = selectedDate ? payment.date === `${day}-${month}-${year}` : true;
           const matchesEmployee = selectedEmployee ? payment.userID === selectedEmployee.user_id : true;
-          
+
           return matchesDate && matchesEmployee;
         })
-      : []
-  }))
-  .filter(client => client.paid_amount_date.length > 0); // Keep only clients with valid payments
+        // Optional: Sort inside paid_amount_date if needed
+        .sort((a, b) => {
+          const [dayA, monthA, yearA] = a.date.split("-");
+          const [dayB, monthB, yearB] = b.date.split("-");
+          const dateA = new Date(`${yearA}-${monthA}-${dayA}`);
+          const dateB = new Date(`${yearB}-${monthB}-${dayB}`);
+          return dateB - dateA;
+        });
+    }
+
+    return { ...client, paid_amount_date: filteredPayments };
+  })
+  // Keep only clients with at least one valid payment
+  .filter(client => client.paid_amount_date.length > 0)
+  // ✅ Sort clients by latest paid_amount_date (descending)
+  .sort((a, b) => {
+    const getLatestDate = arr => {
+      const latest = arr[0]; // Already sorted above
+      if (!latest?.date) return new Date(0);
+      const [day, month, year] = latest.date.split("-");
+      return new Date(`${year}-${month}-${day}`);
+    };
+
+    return getLatestDate(b.paid_amount_date) - getLatestDate(a.paid_amount_date);
+  });
+
 
 console.log(filteredClients);
 
@@ -302,38 +345,6 @@ console.log(filteredClients);
 
 
 
-  // const sendCSVToWhatsApp = () => {
-  //   if (!selectedEmployee?.phone_number) {
-  //     alert("No phone number available for the employee.");
-  //     return;
-  //   }
-
-
-  //   let message = "🔹 *Clients Report*\n";
-  //   message += ` Agent Name : ${selectedEmployee?.username.toUpperCase() || 'Unknown'} \n\n`
-   
-  
-
-  //   filteredClients.forEach((client, index) => {
-  //     const totalAmount = parseFloat(client.amount || 0);
-  //     const collectionAmount = (client.paid_amount_date || []).reduce(
-  //       (sum, payment) => sum + parseFloat(payment.amount || 0),
-  //       0
-  //     );
-  //     const balance = totalAmount - collectionAmount;
-
-  //     message += `${index + 1}  | Client Name : ${client.client_name.toUpperCase() || 'Unknown'}, \n      Collection Date :  ${selectedDate}, \n      Total Amount :   ${totalAmount.toFixed(2)}, \n      Collection  International Amount :  ${collectionAmount.toFixed(2)}, \n      Collection Local Amount : ${collectionLocalamount} `;
-  //     message += "------------------------------------------------------------\n\n";
-  //   });
-     
-  //    message += `Total Collection Amount : ${TotalCollectionAmount} \n`
-  //    message += `Total Collection Amount : ${TotalCollectionLocalAmount}`
-      
-  //   const phone = selectedEmployee.phone_number;
-  //   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-
-  //   window.open(whatsappLink, "_blank");
-  // };
 
   const sendCSVToWhatsApp = () => {
     if (!selectedEmployee?.phone_number) {

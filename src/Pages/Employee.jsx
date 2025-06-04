@@ -776,14 +776,12 @@ function Employee() {
 
       const selectedIds = updatedSelection.map(item => item.user_id);
 
-      // ✅ Filter clients matching Distributor_id and currentDate
-      const matchedClients = users.filter(
-        user =>
-          selectedIds.includes(user.Distributor_id) &&
-          user.date === currentDate &&
-          user.user_id
+const matchedClients = users.filter(user =>
+  selectedIds.includes(user.Distributor_id) &&
+  user.date === currentDate &&
+  (!user.user_id || user.user_id === '')
+);
 
-      );
 
       const matchedClientIds = matchedClients.map(client => client.client_id);
 

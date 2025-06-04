@@ -32,7 +32,7 @@ function Clinentinfo() {
 
     return selectedClient.paid_amount_date.reduce((sum, payment) => {
       const paymentAmount = parseFloat(payment.amount) || 0;
-      const clientRate = parseFloat(selectedClient.today_rate) || 1; 
+      const clientRate = parseFloat(selectedClient.today_rate) || 1;
       return sum + (clientRate > 0 ? paymentAmount / clientRate : 0);
     }, 0);
   }, [selectedClient]);
@@ -97,26 +97,26 @@ function Clinentinfo() {
         tableData = [
           {
             "#": selectedClient.client_id,
-            "Client Name":selectedClient.client_name || "Unknown Client",
-            "Client Number":selectedClient.client_contact || "Unknown Client",
-            "Amount":selectedClient.amount || 0,
-            "Account Number":selectedClient.accno || "Unknown Account",
-            "Narration":selectedClient.narration || "UNDEFINED",
+            "Client Name": selectedClient.client_name || "Unknown Client",
+            "Client Number": selectedClient.client_contact || "Unknown Client",
+            "Amount": selectedClient.amount || 0,
+            "Account Number": selectedClient.accno || "Unknown Account",
+            "Narration": selectedClient.narration || "UNDEFINED",
           },
         ];
       } else {
         tableData = [
           {
             "#": selectedClient.client_id,
-            "Client Name":selectedClient.client_name || "Unknown Client",
-            "Client Number":selectedClient.client_contact || "Unknown Client",
-            "Amount":selectedClient.amount || 0,
-            "Bank Name":selectedClient.bank_name || "Unknown Bank",
-            "IFSC Code":selectedClient.ifsc_code || "Unknown IFSC",
-            "Account Number":selectedClient.accno || "Unknown Account",
-            "Beneficiary Name":selectedClient.name_of_the_beneficiary || "Unknown Beneficiary",
-            "Beneficiary Address":selectedClient.address_of_the_beneficiary || "Unknown Address",
-            "Sender Information":selectedClient.sender_information || "Unknown Sender",
+            "Client Name": selectedClient.client_name || "Unknown Client",
+            "Client Number": selectedClient.client_contact || "Unknown Client",
+            "Amount": selectedClient.amount || 0,
+            "Bank Name": selectedClient.bank_name || "Unknown Bank",
+            "IFSC Code": selectedClient.ifsc_code || "Unknown IFSC",
+            "Account Number": selectedClient.accno || "Unknown Account",
+            "Beneficiary Name": selectedClient.name_of_the_beneficiary || "Unknown Beneficiary",
+            "Beneficiary Address": selectedClient.address_of_the_beneficiary || "Unknown Address",
+            "Sender Information": selectedClient.sender_information || "Unknown Sender",
           },
         ];
       }
@@ -213,7 +213,9 @@ function Clinentinfo() {
             <div className="row gy-3">
               <div className="col-md-6">
                 <h4 className="fw-bold">Name:</h4>
-                <p className="text-muted fw-bold">{(selectedClient.client_name.replace(/"/g, "") || " ----- ").toUpperCase()}</p>
+                <p className="text-muted fw-bold">
+                  {(selectedClient?.client_name ? selectedClient.client_name.replace(/"/g, "") : "-----").toUpperCase()}
+                </p>
               </div>
               <div className="col-md-6">
                 <h4 className="fw-bold">Contact Number:</h4>
@@ -225,7 +227,7 @@ function Clinentinfo() {
               </div>
               <div className="col-md-6">
                 <h4 className="fw-bold">Status:</h4>
-                <p className={`badge ${selectedClient.paid_and_unpaid == 1 ? "bg-success" : "bg-danger" } fw-bold`} >
+                <p className={`badge ${selectedClient.paid_and_unpaid == 1 ? "bg-success" : "bg-danger"} fw-bold`} >
                   {selectedClient.paid_and_unpaid == 1 ? "Paid" : "Unpaid"}
                 </p>
               </div>
@@ -275,7 +277,7 @@ function Clinentinfo() {
         <div className="d-flex gap-4   justify-content-center align-items-center py-3 px-5" style={{ flexWrap: 'wrap' }}>
           <div className="d-flex">
             <h4 className='totalamount pt-2'>Total Amount :</h4>
-            <div className='totalbox'><h4>{selectedClient.amount && selectedClient.today_rate?((selectedClient.amount / selectedClient.today_rate).toFixed(3)): "0.000"} </h4></div>
+            <div className='totalbox'><h4>{selectedClient.amount && selectedClient.today_rate ? ((selectedClient.amount / selectedClient.today_rate).toFixed(3)) : "0.000"} </h4></div>
           </div>
           <div className="d-flex">
             <h4 className='totalamount pt-2'>Paid Amount :</h4>
@@ -305,7 +307,7 @@ function Clinentinfo() {
                 <th>AMOUNT</th>
               </tr>
             </thead>
-            <tbody>
+            {/* <tbody>
               {selectedClient.paid_amount_date && selectedClient.paid_amount_date.length > 0 ? (
                 selectedClient.paid_amount_date
                   .filter((data) => employees.some((e1) => e1.user_id === data.userID))
@@ -343,7 +345,55 @@ function Clinentinfo() {
                   <td colSpan="5" className="text-center">No data available</td>
                 </tr>
               )}
-            </tbody>
+            </tbody> */}
+            <tbody>
+  {selectedClient.paid_amount_date && selectedClient.paid_amount_date.length > 0 ? (
+    selectedClient.paid_amount_date
+      .filter((data) => employees.some((e1) => e1.user_id === data.userID))
+      // ✅ Sort descending by date (e.g., 19-03-2025 comes before 15-03-2025)
+      .sort((a, b) => {
+        const [dayA, monthA, yearA] = a.date.split("-");
+        const [dayB, monthB, yearB] = b.date.split("-");
+        const dateA = new Date(`${yearA}-${monthA}-${dayA}`);
+        const dateB = new Date(`${yearB}-${monthB}-${dayB}`);
+        return dateB - dateA; // Newest first
+      })
+      .map((data, index) => {
+        const agent = employees.find((e1) => e1.user_id === data.userID);
+
+        return (
+          <tr key={index}>
+            <td>{index + 1}</td>
+            <td onClick={() => agent && handlenav(agent)}>
+              {agent ? agent.username.toUpperCase() : "Unknown Agent"}
+            </td>
+            <td>{data.date || "N/A"}</td>
+            <td>{selectedClient.today_rate}</td>
+            <td>
+              <div className="client-info">
+                <h4 style={{ color: "blue", fontWeight: "500" }}>
+                  INTER: <span>{data.amount ? parseFloat(data.amount).toFixed(2) : "0.00"}</span>
+                </h4>
+                <h4 style={{ color: "red", fontWeight: "500" }}>
+                  LOCAL:{" "}
+                  <span>
+                    {data.amount && selectedClient.today_rate
+                      ? (parseFloat(data.amount) / parseFloat(selectedClient.today_rate)).toFixed(3)
+                      : "0.000"}
+                  </span>
+                </h4>
+              </div>
+            </td>
+          </tr>
+        );
+      })
+  ) : (
+    <tr>
+      <td colSpan="5" className="text-center">No data available</td>
+    </tr>
+  )}
+</tbody>
+
           </table>
         </div>
       </div>
