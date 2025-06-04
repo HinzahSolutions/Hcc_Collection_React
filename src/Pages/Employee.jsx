@@ -1187,14 +1187,19 @@ const matchedClients = users.filter(user =>
 
                         return (
                           <tr key={index}>
-                            <td style={{ verticalAlign: "middle", height: "40px" }}>
-                              <input
-                                type="checkbox"
-                                style={{ width: "20px", height: "15px", }}
-                                onChange={() => handleCheckboxChange(row)}
-                              />
-                              {index + 1}
-                            </td>
+                          <td>
+                            {row.role === "Distributor" ? (
+    <>
+      <input
+        type="checkbox"
+        style={{ width: "20px", height: "15px" }}
+        onChange={() => handleCheckboxChange(row)}
+      />
+      {index + 1}
+    </>
+  ) : (
+    index + 1
+  )}</td>
 
                             <td>
                               <div className="client">
