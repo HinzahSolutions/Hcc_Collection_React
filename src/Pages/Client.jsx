@@ -1289,8 +1289,8 @@ const matchesDashboardFilter =
             <thead>
               <tr>
                 <th># </th>
-                <th>REF No</th>
-                <th>Distributor Name</th>
+                <th>REF NO</th>
+                <th>DISTRIBUTOR NAME</th>
                 <th>IFSC NUMBER</th>
                 <th>TOTAL</th>
                 <th>RATE</th>
