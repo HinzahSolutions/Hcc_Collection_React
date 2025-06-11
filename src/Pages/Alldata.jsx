@@ -102,92 +102,185 @@ function Alldata() {
 
   const filteredData = useMemo(getFilteredData, [users, startDate, endDate, selectedAgent]);
 
-  const { 
-    overallAmount, 
-    totalPaidInRange, 
-    paidClientCount, 
-    paidinterAmount, 
-    totalinteramount ,
-    totalOrderLocalInRange,
-  totalOrderInterAmount
-  } = useMemo(() => {
-    const result = {
-      overallAmount: 0,
-      totalPaidInRange: 0,
-      paidClientCount: 0,
-      paidinterAmount: 0,
-      totalinteramount: 0,
-      totalOrderLocalInRange: 0,
-      totalOrderInterAmount: 0,
-    };
+  // const { 
+  //   overallAmount, 
+  //   totalPaidInRange, 
+  //   paidClientCount, 
+  //   paidinterAmount, 
+  //   totalinteramount ,
+  //   totalOrderLocalInRange,
+  // totalOrderInterAmount
+  // } = useMemo(() => {
+  //   const result = {
+  //     overallAmount: 0,
+  //     totalPaidInRange: 0,
+  //     paidClientCount: 0,
+  //     paidinterAmount: 0,
+  //     totalinteramount: 0,
+  //     totalOrderLocalInRange: 0,
+  //     totalOrderInterAmount: 0,
+  //   };
   
-    // Return early if no users
-    if (!users || users.length === 0) return result;
+  //   // Return early if no users
+  //   if (!users || users.length === 0) return result;
   
-    try {
-      // Pre-parse dates once for better performance
-      const start = parse(startDate, "yyyy-MM-dd", new Date());
-      const end = parse(endDate, "yyyy-MM-dd", new Date());
-      const isValidDateRange = isValid(start) && isValid(end);
+  //   try {
+  //     // Pre-parse dates once for better performance
+  //     const start = parse(startDate, "yyyy-MM-dd", new Date());
+  //     const end = parse(endDate, "yyyy-MM-dd", new Date());
+  //     const isValidDateRange = isValid(start) && isValid(end);
   
-      users.forEach(client => {
-        try {
-          // Calculate overall amounts
-          const clientAmount = parseFloat(client.amount) || 0;
-          const clientRate = parseFloat(client.today_rate) || 1;
+  //     users.forEach(client => {
+  //       try {
+  //         // Calculate overall amounts
+  //         const clientAmount = parseFloat(client.amount) || 0;
+  //         const clientRate = parseFloat(client.today_rate) || 1;
           
-          result.overallAmount += clientRate > 0 ? clientAmount / clientRate : 0;
-          result.totalinteramount += clientAmount; // INTER amount is just the raw amount
+  //         result.overallAmount += clientRate > 0 ? clientAmount / clientRate : 0;
+  //         result.totalinteramount += clientAmount; // INTER amount is just the raw amount
   
-          // Calculate paid amounts in range
-          if (client.paid_amount_date && isValidDateRange) {
-            const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
-              try {
-                if (!payment) return sum;
+  //         // Calculate paid amounts in range
+  //         if (client.paid_amount_date && isValidDateRange) {
+  //           const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
+  //             try {
+  //               if (!payment) return sum;
                 
-                const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
-                if (!isValid(paymentDate)) return sum;
-                if (paymentDate < start || paymentDate > end) return sum;
-                if (selectedAgent && payment.userID != selectedAgent) return sum;
+  //               const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
+  //               if (!isValid(paymentDate)) return sum;
+  //               if (paymentDate < start || paymentDate > end) return sum;
+  //               if (selectedAgent && payment.userID != selectedAgent) return sum;
   
-                return sum + (parseFloat(payment.amount) || 0);
-              } catch (e) {
-                console.error('Error processing payment:', payment, e);
-                return sum;
-              }
-            }, 0);
+  //               return sum + (parseFloat(payment.amount) || 0);
+  //             } catch (e) {
+  //               console.error('Error processing payment:', payment, e);
+  //               return sum;
+  //             }
+  //           }, 0);
   
-            if (paidInRange > 0) {
-              result.paidinterAmount += paidInRange;
-              result.totalPaidInRange += clientRate > 0 ? paidInRange / clientRate : 0;
-              result.paidClientCount++;
-            }
-          }
+  //           if (paidInRange > 0) {
+  //             result.paidinterAmount += paidInRange;
+  //             result.totalPaidInRange += clientRate > 0 ? paidInRange / clientRate : 0;
+  //             result.paidClientCount++;
+  //           }
+  //         }
 
-          const assignedDate = parse(client.date, "dd-MM-yyyy", new Date());
-          if (isValid(assignedDate) && assignedDate >= start && assignedDate <= end) {
-            result.totalOrderInterAmount += clientAmount;
-            result.totalOrderLocalInRange += clientRate > 0 ? clientAmount / clientRate : 0;
-          }
+  //         const assignedDate = parse(client.date, "dd-MM-yyyy", new Date());
+  //         if (isValid(assignedDate) && assignedDate >= start && assignedDate <= end) {
+  //           result.totalOrderInterAmount += clientAmount;
+  //           result.totalOrderLocalInRange += clientRate > 0 ? clientAmount / clientRate : 0;
+  //         }
 
-        } catch (e) {
-          console.error('Error processing client:', client, e);
+  //       } catch (e) {
+  //         console.error('Error processing client:', client, e);
+  //       }
+  //     });
+  //   } catch (e) {
+  //     console.error('Error in calculation:', e);
+  //   }
+  
+  //   // Round values to avoid floating point precision issues
+  //   result.overallAmount = Math.round(result.overallAmount * 1000) / 1000;
+  //   result.totalPaidInRange = Math.round(result.totalPaidInRange * 1000) / 1000;
+  //   result.paidinterAmount = Math.round(result.paidinterAmount * 100) / 100;
+  //   result.totalinteramount = Math.round(result.totalinteramount * 100) / 100;
+  //   result.totalOrderInterAmount = Math.round(result.totalOrderInterAmount * 100) / 100;
+  //   result.totalOrderLocalInRange = Math.round(result.totalOrderLocalInRange * 1000) / 1000;
+  
+  //   return result;
+  // }, [users, startDate, endDate, selectedAgent]);
+
+
+  const {
+  overallAmount,
+  totalPaidInRange,
+  paidClientCount,
+  paidinterAmount,
+  totalinteramount,
+  totalOrderLocalInRange,
+  totalOrderInterAmount
+} = useMemo(() => {
+  const result = {
+    overallAmount: 0,
+    totalPaidInRange: 0,
+    paidClientCount: 0,
+    paidinterAmount: 0,
+    totalinteramount: 0,
+    totalOrderLocalInRange: 0,
+    totalOrderInterAmount: 0,
+  };
+
+  if (!users || users.length === 0) return result;
+
+  try {
+    const start = parse(startDate, "yyyy-MM-dd", new Date());
+    const end = parse(endDate, "yyyy-MM-dd", new Date());
+    const isValidDateRange = isValid(start) && isValid(end);
+
+    users.forEach(client => {
+      try {
+        const clientAmount = parseFloat(client.amount) || 0;
+        const clientRate = parseFloat(client.today_rate) || 0;
+
+        if (clientRate > 0) {
+          result.overallAmount += clientAmount / clientRate;
         }
-      });
-    } catch (e) {
-      console.error('Error in calculation:', e);
-    }
-  
-    // Round values to avoid floating point precision issues
-    result.overallAmount = Math.round(result.overallAmount * 1000) / 1000;
-    result.totalPaidInRange = Math.round(result.totalPaidInRange * 1000) / 1000;
-    result.paidinterAmount = Math.round(result.paidinterAmount * 100) / 100;
-    result.totalinteramount = Math.round(result.totalinteramount * 100) / 100;
-    result.totalOrderInterAmount = Math.round(result.totalOrderInterAmount * 100) / 100;
-    result.totalOrderLocalInRange = Math.round(result.totalOrderLocalInRange * 1000) / 1000;
-  
-    return result;
-  }, [users, startDate, endDate, selectedAgent]);
+        result.totalinteramount += clientAmount;
+
+        // Calculate paid amounts in range
+        if (client.paid_amount_date && isValidDateRange) {
+          const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
+            try {
+              if (!payment) return sum;
+
+              const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
+              if (!isValid(paymentDate)) return sum;
+              if (paymentDate < start || paymentDate > end) return sum;
+              if (selectedAgent && payment.userID != selectedAgent) return sum;
+
+              return sum + (parseFloat(payment.amount) || 0);
+            } catch (e) {
+              console.error('Error processing payment:', payment, e);
+              return sum;
+            }
+          }, 0);
+
+          if (paidInRange > 0) {
+            result.paidinterAmount += paidInRange;
+            if (clientRate > 0) {
+              result.totalPaidInRange += paidInRange / clientRate;
+            }
+            result.paidClientCount++;
+          }
+        }
+
+        const assignedDate = parse(client.date, "dd-MM-yyyy", new Date());
+        if (isValid(assignedDate) && assignedDate >= start && assignedDate <= end) {
+          result.totalOrderInterAmount += clientAmount;
+
+          // Add to local total only if today_rate is valid
+          if (client.today_rate && clientRate > 0) {
+            result.totalOrderLocalInRange += clientAmount / clientRate;
+          }
+        }
+
+      } catch (e) {
+        console.error('Error processing client:', client, e);
+      }
+    });
+  } catch (e) {
+    console.error('Error in calculation:', e);
+  }
+
+  result.overallAmount = Math.round(result.overallAmount * 1000) / 1000;
+  result.totalPaidInRange = Math.round(result.totalPaidInRange * 1000) / 1000;
+  result.paidinterAmount = Math.round(result.paidinterAmount * 100) / 100;
+  result.totalinteramount = Math.round(result.totalinteramount * 100) / 100;
+  result.totalOrderInterAmount = Math.round(result.totalOrderInterAmount * 100) / 100;
+  result.totalOrderLocalInRange = Math.round(result.totalOrderLocalInRange * 1000) / 1000;
+
+  return result;
+}, [users, startDate, endDate, selectedAgent]);
+
 
     
 

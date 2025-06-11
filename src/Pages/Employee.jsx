@@ -761,41 +761,157 @@ function Employee() {
 
 
   const [otherFilteredClients, setOtherFilteredClients] = useState([]); // ✅ NEW useState
+  const [selectAll, setSelectAll] = useState(false);
+
+
+  const handleSelectAllClick = () => {
+    const newSelectAll = !selectAll;
+
+    if (newSelectAll) {
+      // ✅ Find all Distributor users with valid user_id
+      const distributorRows = users.filter(
+        (user) => user.role === "Distributor" && user.user_id
+      );
+
+      const selectedIds = distributorRows.map((user) => user.user_id);
+
+      // ✅ Match clients linked to these Distributor IDs
+      const matchedClients = users.filter(
+        (user) =>
+          selectedIds.includes(user.Distributor_id) &&
+          user.date === currentDate &&
+          (!user.user_id || user.user_id === "")
+      );
+
+      const matchedClientIds = matchedClients.map((client) => client.client_id);
+
+      // ✅ Update state
+      setSelectedRows(distributorRows);
+      setFilteredClientData(matchedClients);
+      setOtherFilteredClients(matchedClients);
+      setClientIdArray(matchedClientIds);
+
+      console.log("✅ Selected distributors:", selectedIds);
+      console.log("✅ Matched clients:", matchedClients);
+    } else {
+      // ✅ Clear all
+      setSelectedRows([]);
+      setFilteredClientData([]);
+      setOtherFilteredClients([]);
+      setClientIdArray([]);
+    }
+
+    setSelectAll(newSelectAll);
+  };
 
 
 
 
+
+  // const handleCheckboxChange = (row) => {
+  //   setSelectedRows((prevSelected) => {
+  //     const alreadySelected = prevSelected.some(item => item.user_id === row.user_id);
+  //     const updatedSelection = alreadySelected
+  //       ? prevSelected.filter(item => item.user_id !== row.user_id)
+  //       : [...prevSelected, row];
+
+  //     const selectedIds = updatedSelection.map(item => item.user_id);
+
+  //     const matchedClients = users.filter(user =>
+  //       selectedIds.includes(user.Distributor_id) &&
+  //       user.date === currentDate &&
+  //       (!user.user_id || user.user_id === '')
+  //     );
+
+
+  //     const matchedClientIds = matchedClients.map(client => client.client_id);
+
+  //     setFilteredClientData(matchedClients); // Store in original
+  //     setOtherFilteredClients(matchedClients); // ✅ Store in new state too
+  //     setClientIdArray(matchedClientIds);
+
+  //     console.log("✅ Selected distributors:", selectedIds);
+  //     console.log("✅ Filtered clients:", matchedClients);
+  //     console.log("✅ Client IDs:", matchedClientIds);
+
+  //     return updatedSelection;
+  //   });
+  // };
+
+
+  // const handleCheckboxChange = (row) => {
+  //   setSelectedRows((prevSelected) => {
+  //     const alreadySelected = prevSelected.some(item => item.user_id === row.user_id);
+
+  //     const updatedSelection = alreadySelected
+  //       ? prevSelected.filter(item => item.user_id !== row.user_id)
+  //       : [...prevSelected, row];
+
+  //     const selectedIds = updatedSelection.map(item => item.user_id);
+
+  //     const matchedClients = users.filter(user =>
+  //       selectedIds.includes(user.Distributor_id) &&
+  //       user.date === currentDate &&
+  //       (!user.user_id || user.user_id === '')
+  //     );
+
+  //     const matchedClientIds = matchedClients.map(client => client.client_id);
+
+  //     setFilteredClientData(matchedClients);
+  //     setOtherFilteredClients(matchedClients);
+  //     setClientIdArray(matchedClientIds);
+
+  //     // Update selectAll flag based on all Distributor rows
+  //     const allDistributorIds = users
+  //       .filter(user => user.role === "Distributor")
+  //       .map(user => user.user_id);
+  //     const allSelected = allDistributorIds.every(id =>
+  //       updatedSelection.some(item => item.user_id === id)
+  //     );
+  //     setSelectAll(allSelected);
+
+  //     return updatedSelection;
+  //   });
+  // };
 
 
   const handleCheckboxChange = (row) => {
     setSelectedRows((prevSelected) => {
       const alreadySelected = prevSelected.some(item => item.user_id === row.user_id);
+
       const updatedSelection = alreadySelected
         ? prevSelected.filter(item => item.user_id !== row.user_id)
         : [...prevSelected, row];
 
       const selectedIds = updatedSelection.map(item => item.user_id);
 
-const matchedClients = users.filter(user =>
-  selectedIds.includes(user.Distributor_id) &&
-  user.date === currentDate &&
-  (!user.user_id || user.user_id === '')
-);
-
+      const matchedClients = users.filter(user =>
+        selectedIds.includes(user.Distributor_id) &&
+        user.date === currentDate &&
+        (!user.user_id || user.user_id === '')
+      );
 
       const matchedClientIds = matchedClients.map(client => client.client_id);
 
-      setFilteredClientData(matchedClients); // Store in original
-      setOtherFilteredClients(matchedClients); // ✅ Store in new state too
+      setFilteredClientData(matchedClients);
+      setOtherFilteredClients(matchedClients);
       setClientIdArray(matchedClientIds);
 
-      console.log("✅ Selected distributors:", selectedIds);
-      console.log("✅ Filtered clients:", matchedClients);
-      console.log("✅ Client IDs:", matchedClientIds);
+      // Set selectAll only if all distributors are selected
+      const allDistributorIds = users
+        .filter(user => user.role === "Distributor" && user.user_id)
+        .map(user => user.user_id);
+
+      const allSelected = allDistributorIds.every(id =>
+        updatedSelection.some(item => item.user_id === id)
+      );
+
+      setSelectAll(allSelected);
 
       return updatedSelection;
     });
   };
+
 
 
   const handleAssignsend = async () => {
@@ -849,18 +965,20 @@ const matchedClients = users.filter(user =>
 
 
   return (
-    <div  style={{
-    marginTop: "50px",
-    
-    
+    <div style={{
+      marginTop: "50px",
 
-  }}>
+
+
+    }}>
 
       {loading ? (
         <div></div>
       ) : (
-        <div style={{ marginTop: "50px", width:"100%",  scrollbarWidth: "none", // Firefox
-    msOverflowStyle: "none",  }}>
+        <div style={{
+          marginTop: "50px", width: "100%", scrollbarWidth: "none", // Firefox
+          msOverflowStyle: "none",
+        }}>
           <div className="page-header">
             <h1>Employee</h1>
             <small>Employee / Dash</small>
@@ -982,6 +1100,15 @@ const matchedClients = users.filter(user =>
                 <Button className="w-auto text-white" onClick={() => setAmountSet(true)} >
                   Set Amount
                 </Button>
+
+                <Button
+  className={`w-auto text-white ${selectAll ? 'bg-danger' : 'bg-primary'}`}
+  onClick={handleSelectAllClick}
+>
+  {selectAll ? "Unselect All" : "Select All"}
+</Button>
+
+
 
                 <Button className="w-auto text-white" onClick={() => setAllClient(true)} >
                   Assign{selectedRows.length > 0 && (
@@ -1155,7 +1282,7 @@ const matchedClients = users.filter(user =>
               </div>
             </div>
 
-        
+
             <div className="table-responsive-md table-responsive-sm">
               <table className="table table-striped">
                 <thead>
@@ -1187,19 +1314,23 @@ const matchedClients = users.filter(user =>
 
                         return (
                           <tr key={index}>
-                          <td>
-                            {row.role === "Distributor" ? (
-    <>
-      <input
-        type="checkbox"
-        style={{ width: "20px", height: "15px" }}
-        onChange={() => handleCheckboxChange(row)}
-      />
-      {index + 1}
-    </>
-  ) : (
-    index + 1
-  )}</td>
+                            <td style={{ verticalAlign: "middle", height: "40px" }}>
+                              {row.role === "Distributor" ? (
+                                <>
+                                  <input
+                                    type="checkbox"
+                                    style={{ width: "20px", height: "15px" }}
+                                    onChange={() => handleCheckboxChange(row)}
+                                    checked={selectedRows.some(item => item.user_id === row.user_id)} // 🔥 THIS LINE
+                                  />
+
+                                  {index + 1}
+                                </>
+                              ) : (
+                                index + 1
+                              )}
+                            </td>
+
 
                             <td>
                               <div className="client">
