@@ -32,7 +32,7 @@ function Client() {
   const [bname, setBname] = useState("")
   const [anumber, setAnumber] = useState("")
   const [ifsc, setIfsc] = useState("")
-  const [beneficiaryemailid, setBeneficiaryemailid] = useState("")
+  const [beneficiaryemailid, setBeneficiaryemailid] = useState()
   const [holdername, setHoldername] = useState("")
   const [holderaddress, setHolderadderss] = useState("")
   const [distributor, setDistributor] = useState(null);
@@ -121,6 +121,32 @@ function Client() {
       console.error("No authorization token found in localStorage");
     }
   }, [dispatch]);
+
+
+
+  useEffect(() => {
+  console.log("anumber:", anumber);
+  console.log("employees:", employees);
+
+  if (anumber && users.length > 0) {
+    const matched = users.find((item) =>
+      item.accno?.toString().trim() === anumber.toString().trim()
+    );
+    console.log("matched:", matched);
+
+    if (matched) {
+      setHoldername(matched.name_of_the_beneficiary || "");
+      setIfsc(matched.ifsc_code || "");
+      setBeneficiaryemailid(matched.beneficiary_email_id || "");
+    } else {
+      setHoldername("");
+      setIfsc("");
+      setBeneficiaryemailid("");
+    }
+  }
+}, [anumber, users]);
+
+
 
   const handleUnauthorizedAccess = () => {
     localStorage.clear();
@@ -497,7 +523,7 @@ const matchesDashboardFilter =
       bank_type: (clientType || "STOCK").toUpperCase(),
       narration: (narration || "STOCK").toUpperCase(),
       description: (description || "STOCK").toUpperCase(),
-      beneficiary_email_id: (beneficiaryemailid || ""),
+      email_id_beneficiary: (beneficiaryemailid || ""),
       ...(dtp_id && { dtp_id }),
     };
 
@@ -1076,7 +1102,7 @@ const matchesDashboardFilter =
                 </span>
               </div>
               <div className="card-progress">
-                <small>CLIENT</small>
+                <small> ALL CLIENT</small>
               </div>
             </div>
 
@@ -1948,7 +1974,8 @@ const matchesDashboardFilter =
                           type="text"
                           value={anumber}
                           step="0.01"
-                          onChange={(e) => setAnumber(e.target.value)}
+                          onChange={(e) => setAnumber(e.target.value.trim())
+}
                         // required
                         />
                         <label>ACCOUNT NUMBER</label>
