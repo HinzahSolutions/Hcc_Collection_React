@@ -32,7 +32,7 @@ function Formdata() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setClientData({ ...clientData, [name]: value.toUpperCase() });
+    setClientData({ ...clientData, [name]: value});
   };  
 
    const handleSubmit = async (e) => {
@@ -202,6 +202,15 @@ function Formdata() {
                       onChange={handleChange}
                     />
                   </Form.Group>
+                  <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
+                  <Form.Label>Beneficiary Email ID</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="beneficiary_email_id"
+                    value={(clientData.beneficiary_email_id) || ''}
+                    onChange={handleChange}
+                  />
+                </Form.Group>  
                   <Form.Group className="mb-6 col-xxl-5 col-md-12 col-lg-5 col-xl-4">
                     <Form.Label>IFSC Code</Form.Label>
                     <Form.Control

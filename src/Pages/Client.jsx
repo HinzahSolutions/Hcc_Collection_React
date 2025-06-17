@@ -11,7 +11,7 @@ import { format, parse } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaRegCalendarAlt } from "react-icons/fa";
-import { current } from "@reduxjs/toolkit";
+
 
 
 function Client() {
@@ -313,16 +313,7 @@ const matchesDashboardFilter =
 
 
 
-  // const totalLocalPaid = useMemo(() => {
-  //   return filteredData.reduce((total, client) => {
-  //     const totalPaidForClient = (client.paid_amount_date || []).reduce(
-  //       (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-  //       0
-  //     );
-  //     const clientRate = parseFloat(client.today_rate) || 1;
-  //     return total + (clientRate > 0 ? totalPaidForClient / clientRate : 0);
-  //   }, 0);
-  // }, [filteredData]);
+ 
 
 
   const totalLocalPaid = useMemo(() => {
@@ -513,7 +504,7 @@ const matchesDashboardFilter =
       paid_and_unpaid: false,
       success_and_unsuccess: false,
       bank_name: (bname || "").toUpperCase(),
-      accno: (anumber || "").toUpperCase(),
+      accno: (anumber || "").toUpperCase().trim(),
       ifsc_code: (ifsc || "").toUpperCase(),
       accoun_type: (type || "10").toUpperCase(), // ✅ fixed typo here
       Distributor_id: distributorId || null,
@@ -745,8 +736,6 @@ const matchesDashboardFilter =
     console.log(selectedClient)
   };
 
-
-
   const bankNames = {
     bank1: "IOB ONLY",
     bank2: "IOB OTHERS",
@@ -756,8 +745,6 @@ const matchesDashboardFilter =
   const handleBankSelection = (bankType) => {
     setSelectedBank(bankType);
   };
-
-
 
   const confirmExport = () => {
     if (!selectedBank) {
@@ -1960,16 +1947,7 @@ const matchesDashboardFilter =
                 showBankModal ? (
                   <>
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
-                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
-                        <input
-                          type="text"
-                          value={holdername}
-                          onChange={(e) => setHoldername(e.target.value)}
-                        // required
-                        />
-                        <label>NAME OF THE  BENEFICIARY</label>
-                      </div>
-                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+                     <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                         <input
                           type="text"
                           value={anumber}
@@ -1980,6 +1958,17 @@ const matchesDashboardFilter =
                         />
                         <label>ACCOUNT NUMBER</label>
                       </div>
+                      <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+                        <input
+                          type="text"
+                          value={holdername}
+                          onChange={(e) => setHoldername(e.target.value)}
+                        // required
+                        />
+                        <label>NAME OF THE  BENEFICIARY</label>
+                      </div>
+
+                     
                     </div>
                     <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
                       <div className="txt_field col-lg-5 col-md-10 col-sm-10">
