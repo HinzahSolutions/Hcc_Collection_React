@@ -547,10 +547,10 @@ const sendDistributorCSVToWhatsApp = () => {
   const oldKD = paidAmountSum / todayRate;
   const totalKD = currentKD + oldKD;
 
-  message += `🔹TOTAL INR: ${totalINR.toFixed(2)}\n`;
-  message += `🔹TOTAL KD: ${currentKD.toFixed(2)} \n`;
-  message += `🔹 *OLD KD:  ${oldKD.toFixed(2)}\n`;
-  message += `🔹 *TOTAL KD:  ${totalKD.toFixed(2)}\n`;
+  message += `🔹 * INR: ${totalINR.toFixed(2)}\n`;
+  message += `🔹 * KD: ${currentKD.toFixed(2)} \n`;
+  message += `🔹 * OLD KD:  ${oldKD.toFixed(2)}\n`;
+  message += `🔹 * TOTAL KD:  ${totalKD.toFixed(2)}\n`;
 
   const phone = selectedEmployee.phone_number;
   const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;

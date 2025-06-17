@@ -137,7 +137,7 @@ function Client() {
     if (matched) {
       setHoldername(matched.name_of_the_beneficiary || "");
       setIfsc(matched.ifsc_code || "");
-      setBeneficiaryemailid(matched.beneficiary_email_id || "");
+      setBeneficiaryemailid(matched.beneficiary_email_id.replace(/"/g, "") || "");
     } else {
       setHoldername("");
       setIfsc("");
@@ -523,7 +523,7 @@ const matchesDashboardFilter =
       bank_type: (clientType || "STOCK").toUpperCase(),
       narration: (narration || "STOCK").toUpperCase(),
       description: (description || "STOCK").toUpperCase(),
-      email_id_beneficiary: (beneficiaryemailid || ""),
+      email_id_beneficiary: (beneficiaryemailid || "").replace(/"/g, ""),
       ...(dtp_id && { dtp_id }),
     };
 

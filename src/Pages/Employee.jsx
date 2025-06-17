@@ -500,10 +500,10 @@ function Employee() {
     });
 
     message += "--------------------------\n\n";
-    message += `🔹 * INR:* ${totalInternationalAmount.toFixed(2)}\n`;
-    message += `🔹 * KD:* ${totalLocalAmount.toFixed(3)}\n`;
-    message += `🔹 *OLD KD:* ${totalCollectedInternational.toFixed(2)}\n`;
-    message += `🔹 *TOTAL KD:* ${totalCollectedLocal.toFixed(3)}\n`;
+    message += `🔹 * INR: ${totalInternationalAmount.toFixed(2)}\n`;
+    message += `🔹 * KD: ${totalLocalAmount.toFixed(3)}\n`;
+    message += `🔹 * OLD KD: ${totalCollectedLocal.toFixed(3)}\n`;
+    message += `🔹 * TOTAL KD: ${(totalLocalAmount.toFixed(3) - totalCollectedLocal.toFixed(3)).toFixed(3)} \n`;
 
     const phone = row.phone_number;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
