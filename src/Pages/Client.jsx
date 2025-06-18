@@ -137,7 +137,9 @@ function Client() {
     if (matched) {
       setHoldername(matched.name_of_the_beneficiary || "");
       setIfsc(matched.ifsc_code || "");
-      setBeneficiaryemailid(matched.beneficiary_email_id.replace(/"/g, "") || "");
+      setBeneficiaryemailid(
+  matched.beneficiary_email_id ? matched.beneficiary_email_id.replace(/"/g, "") : ""
+);
     } else {
       setHoldername("");
       setIfsc("");
