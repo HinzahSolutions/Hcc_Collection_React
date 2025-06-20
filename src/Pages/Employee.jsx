@@ -1102,11 +1102,11 @@ function Employee() {
                 </Button>
 
                 <Button
-  className={`w-auto text-white ${selectAll ? 'bg-danger' : 'bg-primary'}`}
-  onClick={handleSelectAllClick}
->
-  {selectAll ? "Unselect All" : "Select All"}
-</Button>
+                  className={`w-auto text-white ${selectAll ? 'bg-danger' : 'bg-primary'}`}
+                  onClick={handleSelectAllClick}
+                >
+                  {selectAll ? "Unselect All" : "Select All"}
+                </Button>
 
 
 
@@ -1291,9 +1291,26 @@ function Employee() {
                     <th>EMPLOYEE NAME</th>
                     <th>ROLE</th>
                     <th>CITY</th>
-                    <th>EMAIL</th>
-                    <th>Today Rate</th>
-                    <th>Today Orders</th> {/* New column */}
+                     
+                        
+                    {/* {
+                      dashboardnav === "Distributor" ? (
+                        <>
+                          <th>Today Amount</th>
+                          <th>Today Rate</th>
+                          <th>Today Orders</th>
+                        </>
+                      ) : dashboardnav === "Collection Agent" ? (
+                        <th>Collection Amount</th>
+                      ) : null
+                    } */}
+
+                         { dashboardnav === "Distributor" ?  <th>Today Amount</th> : dashboardnav === "Collection Agent" ? (
+                        <th>Collection Amount</th>
+                      ) : <th>amount</th>}
+                        <th>Today Rate</th>
+                          <th>Today Orders</th>
+                    {/* New column */}
                     <th>ACTIONS</th>
                   </tr>
                 </thead>
@@ -1350,15 +1367,153 @@ function Employee() {
                             </td>
                             <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
                             <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
-                            <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td>
-                            <td>
-                              {row.role === "Distributor" && row.today_rate_date
-                                ? (row.today_rate_date === currentDate)
-                                  ? row.Distributor_today_rate || "0"
-                                  : "0"
-                                : "-"}
-                            </td>
-                            <td>{todayOrderCount}</td> {/* New column data */}
+                            {/* <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td> */}
+                            {/* {row.role === "Distributor" ? (
+                              <td>
+                                <div className="client-info">
+                                  <h4 style={{ color: "blue", fontWeight: "500" }}>
+                                    INTER:{" "}
+                                    <span>
+                                      {users
+                                        .filter(
+                                          (user) =>
+                                            user.Distributor_id === row.user_id &&
+                                            user.date === currentDate &&
+                                            parseFloat(user.amount) > 0
+                                        )
+                                        .reduce((sum, user) => sum + parseFloat(user.amount || 0), 0)
+                                        .toFixed(2)}
+                                    </span>
+                                  </h4>
+
+                                  <h4 style={{ color: "red", fontWeight: "500" }}>
+                                    LOCAL:{" "}
+                                    <span>
+                                      {row.role === "Distributor" &&
+                                        row.today_rate_date === currentDate &&
+                                        parseFloat(row.Distributor_today_rate) > 0
+                                        ? users
+                                          .filter(
+                                            (user) =>
+                                              user.Distributor_id === row.user_id &&
+                                              user.date === currentDate &&
+                                              parseFloat(user.amount) > 0
+                                          )
+                                          .reduce(
+                                            (sum, user) =>
+                                              sum + parseFloat(user.amount || 0) / parseFloat(row.Distributor_today_rate),
+                                            0
+                                          )
+                                          .toFixed(3)
+                                        : "0.000"}
+                                    </span>
+                                  </h4>
+                                </div>
+                              </td>) : (<td></td>)
+                            } */}
+                         {row.role === "Distributor" ? (
+  <>
+    <td>
+      <div className="client-info">
+        <h4 style={{ color: "blue", fontWeight: "500" }}>
+          INTER:{" "}
+          <span>
+            {users
+              .filter(
+                (user) =>
+                  user.Distributor_id === row.user_id &&
+                  user.date === currentDate &&
+                  parseFloat(user.amount) > 0
+              )
+              .reduce((sum, user) => sum + parseFloat(user.amount || 0), 0)
+              .toFixed(2)}
+          </span>
+        </h4>
+
+        <h4 style={{ color: "red", fontWeight: "500" }}>
+          LOCAL:{" "}
+          <span>
+            {row.today_rate_date === currentDate &&
+            parseFloat(row.Distributor_today_rate) > 0
+              ? users
+                  .filter(
+                    (user) =>
+                      user.Distributor_id === row.user_id &&
+                      user.date === currentDate &&
+                      parseFloat(user.amount) > 0
+                  )
+                  .reduce(
+                    (sum, user) =>
+                      sum +
+                      parseFloat(user.amount || 0) /
+                        parseFloat(row.Distributor_today_rate),
+                    0
+                  )
+                  .toFixed(3)
+              : "0.000"}
+          </span>
+        </h4>
+      </div>
+    </td>
+
+   
+  </>
+) : row.role === "Collection Agent" ? (
+  <td>
+    <div className="client-info">
+      <h4 style={{ color: "blue", fontWeight: "500" }}>
+        INTER:{" "}
+        <span>
+          {users
+            .filter(
+              (client) =>
+                client.user_id === row.user_id &&
+                client.date === currentDate &&
+                Array.isArray(client.paid_amount_date)
+            )
+            .flatMap((client) =>
+              client.paid_amount_date.filter(
+                (p) => p.userID === row.user_id && p.amount
+              )
+            )
+            .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+            .toFixed(2)}
+        </span>
+      </h4>
+
+      <h4 style={{ color: "red", fontWeight: "500" }}>
+        LOCAL:{" "}
+        <span>
+          {users
+            .filter(
+              (client) =>
+                client.user_id === row.user_id &&
+                client.date === currentDate &&
+                Array.isArray(client.paid_amount_date) &&
+                parseFloat(client.today_rate) > 0
+            )
+            .flatMap((client) =>
+              client.paid_amount_date
+                .filter((p) => p.userID === row.user_id && p.amount)
+                .map(
+                  (p) =>
+                    parseFloat(p.amount || 0) /
+                    parseFloat(client.today_rate)
+                )
+            )
+            .reduce((sum, val) => sum + val, 0)
+            .toFixed(3)}
+        </span>
+      </h4>
+    </div>
+  </td>
+) : null}
+                             <td>
+      {row.today_rate_date === currentDate
+        ? row.Distributor_today_rate || "0"
+        : "0"}
+    </td>
+    <td>{todayOrderCount}</td>
                             <td>
                               <div className="actions d-flex justify-content-start align-items-center pt-2">
                                 <span

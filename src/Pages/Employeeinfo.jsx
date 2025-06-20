@@ -580,28 +580,61 @@ const sendDistributorCSVToWhatsApp = () => {
     );
   }, 0);
 
+  // const thisAgentCollectionAmount = filteredClients.reduce((total, client) => {
+  //   return (
+  //     total +
+  //     (Array.isArray(client.paid_amount_date)
+  //       ? client.paid_amount_date
+  //         .filter((p) => p.userID === selectedEmployee.user_id)
+  //         .reduce((sum, p) => {
+  //           const paidAmount = parseFloat(p.amount) || 0;
+  //           const clientRate = parseFloat(client.today_rate) || 1;
+  //           return sum + (clientRate > 0 ? paidAmount / clientRate : 0);
+  //         }, 0)
+  //       : 0)
+  //   );
+  // }, 0);
+
+
   const thisAgentCollectionAmount = filteredClients.reduce((total, client) => {
-    return (
-      total +
-      (Array.isArray(client.paid_amount_date)
-        ? client.paid_amount_date
-          .filter((p) => p.userID === selectedEmployee.user_id)
-          .reduce((sum, p) => {
-            const paidAmount = parseFloat(p.amount) || 0;
-            const clientRate = parseFloat(client.today_rate) || 1;
-            return sum + (clientRate > 0 ? paidAmount / clientRate : 0);
-          }, 0)
-        : 0)
-    );
+  const clientRate = parseFloat(client.today_rate);
+
+  // Skip if rate is missing, zero, or invalid
+  if (!clientRate || isNaN(clientRate) || clientRate <= 0) return total;
+
+  const clientTotal = Array.isArray(client.paid_amount_date)
+    ? client.paid_amount_date
+        .filter((p) => p.userID === selectedEmployee.user_id)
+        .reduce((sum, p) => {
+          const paidAmount = parseFloat(p.amount) || 0;
+          return sum + paidAmount / clientRate;
+        }, 0)
+    : 0;
+
+  return total + clientTotal;
+}, 0);
+
+
+  // const thisDistributorCollectionAmount = filteredUsers
+  //   .filter((client) => client.Distributor_id === selectedEmployee?.user_id)
+  //   .reduce((total, client) => {
+  //     const clientAmount = parseFloat(client.amount) || 0;
+  //     const clientRate = parseFloat(client.today_rate) || 1;
+  //     return total + (clientRate > 0 ? clientAmount / clientRate : 0);
+  //   }, 0);
+
+    const thisDistributorCollectionAmount = filteredUsers
+  .filter((client) => {
+    const isDistributorMatch = client.Distributor_id === selectedEmployee?.user_id;
+    const rate = parseFloat(client.today_rate);
+    return isDistributorMatch && !isNaN(rate) && rate > 0;
+  })
+  .reduce((total, client) => {
+    const clientAmount = parseFloat(client.amount) || 0;
+    const clientRate = parseFloat(client.today_rate);
+    return total + (clientAmount / clientRate);
   }, 0);
 
-  const thisDistributorCollectionAmount = filteredUsers
-    .filter((client) => client.Distributor_id === selectedEmployee?.user_id)
-    .reduce((total, client) => {
-      const clientAmount = parseFloat(client.amount) || 0;
-      const clientRate = parseFloat(client.today_rate) || 1;
-      return total + (clientRate > 0 ? clientAmount / clientRate : 0);
-    }, 0);
 
 
   const otherAgentsCollectionAmount = overallCollectionAmount - thisAgentCollectionAmount;
