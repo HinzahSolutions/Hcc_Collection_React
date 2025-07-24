@@ -22,7 +22,7 @@ function Alldata() {
   const [disamount, setDisamount] = useState()
   const [type, setType] = useState("paid")
   const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
-
+ const [amountData, setAmountData] = useState([]);
 
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -299,7 +299,7 @@ function Alldata() {
       });
   };
 
-  const [amountData, setAmountData] = useState([]);
+ 
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -591,7 +591,7 @@ const handleRemovePayment = async () => {
             Paid Amount ({startDate} to {endDate})
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', columnGap: '5px' }}>
-            <span className="fw-bold fs-5 text-primary"  > <span className="text-primary"> Local Amount :</span>{totalpaidnewamount.toFixed(3)} </span>
+            <span className="fw-bold fs-5 text-primary"  > <span className="text-primary"> Local Amount :</span>{totalpaidnewamount} </span>
            
           </div>
 
