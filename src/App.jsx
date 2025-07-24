@@ -15,6 +15,7 @@ import Employeeinfo from "./Pages/Employeeinfo";
 import Formdata from "./Pages/Formdata";
 import { Mosaic } from "react-loading-indicators";
 import EmployeeForm from "./Pages/EmployeeForm";
+import Allemployee from "./Pages/Allemployee";
 
 
 function App() {
@@ -70,6 +71,7 @@ function MainApp() {
               <Route path="employeeinfo" element={<Employeeinfo />} />
               <Route path="form" element={<EmployeeForm />} />
             </Route>
+            <Route path="/allemployee" element={<Allemployee />} />
             <Route path="/formdata" element={<Formdata />} />
             <Route path="/employeeform" element={<EmployeeForm />} />
           </Route>

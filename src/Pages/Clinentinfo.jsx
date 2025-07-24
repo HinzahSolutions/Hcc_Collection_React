@@ -307,45 +307,7 @@ function Clinentinfo() {
                 <th>AMOUNT</th>
               </tr>
             </thead>
-            {/* <tbody>
-              {selectedClient.paid_amount_date && selectedClient.paid_amount_date.length > 0 ? (
-                selectedClient.paid_amount_date
-                  .filter((data) => employees.some((e1) => e1.user_id === data.userID))
-                  .map((data, index) => {
-                    const agent = employees.find((e1) => e1.user_id === data.userID);
-
-                    return (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td onClick={() => agent && handlenav(agent)}>
-                          {agent ? agent.username.toUpperCase() : "Unknown Agent"}
-                        </td>
-                        <td>{data.date || "N/A"}</td>
-                        <td>{selectedClient.today_rate}</td>
-                        <td>
-                          <div className="client-info">
-                            <h4 style={{ color: "blue", fontWeight: "500" }}>
-                              INTER: <span>{data.amount ? parseFloat(data.amount).toFixed(2) : "0.00"}</span>
-                            </h4>
-                            <h4 style={{ color: "red", fontWeight: "500" }}>
-                              LOCAL:{" "}
-                              <span>
-                                {data.amount && selectedClient.today_rate
-                                  ? (parseFloat(data.amount) / parseFloat(selectedClient.today_rate)).toFixed(3)
-                                  : "0.000"}
-                              </span>
-                            </h4>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-              ) : (
-                <tr>
-                  <td colSpan="5" className="text-center">No data available</td>
-                </tr>
-              )}
-            </tbody> */}
+      
             <tbody>
   {selectedClient.paid_amount_date && selectedClient.paid_amount_date.length > 0 ? (
     selectedClient.paid_amount_date

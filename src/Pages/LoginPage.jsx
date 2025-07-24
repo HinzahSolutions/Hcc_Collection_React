@@ -46,7 +46,7 @@ function LoginPage() {
 
       const data = await response.json();
       const { token, user } = data;
-       console.log("vhvbnvbx",data)
+       console.log("",data)
       if (user.role !== "Admin" && user.role !== "Dtp") {
         setError("Wrong user login.");
         alert("Wrong User Login"); 

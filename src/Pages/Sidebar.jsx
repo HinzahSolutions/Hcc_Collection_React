@@ -262,7 +262,15 @@ const Sidebar = () => {
                 <NavLink to="/employee" onClick={closenav} className={({ isActive }) => location.pathname.startsWith("/employee") ? "nav-link active" : "nav-link"}>
                   <div className="navtext">
                     <span className={isOpen ? 'spans' : 'hiddenspans'}><FaUserTie /></span>
-                    <p className={isOpen ? 'p' : 'hiddenp'}>Employee</p>
+                    <p className={isOpen ? 'p' : 'hiddenp'}>Distributer</p>
+                  </div>
+                </NavLink>
+              </li>
+               <li>
+                <NavLink to="/allemployee" onClick={closenav} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                  <div className="navtext">
+                    <span className={isOpen ? 'spans' : 'hiddenspans'}><HiUsers /></span>
+                    <p className={isOpen ? 'p' : 'hiddenp'}>All Employee</p>
                   </div>
                 </NavLink>
               </li>
@@ -274,6 +282,7 @@ const Sidebar = () => {
                   </div>
                 </NavLink>
               </li>
+              
             </ul>
           </div>
         </Navbar>

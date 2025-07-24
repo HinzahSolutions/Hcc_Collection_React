@@ -9,6 +9,7 @@ import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { parse, subDays, format, parseISO } from "date-fns";
+import { GiReceiveMoney } from "react-icons/gi";
 
 
 function Employee() {
@@ -440,6 +441,36 @@ function Employee() {
   }, [filteredData]);
 
 
+  const [paiddisdata,setPaiddidata] = useState()
+
+
+    useEffect(() => {
+      const token = localStorage.getItem("authToken");
+  
+      fetch(`${API_URL}/collection/paid`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token
+        }
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Error ${res.status} - ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log("✅ Received paid amount data:", data);
+          setPaiddidata(data)
+        })
+        .catch((error) => {
+          console.error("❌ Fetch failed:", error.message);
+        });
+    }, []);
+  
+
+
 
 
   const sendtodayWA = (row) => {
@@ -448,6 +479,18 @@ function Employee() {
       client.Distributor_id === row.user_id &&
       client.date === currentDate
     );
+
+        const distributorId = row.user_id;
+    const distributorCollections = paiddisdata.filter(
+    (e) => e.Distributor_id === distributorId 
+  );
+
+    
+      const totalCollAmount = distributorCollections.reduce((sum, item) => {
+    const amounts = Array.isArray(item.paidamount) ? item.paidamount : [item.paidamount];
+    const itemTotal = amounts.reduce((subSum, val) => subSum + (parseFloat(val) || 0), 0);
+    return sum + itemTotal;
+  }, 0);
 
     if (!row.phone_number) {
       alert("No phone number available for the distributor.");
@@ -491,6 +534,8 @@ function Employee() {
         });
       }
 
+       
+
       totalCollectedInternational += collectedInternational;
       totalCollectedLocal += collectedLocal;
 
@@ -502,8 +547,8 @@ function Employee() {
     message += "--------------------------\n\n";
     message += `🔹 * INR: ${totalInternationalAmount.toFixed(2)}\n`;
     message += `🔹 * KD: ${totalLocalAmount.toFixed(3)}\n`;
-    message += `🔹 * OLD KD: ${totalCollectedLocal.toFixed(3)}\n`;
-    message += `🔹 * TOTAL KD: ${(totalLocalAmount.toFixed(3) - totalCollectedLocal.toFixed(3)).toFixed(3)} \n`;
+    message += `🔹 * OLD KD: ${totalCollAmount.toFixed(3)}\n`;
+    message += `🔹 * TOTAL KD: ${(totalLocalAmount.toFixed(3) - totalCollAmount.toFixed(3)).toFixed(3)} \n`;
 
     const phone = row.phone_number;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
@@ -530,14 +575,14 @@ function Employee() {
     }
 
     const currentDate = format(new Date(), "dd-MM-yyyy");
-
+  console.log(showData)
     const data = {
       user_id: showData.user_id,
       today_rate_date: currentDate,
       Distributor_today_rate: amount,
     };
 
-    console.log("Sending data:", data);
+    console.log("Sending data:", data,);
 
     try {
       const response = await fetch(
@@ -560,7 +605,7 @@ function Employee() {
 
       alert("Rate updated successfully!");
       setTodayRateModal(false);
-      setAmount("");
+      
       fetchEmployees();
 
       // 🟡 Step 2: Fetch clients
@@ -586,7 +631,53 @@ function Employee() {
           client.date === currentDate &&
           !client.today_rate
       );
+          
+ 
 
+const totalAmount = targetClients
+  .map((client) => parseFloat(client.amount) || 0)
+  .reduce((sum, amount) => sum + amount, 0);
+
+console.log("Total Amount:", totalAmount);
+
+ const clientData = {
+          Distributor_id: parseInt(showData.user_id),      // Convert to number
+          collamount: [(parseInt(totalAmount)/amount).toFixed(3)],              // Wrap in array
+          colldate: [currentDate],                     // Wrap in array
+          type: "collection",
+          today_rate:amount,
+          paidamount: ""
+        };
+
+
+      
+        fetch(`${API_URL}/collection/addamount`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(clientData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.text().then((text) => {
+                const errorMessage = `Error ${response.status} - ${response.statusText}: ${text}`;
+                throw new Error(errorMessage);
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Response data:", data);
+            alert("✅ Amount added successfully");
+          })
+          .catch((error) => {
+            console.error("Request Failed:", error.message);
+            alert(`❌ Request failed: ${error.message}`);
+          })
+
+   
+    
 
       const updatePromises = targetClients.map((client) =>
         fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
@@ -663,7 +754,7 @@ function Employee() {
         return;
       }
 
-      alert("Distributor rates updated successfully!");
+    
       setAmountSet(false);
       fetchEmployees();
       setSearchQuery("");
@@ -726,6 +817,8 @@ function Employee() {
           );
         });
       });
+
+      
 
       // Step 5: Execute all client update requests
       await Promise.all(updatePromises);
@@ -807,72 +900,6 @@ function Employee() {
 
 
 
-
-  // const handleCheckboxChange = (row) => {
-  //   setSelectedRows((prevSelected) => {
-  //     const alreadySelected = prevSelected.some(item => item.user_id === row.user_id);
-  //     const updatedSelection = alreadySelected
-  //       ? prevSelected.filter(item => item.user_id !== row.user_id)
-  //       : [...prevSelected, row];
-
-  //     const selectedIds = updatedSelection.map(item => item.user_id);
-
-  //     const matchedClients = users.filter(user =>
-  //       selectedIds.includes(user.Distributor_id) &&
-  //       user.date === currentDate &&
-  //       (!user.user_id || user.user_id === '')
-  //     );
-
-
-  //     const matchedClientIds = matchedClients.map(client => client.client_id);
-
-  //     setFilteredClientData(matchedClients); // Store in original
-  //     setOtherFilteredClients(matchedClients); // ✅ Store in new state too
-  //     setClientIdArray(matchedClientIds);
-
-  //     console.log("✅ Selected distributors:", selectedIds);
-  //     console.log("✅ Filtered clients:", matchedClients);
-  //     console.log("✅ Client IDs:", matchedClientIds);
-
-  //     return updatedSelection;
-  //   });
-  // };
-
-
-  // const handleCheckboxChange = (row) => {
-  //   setSelectedRows((prevSelected) => {
-  //     const alreadySelected = prevSelected.some(item => item.user_id === row.user_id);
-
-  //     const updatedSelection = alreadySelected
-  //       ? prevSelected.filter(item => item.user_id !== row.user_id)
-  //       : [...prevSelected, row];
-
-  //     const selectedIds = updatedSelection.map(item => item.user_id);
-
-  //     const matchedClients = users.filter(user =>
-  //       selectedIds.includes(user.Distributor_id) &&
-  //       user.date === currentDate &&
-  //       (!user.user_id || user.user_id === '')
-  //     );
-
-  //     const matchedClientIds = matchedClients.map(client => client.client_id);
-
-  //     setFilteredClientData(matchedClients);
-  //     setOtherFilteredClients(matchedClients);
-  //     setClientIdArray(matchedClientIds);
-
-  //     // Update selectAll flag based on all Distributor rows
-  //     const allDistributorIds = users
-  //       .filter(user => user.role === "Distributor")
-  //       .map(user => user.user_id);
-  //     const allSelected = allDistributorIds.every(id =>
-  //       updatedSelection.some(item => item.user_id === id)
-  //     );
-  //     setSelectAll(allSelected);
-
-  //     return updatedSelection;
-  //   });
-  // };
 
 
   const handleCheckboxChange = (row) => {
@@ -960,7 +987,57 @@ function Employee() {
     }
   };
 
+   const [amountData, setAmountData] = useState([]);
+     const [todayOrderInterColl, setTodayOrderInterColl] = useState(0);
+  const [todayOrderLocalColl, setTodayOrderLocalColl] = useState(0);
 
+  
+    useEffect(() => {
+      const token = localStorage.getItem("authToken");
+  
+      fetch(`${API_URL}/collection/collection`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token
+        }
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Error ${res.status} - ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log("✅ Received amount data:", data);
+          setAmountData(data);
+        })
+        .catch((error) => {
+          console.error("❌ Fetch failed:", error.message);
+        });
+    }, []);
+
+  useEffect(() => {
+  
+
+  const todayData = amountData.filter((item) => item.colldate === currentDate);
+
+  const interCollSum = todayData.reduce((sum, item) => {
+    const value = parseFloat(item.collamount?.[0]) || 0;
+    return sum + value;
+  }, 0);
+
+  const localCollSum = todayData.reduce((sum, item) => {
+    const coll = parseFloat(item.collamount?.[0]) || 0;
+    const rate = parseFloat(item.today_rate) || 1;
+    return sum + coll / rate;
+  }, 0);
+
+  setTodayOrderInterColl(interCollSum);
+  setTodayOrderLocalColl(localCollSum);
+  console.log("localcoll amount",localCollSum)
+  console.log("intercoll amount",interCollSum)
+}, [amountData]);
 
 
 
@@ -999,7 +1076,7 @@ function Employee() {
                 <small>ALL</small>
               </div>
             </div>
-
+{/* 
             <div
               className={dashboardnav === "Admin" ? "cardAction" : "card"}
               onClick={Dashboardclient}
@@ -1048,7 +1125,7 @@ function Employee() {
               <div className="card-progress">
                 <small>DTP</small>
               </div>
-            </div>
+            </div> */}
 
 
 
@@ -1083,6 +1160,28 @@ function Employee() {
                 <small>DISTRIBUTOR</small>
               </div>
             </div>
+
+
+                <div
+              className="card"
+              onClick={Dashboardother}
+            >
+              <div className="card-head">
+                <div className="d-flex flex-column">
+                <h4 style={{color:'black'}}>{todayOrderLocalColl.toFixed(3)}</h4>
+                <h4 style={{color:'black'}}>{todayOrderInterColl.toFixed(2)}</h4>
+              </div>
+                <span className="las la-user-friends">
+                  <GiReceiveMoney />
+                  <FaUserTie />
+                </span>
+              </div>
+              <div className="card-progress">
+                <small>TOTAL ORDERS</small>
+              </div>
+            </div>
+
+
           </div>
 
           <div className="">
@@ -1293,18 +1392,7 @@ function Employee() {
                     <th>CITY</th>
                      
                         
-                    {/* {
-                      dashboardnav === "Distributor" ? (
-                        <>
-                          <th>Today Amount</th>
-                          <th>Today Rate</th>
-                          <th>Today Orders</th>
-                        </>
-                      ) : dashboardnav === "Collection Agent" ? (
-                        <th>Collection Amount</th>
-                      ) : null
-                    } */}
-
+              
                          { dashboardnav === "Distributor" ?  <th>Today Amount</th> : dashboardnav === "Collection Agent" ? (
                         <th>Collection Amount</th>
                       ) : <th>amount</th>}

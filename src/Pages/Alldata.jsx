@@ -2,7 +2,9 @@
 
 
 import React, { useState, useMemo, useEffect } from "react";
-import { InputGroup, FormControl, Form, Table } from "react-bootstrap";
+import { InputGroup, FormControl, Form, Table, Button, Modal } from "react-bootstrap";
+
+
 import { useDispatch, useSelector } from "react-redux";
 import { parse, subDays, format, isValid } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -15,13 +17,22 @@ import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 function Alldata() {
   const API_URL = import.meta.env.VITE_API_URL;
   const [selectedAgent, setSelectedAgent] = useState("");
-  const [startDate, setStartDate] = useState(format(subDays(new Date(), 1), "yyyy-MM-dd"));
-  const [endDate, setEndDate] = useState(format(subDays(new Date(), 1), "yyyy-MM-dd"));
+  const [paidmodel, setPaidmodel] = useState(false)
+  const [disid, setDisid] = useState()
+  const [disamount, setDisamount] = useState()
+  const [type, setType] = useState("paid")
+  const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
 
+
+  const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  console.log(AddNewClientDate, disid, disamount)
   const users = useSelector((state) => state.clients.users) || [];
   const employees = useSelector((state) => state.employees.employees) || [];
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [changetable, setChangetable] = useState("paid")
 
   // Fetch data
   useEffect(() => {
@@ -102,230 +113,99 @@ function Alldata() {
 
   const filteredData = useMemo(getFilteredData, [users, startDate, endDate, selectedAgent]);
 
-  // const { 
-  //   overallAmount, 
-  //   totalPaidInRange, 
-  //   paidClientCount, 
-  //   paidinterAmount, 
-  //   totalinteramount ,
-  //   totalOrderLocalInRange,
-  // totalOrderInterAmount
-  // } = useMemo(() => {
-  //   const result = {
-  //     overallAmount: 0,
-  //     totalPaidInRange: 0,
-  //     paidClientCount: 0,
-  //     paidinterAmount: 0,
-  //     totalinteramount: 0,
-  //     totalOrderLocalInRange: 0,
-  //     totalOrderInterAmount: 0,
-  //   };
-  
-  //   // Return early if no users
-  //   if (!users || users.length === 0) return result;
-  
-  //   try {
-  //     // Pre-parse dates once for better performance
-  //     const start = parse(startDate, "yyyy-MM-dd", new Date());
-  //     const end = parse(endDate, "yyyy-MM-dd", new Date());
-  //     const isValidDateRange = isValid(start) && isValid(end);
-  
-  //     users.forEach(client => {
-  //       try {
-  //         // Calculate overall amounts
-  //         const clientAmount = parseFloat(client.amount) || 0;
-  //         const clientRate = parseFloat(client.today_rate) || 1;
-          
-  //         result.overallAmount += clientRate > 0 ? clientAmount / clientRate : 0;
-  //         result.totalinteramount += clientAmount; // INTER amount is just the raw amount
-  
-  //         // Calculate paid amounts in range
-  //         if (client.paid_amount_date && isValidDateRange) {
-  //           const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
-  //             try {
-  //               if (!payment) return sum;
-                
-  //               const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
-  //               if (!isValid(paymentDate)) return sum;
-  //               if (paymentDate < start || paymentDate > end) return sum;
-  //               if (selectedAgent && payment.userID != selectedAgent) return sum;
-  
-  //               return sum + (parseFloat(payment.amount) || 0);
-  //             } catch (e) {
-  //               console.error('Error processing payment:', payment, e);
-  //               return sum;
-  //             }
-  //           }, 0);
-  
-  //           if (paidInRange > 0) {
-  //             result.paidinterAmount += paidInRange;
-  //             result.totalPaidInRange += clientRate > 0 ? paidInRange / clientRate : 0;
-  //             result.paidClientCount++;
-  //           }
-  //         }
-
-  //         const assignedDate = parse(client.date, "dd-MM-yyyy", new Date());
-  //         if (isValid(assignedDate) && assignedDate >= start && assignedDate <= end) {
-  //           result.totalOrderInterAmount += clientAmount;
-  //           result.totalOrderLocalInRange += clientRate > 0 ? clientAmount / clientRate : 0;
-  //         }
-
-  //       } catch (e) {
-  //         console.error('Error processing client:', client, e);
-  //       }
-  //     });
-  //   } catch (e) {
-  //     console.error('Error in calculation:', e);
-  //   }
-  
-  //   // Round values to avoid floating point precision issues
-  //   result.overallAmount = Math.round(result.overallAmount * 1000) / 1000;
-  //   result.totalPaidInRange = Math.round(result.totalPaidInRange * 1000) / 1000;
-  //   result.paidinterAmount = Math.round(result.paidinterAmount * 100) / 100;
-  //   result.totalinteramount = Math.round(result.totalinteramount * 100) / 100;
-  //   result.totalOrderInterAmount = Math.round(result.totalOrderInterAmount * 100) / 100;
-  //   result.totalOrderLocalInRange = Math.round(result.totalOrderLocalInRange * 1000) / 1000;
-  
-  //   return result;
-  // }, [users, startDate, endDate, selectedAgent]);
 
 
   const {
-  overallAmount,
-  totalPaidInRange,
-  paidClientCount,
-  paidinterAmount,
-  totalinteramount,
-  totalOrderLocalInRange,
-  totalOrderInterAmount
-} = useMemo(() => {
-  const result = {
-    overallAmount: 0,
-    totalPaidInRange: 0,
-    paidClientCount: 0,
-    paidinterAmount: 0,
-    totalinteramount: 0,
-    totalOrderLocalInRange: 0,
-    totalOrderInterAmount: 0,
-  };
+    overallAmount,
+    totalPaidInRange,
+    paidClientCount,
+    paidinterAmount,
+    totalinteramount,
+    totalOrderLocalInRange,
+    totalOrderInterAmount
+  } = useMemo(() => {
+    const result = {
+      overallAmount: 0,
+      totalPaidInRange: 0,
+      paidClientCount: 0,
+      paidinterAmount: 0,
+      totalinteramount: 0,
+      totalOrderLocalInRange: 0,
+      totalOrderInterAmount: 0,
+    };
 
-  if (!users || users.length === 0) return result;
+    if (!users || users.length === 0) return result;
 
-  try {
-    const start = parse(startDate, "yyyy-MM-dd", new Date());
-    const end = parse(endDate, "yyyy-MM-dd", new Date());
-    const isValidDateRange = isValid(start) && isValid(end);
+    try {
+      const start = parse(startDate, "yyyy-MM-dd", new Date());
+      const end = parse(endDate, "yyyy-MM-dd", new Date());
+      const isValidDateRange = isValid(start) && isValid(end);
 
-    users.forEach(client => {
-      try {
-        const clientAmount = parseFloat(client.amount) || 0;
-        const clientRate = parseFloat(client.today_rate) || 0;
+      amountData.forEach(client => {
+        try {
+          const clientAmount = parseFloat(client.paidamount) || 0;
+          const clientRate = parseFloat(client.today_rate) || 0;
 
-        if (clientRate > 0) {
-          result.overallAmount += clientAmount / clientRate;
-        }
-        result.totalinteramount += clientAmount;
-
-        // Calculate paid amounts in range
-        if (client.paid_amount_date && isValidDateRange) {
-          const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
-            try {
-              if (!payment) return sum;
-
-              const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
-              if (!isValid(paymentDate)) return sum;
-              if (paymentDate < start || paymentDate > end) return sum;
-              if (selectedAgent && payment.userID != selectedAgent) return sum;
-
-              return sum + (parseFloat(payment.amount) || 0);
-            } catch (e) {
-              console.error('Error processing payment:', payment, e);
-              return sum;
-            }
-          }, 0);
-
-          if (paidInRange > 0) {
-            result.paidinterAmount += paidInRange;
-            if (clientRate > 0) {
-              result.totalPaidInRange += paidInRange / clientRate;
-            }
-            result.paidClientCount++;
+          if (clientRate > 0) {
+            result.overallAmount += clientAmount / clientRate;
           }
-        }
+          result.totalinteramount += clientAmount;
 
-        const assignedDate = parse(client.date, "dd-MM-yyyy", new Date());
-        if (isValid(assignedDate) && assignedDate >= start && assignedDate <= end) {
-          result.totalOrderInterAmount += clientAmount;
+          // Calculate paid amounts in range
+          if (client.colldate && isValidDateRange) {
+            const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
+              try {
+             
 
-          // Add to local total only if today_rate is valid
-          if (client.today_rate && clientRate > 0) {
-            result.totalOrderLocalInRange += clientAmount / clientRate;
+           
+
+                return sum + (parseFloat(payment.paidamount) || 0);
+              } catch (e) {
+                console.error('Error processing payment:', payment, e);
+                return sum;
+              }
+            }, 0);
+
+            if (paidInRange > 0) {
+              result.paidinterAmount += paidInRange;
+              if (clientRate > 0) {
+                result.totalPaidInRange += paidInRange / clientRate;
+              }
+              result.paidClientCount++;
+            }
           }
+
+          const assignedDate = parse(client.date, "dd-MM-yyyy", new Date());
+          if (isValid(assignedDate) && assignedDate >= start && assignedDate <= end) {
+            result.totalOrderInterAmount += clientAmount;
+
+            // Add to local total only if today_rate is valid
+            if (client.today_rate && clientRate > 0) {
+              result.totalOrderLocalInRange += clientAmount / clientRate;
+            }
+          }
+
+        } catch (e) {
+          console.error('Error processing client:', client, e);
         }
+      });
+    } catch (e) {
+      console.error('Error in calculation:', e);
+    }
 
-      } catch (e) {
-        console.error('Error processing client:', client, e);
-      }
-    });
-  } catch (e) {
-    console.error('Error in calculation:', e);
-  }
+    result.overallAmount = Math.round(result.overallAmount * 1000) / 1000;
+    result.totalPaidInRange = Math.round(result.totalPaidInRange * 1000) / 1000;
+    result.paidinterAmount = Math.round(result.paidinterAmount * 100) / 100;
+    result.totalinteramount = Math.round(result.totalinteramount * 100) / 100;
+    result.totalOrderInterAmount = Math.round(result.totalOrderInterAmount * 100) / 100;
+    result.totalOrderLocalInRange = Math.round(result.totalOrderLocalInRange * 1000) / 1000;
 
-  result.overallAmount = Math.round(result.overallAmount * 1000) / 1000;
-  result.totalPaidInRange = Math.round(result.totalPaidInRange * 1000) / 1000;
-  result.paidinterAmount = Math.round(result.paidinterAmount * 100) / 100;
-  result.totalinteramount = Math.round(result.totalinteramount * 100) / 100;
-  result.totalOrderInterAmount = Math.round(result.totalOrderInterAmount * 100) / 100;
-  result.totalOrderLocalInRange = Math.round(result.totalOrderLocalInRange * 1000) / 1000;
-
-  return result;
-}, [users, startDate, endDate, selectedAgent]);
+    return result;
+  }, [users, startDate, endDate, selectedAgent]);
 
 
-    
 
-  // Calculate totals
-  // const { overallAmount, totalPaidInRange, paidClientCount, paidinterAmount, totalinteramount } = useMemo(() => {
-  //   const result = {
-  //     overallAmount: 0,
-  //     totalPaidInRange: 0,
-  //     paidClientCount: 0,
-  //     paidinterAmount: 0,
-  //     totalinteramount: 0
-  //   };
 
-  //   users.forEach(client => {
-  //     // Calculate overall amount
-  //     const clientAmount = parseFloat(client.amount) || 0;
-  //     const clientRate = parseFloat(client.today_rate) || 1;
-  //     result.overallAmount += clientRate > 0 ? clientAmount / clientRate : 0;
-  //     result.totalinteramount += clientRate > 0 ? clientAmount : 0;
-
-  //     // Calculate paid amount in range
-  //     if (client.paid_amount_date) {
-  //       const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
-  //         const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
-  //         const start = parse(startDate, "yyyy-MM-dd", new Date());
-  //         const end = parse(endDate, "yyyy-MM-dd", new Date());
-
-  //         if (!isValid(paymentDate)) return sum;
-  //         if (paymentDate < start || paymentDate > end) return sum;
-  //         if (selectedAgent && payment.userID != selectedAgent) return sum;
-
-  //         return sum + parseFloat(payment.amount);
-  //       }, 0);
-
-  //       if (paidInRange > 0) {
-  //         result.paidinterAmount += paidInRange;
-  //         result.totalPaidInRange += paidInRange / clientRate;
-  //         result.paidClientCount++;
-          
-  //       }
-  //     }
-  //   });
-
-  //   return result;
-  // }, [users, startDate, endDate, selectedAgent]);
 
 
   const totalPaidAmountInRange = useMemo(() => {
@@ -373,48 +253,318 @@ function Alldata() {
   const totalpaidclientcount = getTotalPaidClientCount(users, startDate, endDate);
 
   // Export to CSV
-  const exportToCSV = () => {
-    const headers = [
-      "#", "Client", "City", "Agent", "Status",
-      "Rate", "Amount (INTER)", "Amount (LOCAL)", "Date"
-    ];
 
-    const rows = filteredData.flatMap((client, idx) =>
-      client.paid_amount_date
-        ?.filter(payment => {
-          const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
-          const start = parse(startDate, "yyyy-MM-dd", new Date());
-          const end = parse(endDate, "yyyy-MM-dd", new Date());
-          return isValid(paymentDate) &&
-            paymentDate >= start &&
-            paymentDate <= end &&
-            (!selectedAgent || payment.userID == selectedAgent);
-        })
-        .map((payment, pIdx) => [
-          idx + 1,
-          client.client_name,
-          client.client_city,
-          employees.find(e => e.user_id == payment.userID)?.username || "Unknown",
-          client.paid_and_unpaid === 1 ? "Paid" : "Unpaid",
-          client.today_rate,
-          payment.amount,
-          (payment.amount / (client.today_rate || 1)).toFixed(3),
-          payment.date
-        ]) || []
-    );
+  const [disfullname, setDisfullname] = useState("")
 
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.join(","))
-    ].join("\n");
+  const updatetheamount = () => {
+    const clientData = {
+      Distributor_id: parseInt(disid),            // Convert to number
+      collamount: "",         // Wrap in array
+      colldate: [AddNewClientDate],              // Wrap in array
+      type: type,
+      today_rate: "270",
+      paidamount: [parseInt(disamount)],
+      distname: disfullname,
+      agent_id: null,
+      collection_id: null
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `payments_${format(new Date(), "yyyyMMdd")}.csv`;
-    link.click();
+    };
+    console.log("Sending:", clientData);
+
+    fetch(`${API_URL}/collection/addamount`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(clientData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.text().then((text) => {
+            // Create a custom error with status and server message
+            const errorMessage = `Error ${response.status} - ${response.statusText}: ${text}`;
+            throw new Error(errorMessage);
+          });
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Response data:", data);
+        alert("Amount added successfully");
+      })
+      .catch((error) => {
+        // Show full message including 404 or any other
+        console.error("Request Failed:", error.message);
+        alert(`Request failed: ${error.message}`);
+      });
   };
+
+  const [amountData, setAmountData] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    fetch(`${API_URL}/collection/getamount`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Error ${res.status} - ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("✅ Received amount data:", data);
+        setAmountData(data);
+      })
+      .catch((error) => {
+        console.error("❌ Fetch failed:", error.message);
+      });
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    fetch(`${API_URL}/collection/collection`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Error ${res.status} - ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("✅ Received Collection amount data:", data);
+       
+      })
+      .catch((error) => {
+        console.error("❌ Fetch failed:", error.message);
+      });
+  }, []);
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    fetch(`${API_URL}/collection/paid`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Error ${res.status} - ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("✅ Received paid amount data:", data);
+      
+      })
+      .catch((error) => {
+        console.error("❌ Fetch failed:", error.message);
+      });
+  }, []);
+
+  const handleUpdateAmount = async () => {
+    const clientData = {
+      Distributor_id: parseInt(disid),
+      colldate: AddNewClientDate,
+      amount: parseInt(disamount),
+      type: type
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/collection/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(clientData)
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("✅ Amount updated:", data);
+      } else {
+        console.error("❌ Update failed:", data.message || data.error);
+      }
+    } catch (error) {
+      console.error("❌ Error:", error.message);
+    }
+  };
+
+  const [collectionData, setCollectionData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [localdisid, setLocaldisid] = useState(113)
+
+  useEffect(() => {
+    const distributorId = localdisid; // assume this comes from localStorage or props
+    const token = localStorage.getItem("authToken");
+
+    if (!distributorId) {
+      console.error("❌ Distributor ID not found in localStorage");
+      return;
+    }
+
+    fetch(`${API_URL}/collection/Distributer-collection/${distributorId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`❌ HTTP ${res.status} - ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("✅ Received collection data:", data);
+        setCollectionData(data);
+      })
+      .catch((error) => {
+        console.error("❌ Fetch failed:", error.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const [filldata, setFilldata] = useState([]);
+  const [totalpaidnewamount,setTotalpaidnewamount] = useState()
+  const [totalcollnewamount,setTotalcollnewamount] = useState()
+  const [totalcolltodayrate,setTotalcolltodayrate] = useState()
+
+
+ useEffect(() => {
+  runFilter();
+}, [amountData, startDate, endDate, changetable, selectedAgent]);
+
+
+
+  
+  
+  
+ useEffect(() => {
+  runFilter();
+}, [amountData, startDate, endDate, changetable, selectedAgent]);
+ 
+const runFilter = () => {
+  console.log("🔎 Filtering started...");
+  console.log("Start Date:", startDate);
+  console.log("End Date:", endDate);
+  console.log("Type Filter:", changetable);
+  console.log("Selected Agent:", selectedAgent);
+
+  const filteredData = amountData.filter((item) => {
+    const rawColldate = Array.isArray(item.colldate)
+      ? item.colldate[0]
+      : typeof item.colldate === "string"
+        ? item.colldate.replace(/[\[\]"]+/g, "")
+        : "";
+
+    const parts = rawColldate.split("-");
+    const formattedDate =
+      parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : null;
+
+    const isInDateRange =
+      !startDate || !endDate || (formattedDate >= startDate && formattedDate <= endDate);
+
+    const matchesType = item.type.trim() === changetable.trim();
+  const matchesAgent =
+      selectedAgent === "" || selectedAgent === null
+        ? true
+        : String(item.agent_id) === String(selectedAgent);
+
+    return isInDateRange && matchesType && matchesAgent;
+  });
+
+  // ✅ Calculate totals
+  let totalPaid = 0;
+  let totalColl = 0;
+  let totalCollRate = 0;
+
+  filteredData.forEach((item) => {
+    const paid = Array.isArray(item.paidamount) ? item.paidamount[0] : item.paidamount;
+    const coll = Array.isArray(item.collamount) ? item.collamount[0] : item.collamount;
+    const rate = parseFloat(item.today_rate);
+
+    const paidNum = parseFloat(paid) || 0;
+    const collNum = parseFloat(coll) || 0;
+
+    totalPaid += paidNum;
+    totalColl += collNum;
+
+    if (rate && rate !== 0) {
+      totalCollRate += collNum / rate;
+    }
+  });
+
+  // ⬆️ Set all states
+  setFilldata(filteredData);
+  setTotalpaidnewamount(totalPaid);
+  setTotalcollnewamount(totalColl.toFixed(2));
+  setTotalcolltodayrate(totalCollRate.toFixed(3));
+
+  // 🧾 Logs
+  console.log("✅ Final Filtered Result:", filteredData);
+  console.log("💰 Total Paid Amount:", totalPaid);
+  console.log("📦 Total Collection Amount:", totalColl);
+  console.log("📉 Total Collection ÷ Today Rate:", totalCollRate);
+};
+
+
+  console.log("fdissdfkjb", amountData)
+
+  console.log(filldata)
+
+const handleRemovePayment = async () => {
+ 
+
+  try {
+    const response = await fetch(`${API_URL}/collection/paid/delete/${ parseInt(disid)}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Delete failed');
+    }
+
+    // Check if response has content before parsing JSON
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+    
+    console.log('deleted', data);
+
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+ const imageExists = (url) => {
+    const img = new Image();
+    img.src = url;
+    img.onerror = () => {
+      return "/images/fallback.jpg";
+    };
+    return url;
+  };
+
+
 
   return (
     <div className="mt-5 ">
@@ -423,37 +573,17 @@ function Alldata() {
         <small>Payments Dashboard</small>
       </div>
 
-      {/* Summary Cards */}
-      {/* <div className="row mb-4">
-        <div className="col-md-4">
-          <div className="card bg-light p-3">
-            <h5 className="text-muted">Total Clients</h5>
-            <h3>{users.length}</h3>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card bg-light p-3">
-            <h5 className="text-muted">Total Amount</h5>
-            <h3 className="text-primary">{overallAmount.toFixed(3)}</h3>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card bg-light p-3">
-            <h5 className="text-muted">Paid Clients ({startDate} to {endDate})</h5>
-            <h3 className="text-success">{paidClientCount}</h3>
-          </div>
-        </div>
-      </div> */}
+
 
       <div className="p-4  border rounded-3 shadow-lg">
         <h4 className="text-center fw-bold mb-4 text-primary">Dashboard Summary</h4>
 
         <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
           <span className="fw-semibold text-muted"> Overall Amount</span>
-          <div style={{ display: 'flex', flexDirection: 'column', columnGap: '5px' }} >
+          {/* <div style={{ display: 'flex', flexDirection: 'column', columnGap: '5px' }} >
             <span className="fw-bold fs-5 text-primary"><span className="text-primary">Local Amount : </span>{overallAmount.toFixed(3)}</span>
             <span className="fw-bold fs-5 text-danger" >Inter Amount :{totalinteramount.toFixed(2)}</span>
-          </div>
+          </div> */}
         </div>
 
         <div className="py-3 px-4 mb-3 bg-light rounded-2 d-flex justify-content-between align-items-center">
@@ -461,8 +591,8 @@ function Alldata() {
             Paid Amount ({startDate} to {endDate})
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', columnGap: '5px' }}>
-            <span className="fw-bold fs-5 text-primary"  > <span className="text-primary"> Local Amount :</span>   {totalPaidInRange.toFixed(3)}</span>
-            <span className="fw-bold fs-5 text-danger " > Inter Amount : {paidinterAmount.toFixed(2)}</span>
+            <span className="fw-bold fs-5 text-primary"  > <span className="text-primary"> Local Amount :</span>{totalpaidnewamount.toFixed(3)} </span>
+           
           </div>
 
         </div>
@@ -472,16 +602,17 @@ function Alldata() {
             New Order Client  ({startDate} to {endDate})
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', columnGap: '5px' }}>
-            <span className="fw-bold fs-5 text-primary"  > <span className="text-primary"> Total Client Order Local Amount :</span>   {totalOrderLocalInRange.toFixed(3)}</span>
-            <span className="fw-bold fs-5 text-danger " > Total Client Order Inter Amount : {totalOrderInterAmount.toFixed(2)}</span>
+            <span className="fw-bold fs-5 text-primary"  > <span className="text-primary"> Total Client Order Local Amount :</span>   {totalcollnewamount}</span>
+            <span className="fw-bold fs-5 text-danger " > Total Client Order Inter Amount : {totalcolltodayrate}</span>
           </div>
 
         </div>
 
-        <div className="py-3 px-4 bg-light rounded-2 d-flex justify-content-between align-items-center">
-          <span className="fw-semibold text-muted">Total Paid Clients</span>
+        {/* <div className="py-3 px-4 bg-light rounded-2 d-flex justify-content-between align-items-center">
+          <span className="fw-semibold text-muted">Total paid +
+            Distributer</span>
           <span className="fw-bold fs-5 text-danger">{totalpaidclientcount}</span>
-        </div>
+        </div> */}
       </div>
 
 
@@ -490,14 +621,31 @@ function Alldata() {
 
 
 
-
+    
 
       <div className="record-header d-flex justify-content-between">
-        <div className="add  pt-1">
-          <div className="m-0 p-0">
-            <button onClick={exportToCSV} className="btn btn-primary w-auto">
-              Export to CSV
-            </button>
+        <div className="">
+          <div className="d-flex gap-2">
+            <Button
+              variant={changetable === "collection" ? "primary" : "outline-primary"}
+
+              onClick={() => setChangetable("collection")}
+            >
+              Collection
+            </Button>
+
+            <Button
+              variant={changetable === "paid" ? "primary" : "outline-primary"}
+
+              onClick={() => setChangetable("paid")}
+            >
+              Paid
+            </Button>
+
+
+             {/* <button onClick={() => setPaidmodel(true)} className="btn btn-primary w-auto">
+                     distributer Amount update
+             </button>  */}
           </div>
         </div>
         <div className="d-flex gap-2 flex-wrap  justify-content-center p-2  ">
@@ -537,104 +685,124 @@ function Alldata() {
 
       {/* Payments Table */}
       <div className="table-responsive-md table-responsive-sm">
-        <table className="table table-striped" >
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Client</th>
-              <th>City</th>
-              <th>Agent</th>
-              <th>Date</th>
-              <th>Rate</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.length > 0 ? (
-              filteredData
-                .flatMap(client => {
-                  // Safely get payments array or default to empty array
-                  const payments = client.paid_amount_date || [];
+       {
+  changetable === "collection" ? (
+    <table className="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Distributer Name</th>
+          <th>Date</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filldata.map((item, index) => (
+          <tr key={item.id}>
+            <td>{index + 1}</td>
+            <td>
+              {
+                employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
+                item.Distributor_id
+              }
+            </td>
+            <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
+            <td>{item.today_rate}</td>
+            <td>
+              <div className="client-info">
+                <h4 style={{ color: "blue", fontWeight: "500" }}>
+                  Local:{" "}
+                  <span>
+                    {item.collamount?.[0]
+                      ? parseFloat(item.collamount[0]).toFixed(3)
+                      : "0.00"}
+                  </span>
+                </h4>
+                 <h4 style={{ color: "red", fontWeight: "500" }}>
+                  Inter:{" "}
+                  <span>
+                    {item.collamount?.[0]
+                      ? parseFloat(item.collamount[0]).toFixed(3)*item.today_rate
+                      : "0.00"}
+                  </span>
+                </h4>
+           
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : changetable === "paid" ? (
+    <table className="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Distributer Name</th>
+          <th>Agent</th>
+          <th>Date</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filldata.map((item, index) => (
+          <tr key={item.id}>
+            <td>{index + 1}</td>
+            <td>
+                              <div className="client">
+                                <div
+                                  className="client-img bg-img"
+                                  style={{
+                                    backgroundImage: 
+                                     `url(${imageExists(
+                                      "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
+                                    )})`
+                                   ,
+                                  }}
+                                ></div>
+                                <div className="client-info">
+                                  <h4> {
+                employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
+                item.Distributor_id
+              }</h4>
+                                 
+                                </div>
+                              </div>
+                            </td>
+            <td>
+              {
+                employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
+                item.Distributor_id
+              }
+            </td>
+            <td>{ employees.find(emp => emp.user_id == item.agent_id)?.username ||
+                item.Distributor_id}</td>
+            <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
+            <td>{item.today_rate}</td>
+            <td>
+              <div className="client-info">
+                <h4 style={{ color: "blue", fontWeight: "500" }}>
+                  Local:{" "}
+                  <span>
+                    {item.paidamount?.[0]
+                      ? parseFloat(item.paidamount[0]).toFixed(3)
+                      : "0.00"}
+                  </span>
+                </h4>
+               
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <div>No Data</div>
+  )
+}
 
-                  return payments
-                    .filter(payment => {
-                      if (!payment) return false;
-
-                      try {
-                        const paymentDate = parse(payment.date, "dd-MM-yyyy", new Date());
-                        const start = parse(startDate, "yyyy-MM-dd", new Date());
-                        const end = parse(endDate, "yyyy-MM-dd", new Date());
-
-                        return isValid(paymentDate) &&
-                          paymentDate >= start &&
-                          paymentDate <= end &&
-                          (!selectedAgent || payment.userID == selectedAgent);
-                      } catch (e) {
-                        console.error("Error parsing payment date:", e);
-                        return false;
-                      }
-                    })
-                    .map(payment => ({ payment, client }));
-                })
-                .map(({ payment, client }, index) => {
-                  // Safely get agent info
-                  const agent = employees.find(e => e.user_id == payment?.userID);
-
-                  return (
-                    <tr key={`${client.client_id}-${payment?.date}-${index}`}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div className="client">
-                          <div className="client-info">
-                            <h4 onClick={() => handleClientClick(client)}>
-                              {client.client_name?.toUpperCase() || 'N/A'}
-                            </h4>
-                            <small>{client.client_contact || ''}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{client.client_city?.toUpperCase() || 'N/A'}</td>
-                      <td>
-                        <span
-                          className=" cursor-pointer"
-                          onClick={() => handleAgentClick(payment?.userID)}
-                        >
-                          {agent?.username?.toUpperCase() || "Unknown"}
-                        </span>
-                      </td>
-                      <td>{payment?.date || 'N/A'}</td>
-                      <td>{client.today_rate || 'N/A'}</td>
-                      <td>
-                        <div className="client-info">
-                          <h4 style={{ color: "blue", fontWeight: "500" }}>
-                            INTER:{" "}
-                            <span>
-                              {parseFloat(payment?.amount || 0).toFixed(2)}
-                            </span>
-                          </h4>
-                          <h4 style={{ color: "red", fontWeight: "500" }}>
-                            LOCAL:{" "}
-                            <span>
-                              {(
-                                parseFloat(payment?.amount || 0) /
-                                parseFloat(client.today_rate || 1)
-                              ).toFixed(3)}
-                            </span>
-                          </h4>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-            ) : (
-              <tr>
-                <td colSpan="8" className="text-center py-4 text-muted">
-                  No data found for the selected filters
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
         <div className="d-flex justify-content-end p-3">
           <p>
             <strong>Total Paid Amount for the selected range: </strong>
@@ -642,7 +810,28 @@ function Alldata() {
           </p>
         </div>
       </div>
+
+      <Modal show={paidmodel} onHide={() => setPaidmodel(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <input placeholder="enter the Distributer id " value={disid} onChange={(e) => setDisid(e.target.value)} type="number" ></input>
+          <input placeholder="enter the Amount" value={disamount} onChange={(e) => setDisamount(e.target.value)} type="" ></input>
+          <input placeholder="enter the name" value={disfullname} onChange={(e) => setDisfullname(e.target.value)} type="" ></input>
+        </Modal.Body>
+        <Modal.Footer>
+          <button onClick={updatetheamount} > update the amount </button>
+          <button onClick={handleUpdateAmount} > remove amount </button>
+            <button onClick={handleRemovePayment} > remove </button>
+         
+        </Modal.Footer>
+
+      </Modal>
     </div>
+
+
+
   );
 }
 
