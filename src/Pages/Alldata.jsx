@@ -515,7 +515,7 @@ const runFilter = () => {
 
   // ⬆️ Set all states
   setFilldata(filteredData);
-  setTotalpaidnewamount(totalPaid);
+  setTotalpaidnewamount(totalPaid.toFixed(3));
   setTotalcollnewamount(totalColl.toFixed(2));
   setTotalcolltodayrate(totalCollRate.toFixed(3));
 
@@ -628,7 +628,7 @@ const handleRemovePayment = async () => {
           <div className="d-flex gap-2">
             <Button
               variant={changetable === "collection" ? "primary" : "outline-primary"}
-
+              className="p-2"
               onClick={() => setChangetable("collection")}
             >
               Collection
