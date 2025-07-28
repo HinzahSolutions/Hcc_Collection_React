@@ -1030,7 +1030,7 @@ console.log("Total Amount:", totalAmount);
   const localCollSum = todayData.reduce((sum, item) => {
     const coll = parseFloat(item.collamount?.[0]) || 0;
     const rate = parseFloat(item.today_rate) || 1;
-    return sum + coll / rate;
+    return sum + coll * rate;
   }, 0);
 
   setTodayOrderInterColl(interCollSum);
@@ -1168,8 +1168,8 @@ console.log("Total Amount:", totalAmount);
             >
               <div className="card-head">
                 <div className="d-flex flex-column">
-                <h4 style={{color:'black'}}>{todayOrderLocalColl.toFixed(3)}</h4>
-                <h4 style={{color:'black'}}>{todayOrderInterColl.toFixed(2)}</h4>
+                <h4 style={{color:'black'}}>{todayOrderLocalColl.toFixed(2)}</h4>
+                <h4 style={{color:'black'}}>{todayOrderInterColl.toFixed(3)}</h4>
               </div>
                 <span className="las la-user-friends">
                   <GiReceiveMoney />

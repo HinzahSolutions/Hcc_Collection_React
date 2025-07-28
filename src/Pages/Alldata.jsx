@@ -509,7 +509,7 @@ const runFilter = () => {
     totalColl += collNum;
 
     if (rate && rate !== 0) {
-      totalCollRate += collNum / rate;
+      totalCollRate += collNum * rate;
     }
   });
 
@@ -723,7 +723,7 @@ const handleRemovePayment = async () => {
                   Inter:{" "}
                   <span>
                     {item.collamount?.[0]
-                      ? parseFloat(item.collamount[0]).toFixed(3)*item.today_rate
+                      ? (parseFloat(item.collamount[0]).toFixed(2)*item.today_rate).toFixed(2)
                       : "0.00"}
                   </span>
                 </h4>
@@ -771,14 +771,9 @@ const handleRemovePayment = async () => {
                                 </div>
                               </div>
                             </td>
-            <td>
-              {
-                employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
-                item.Distributor_id
-              }
-            </td>
-            <td>{ employees.find(emp => emp.user_id == item.agent_id)?.username ||
-                item.Distributor_id}</td>
+     
+            <td>{ employees.find(emp => emp.user_id === item.agent_id)?.username ||
+                item.agent_id}</td>
             <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
             <td>{item.today_rate}</td>
             <td>

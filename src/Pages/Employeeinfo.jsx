@@ -30,6 +30,8 @@ const EmployeeInfo = () => {
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedClientDate, setSelectedClientDate] = useState("");
+   const [amountData, setAmountData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
 
 
   useEffect(() => {
@@ -508,6 +510,25 @@ const EmployeeInfo = () => {
     }, 0);
 
 
+    // const  thisDistributorpaidamount = amountData
+    // .filter((paidamount) =>{
+    //   const paiddata = paidamount.Distributor_id === selectedEmployee?.user_id
+    // }).reduce((total,amount) =>{
+    //    return total +amount.paidAmount
+    // },0)
+
+    const thisDistributorpaidamount = amountData
+  .filter((paidamount) => paidamount.Distributor_id === selectedEmployee?.user_id)
+  .reduce((total, amount) => {
+    const sumOfPaid = Array.isArray(amount.paidamount)
+      ? amount.paidamount.reduce((a, b) => a + b, 0)
+      : parseFloat(amount.paidamount) || 0;
+    return total + sumOfPaid;
+  }, 0);
+     
+
+    console.log("paidamount",thisDistributorpaidamount.toFixed(3))
+
 
 
   const handlenav = (client) => {
@@ -521,8 +542,7 @@ const EmployeeInfo = () => {
     return decimalPart >= 0.50 ? Math.ceil(value) : Math.floor(value);
   };
 
-  const [amountData, setAmountData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+ 
 
 
   useEffect(() => {
@@ -548,7 +568,7 @@ const EmployeeInfo = () => {
       .catch((error) => {
         console.error("❌ Fetch failed:", error.message);
       });
-  }, []);
+  }, []); 
 
 
 
@@ -646,7 +666,7 @@ const EmployeeInfo = () => {
       </div>
 
 
-      {(selectedEmployee?.role === "Distributor" || selectedEmployee?.role === "Agent") && (
+      {(selectedEmployee?.role === "Distributor" || selectedEmployee?.role === "Collection Agent") && (
         <div className="d-flex justify-content-end px-2">
           <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
             COLLECTION AMOUNT
@@ -656,6 +676,14 @@ const EmployeeInfo = () => {
                 : thisAgentCollectionAmount.toFixed(3)}
             </span>
           </h4>
+          {selectedEmployee.role === "Distributor"?
+           <h4 className="px-4 py-3" style={{ backgroundColor: "#1246ac", color: "white" }}>
+            PAID AMOUNT
+            <span style={{ backgroundColor: "white", color: "black" }} className="px-2 py-2 mx-1">             
+                {thisDistributorpaidamount.toFixed(3)}
+            </span>
+          </h4>
+          :(<span></span>)}
         </div>
       )}
 
@@ -778,7 +806,7 @@ const EmployeeInfo = () => {
               <h4 style={{ color: "red", fontWeight: "500" }}>
                           LOCAL:{" "}
                           <span>
-                            {paidAmount}
+                            {paidAmount.toFixed(3)}
                           </span>
                         </h4>
                         </div>
