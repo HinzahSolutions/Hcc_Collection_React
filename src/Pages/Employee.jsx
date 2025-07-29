@@ -63,7 +63,7 @@ function Employee() {
   };
 
   const selectedDistributor = employees.find(emp => emp.role === "Distributor");
-  const [visibleCount, setVisibleCount] = useState(30);
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -303,20 +303,61 @@ function Employee() {
   //     return matchesSearch && matchesRole && hasTodayClient ;
   //   });
   // }, [employees,searchQuery,dashboardnav,users,currentDate,]);
-  const filteredData = useMemo(() => {
+//   const filteredData = useMemo(() => {
+//   const query = searchQuery?.toLowerCase().trim() || "";
+
+//   return employees.filter((row) => {
+//     const username = row.username?.toLowerCase().trim() || "";
+//     const phonenumber = row.phone_number || "";
+
+//     const matchesSearch =
+//       !query ||
+//       username.includes(query) ||
+//       phonenumber.includes(query);
+
+//     const matchesRole =
+//       dashboardnav === "All" ||
+//       (dashboardnav === "Admin" && row.role === "Admin") ||
+//       (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
+//       (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
+//       (dashboardnav === "Distributor" && row.role === "Distributor") ||
+//       (dashboardnav === "Dtp" && row.role === "Dtp");
+
+//     const hasTodayClient =
+//       row.role !== "Distributor" ||
+//       users.some(
+//         (client) =>
+//           String(client.Distributor_id) === String(row.user_id) &&
+//           client.date === currentDate
+//       );
+
+//     return matchesSearch && matchesRole && hasTodayClient;
+//   });
+// }, [employees, searchQuery, dashboardnav, users, currentDate]);
+
+ const filteredData = useMemo(() => {
   const query = searchQuery?.toLowerCase().trim() || "";
+
+  if (dashboardnav === "All") {
+    return employees.filter((row) => {
+      const username = row.username?.toLowerCase().trim() || "";
+      const phonenumber = row.phone_number || "";
+
+      const matchesSearch =
+        !query || username.includes(query) || phonenumber.includes(query);
+
+      return matchesSearch; // In "All", only apply search filter
+    });
+  }
 
   return employees.filter((row) => {
     const username = row.username?.toLowerCase().trim() || "";
     const phonenumber = row.phone_number || "";
 
     const matchesSearch =
-      !query ||
-      username.includes(query) ||
-      phonenumber.includes(query);
+      !query || username.includes(query) || phonenumber.includes(query);
 
     const matchesRole =
-      dashboardnav === "All" ||
       (dashboardnav === "Admin" && row.role === "Admin") ||
       (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
       (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
@@ -334,7 +375,6 @@ function Employee() {
     return matchesSearch && matchesRole && hasTodayClient;
   });
 }, [employees, searchQuery, dashboardnav, users, currentDate]);
-
 
   console.log(filteredData)
 
@@ -442,34 +482,45 @@ function Employee() {
 
 
 
+ const sortedData = useMemo(() => {
+  const rolePriority = {
+    "Distributor": 1,
+    "Collection Agent": 2,
+    "Collection Manager": 3,
+    "Admin": 4,
+    "Dtp": 5
+  };
 
+  return [...filteredData].sort((a, b) => {
+    const aPriority = rolePriority[a.role] || 99;
+    const bPriority = rolePriority[b.role] || 99;
 
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority; // Role-based order
+    }
 
+    // If dashboardnav is "All", don't sort by date
+    if (dashboardnav === "All") {
+      return 0;
+    }
 
-  const sortedData = useMemo(() => {
-    return [...filteredData].sort((a, b) => {
-      // Show Distributors first
-      const isADistributor = a.role === "Distributor";
-      const isBDistributor = b.role === "Distributor";
+    // Same role, so sort by today_rate_date (most recent first)
+    const aDate = a.today_rate_date
+      ? new Date(a.today_rate_date.split("-").reverse().join("-"))
+      : null;
+    const bDate = b.today_rate_date
+      ? new Date(b.today_rate_date.split("-").reverse().join("-"))
+      : null;
 
-      if (isADistributor && !isBDistributor) return -1;
-      if (!isADistributor && isBDistributor) return 1;
+    if (aDate === null && bDate === null) return 0;
+    if (aDate === null) return 1;
+    if (bDate === null) return -1;
 
-      // Then sort by today_rate_date (most recent first)
-      const aDate = a.today_rate_date
-        ? new Date(a.today_rate_date.split("-").reverse().join("-"))
-        : null;
-      const bDate = b.today_rate_date
-        ? new Date(b.today_rate_date.split("-").reverse().join("-"))
-        : null;
+    return bDate - aDate;
+  });
+}, [filteredData, dashboardnav]);
+;
 
-      if (aDate === null && bDate === null) return 0;
-      if (aDate === null) return 1;
-      if (bDate === null) return -1;
-
-      return bDate - aDate;
-    });
-  }, [filteredData]);
 
 
   const [paiddisdata,setPaiddidata] = useState()
@@ -1486,50 +1537,7 @@ console.log("Total Amount:", totalAmount);
                             </td>
                             <td>{row.role ? row.role.toUpperCase() : "UNKNOWN ROLE"}</td>
                             <td>{row.city ? row.city.toUpperCase() : "UNKNOWN CITY"}</td>
-                            {/* <td>{row.email ? row.email : "UNKNOWN EMAIL"}</td> */}
-                            {/* {row.role === "Distributor" ? (
-                              <td>
-                                <div className="client-info">
-                                  <h4 style={{ color: "blue", fontWeight: "500" }}>
-                                    INTER:{" "}
-                                    <span>
-                                      {users
-                                        .filter(
-                                          (user) =>
-                                            user.Distributor_id === row.user_id &&
-                                            user.date === currentDate &&
-                                            parseFloat(user.amount) > 0
-                                        )
-                                        .reduce((sum, user) => sum + parseFloat(user.amount || 0), 0)
-                                        .toFixed(2)}
-                                    </span>
-                                  </h4>
-
-                                  <h4 style={{ color: "red", fontWeight: "500" }}>
-                                    LOCAL:{" "}
-                                    <span>
-                                      {row.role === "Distributor" &&
-                                        row.today_rate_date === currentDate &&
-                                        parseFloat(row.Distributor_today_rate) > 0
-                                        ? users
-                                          .filter(
-                                            (user) =>
-                                              user.Distributor_id === row.user_id &&
-                                              user.date === currentDate &&
-                                              parseFloat(user.amount) > 0
-                                          )
-                                          .reduce(
-                                            (sum, user) =>
-                                              sum + parseFloat(user.amount || 0) / parseFloat(row.Distributor_today_rate),
-                                            0
-                                          )
-                                          .toFixed(3)
-                                        : "0.000"}
-                                    </span>
-                                  </h4>
-                                </div>
-                              </td>) : (<td></td>)
-                            } */}
+                          
                          {row.role === "Distributor" ? (
   <>
     <td>
