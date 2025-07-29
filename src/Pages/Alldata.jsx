@@ -17,12 +17,13 @@ import { setEmployees, setSelectedEmployee } from "../Slicers/employeeSlice";
 function Alldata() {
   const API_URL = import.meta.env.VITE_API_URL;
   const [selectedAgent, setSelectedAgent] = useState("");
+  const [selectedDistributor, setSelectedDistributer] = useState("")
   const [paidmodel, setPaidmodel] = useState(false)
   const [disid, setDisid] = useState()
   const [disamount, setDisamount] = useState()
-  const [type, setType] = useState("paid")
+  const [type, setType] = useState("collection")
   const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
- const [amountData, setAmountData] = useState([]);
+  const [amountData, setAmountData] = useState([]);
 
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -155,9 +156,9 @@ function Alldata() {
           if (client.colldate && isValidDateRange) {
             const paidInRange = client.paid_amount_date.reduce((sum, payment) => {
               try {
-             
 
-           
+
+
 
                 return sum + (parseFloat(payment.paidamount) || 0);
               } catch (e) {
@@ -299,7 +300,7 @@ function Alldata() {
       });
   };
 
- 
+
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -344,7 +345,7 @@ function Alldata() {
       })
       .then((data) => {
         console.log("✅ Received Collection amount data:", data);
-       
+
       })
       .catch((error) => {
         console.error("❌ Fetch failed:", error.message);
@@ -370,7 +371,7 @@ function Alldata() {
       })
       .then((data) => {
         console.log("✅ Received paid amount data:", data);
-      
+
       })
       .catch((error) => {
         console.error("❌ Fetch failed:", error.message);
@@ -444,118 +445,125 @@ function Alldata() {
   }, []);
 
   const [filldata, setFilldata] = useState([]);
-  const [totalpaidnewamount,setTotalpaidnewamount] = useState()
-  const [totalcollnewamount,setTotalcollnewamount] = useState()
-  const [totalcolltodayrate,setTotalcolltodayrate] = useState()
+  const [totalpaidnewamount, setTotalpaidnewamount] = useState()
+  const [totalcollnewamount, setTotalcollnewamount] = useState()
+  const [totalcolltodayrate, setTotalcolltodayrate] = useState()
 
 
- useEffect(() => {
-  runFilter();
-}, [amountData, startDate, endDate, changetable, selectedAgent]);
+  useEffect(() => {
+    runFilter();
+  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor]);
 
 
 
-  
-  
-  
- useEffect(() => {
-  runFilter();
-}, [amountData, startDate, endDate, changetable, selectedAgent]);
- 
-const runFilter = () => {
-  console.log("🔎 Filtering started...");
-  console.log("Start Date:", startDate);
-  console.log("End Date:", endDate);
-  console.log("Type Filter:", changetable);
-  console.log("Selected Agent:", selectedAgent);
 
-  const filteredData = amountData.filter((item) => {
-    const rawColldate = Array.isArray(item.colldate)
-      ? item.colldate[0]
-      : typeof item.colldate === "string"
-        ? item.colldate.replace(/[\[\]"]+/g, "")
-        : "";
 
-    const parts = rawColldate.split("-");
-    const formattedDate =
-      parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : null;
 
-    const isInDateRange =
-      !startDate || !endDate || (formattedDate >= startDate && formattedDate <= endDate);
+  useEffect(() => {
+    runFilter();
+  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor]);
 
-    const matchesType = item.type.trim() === changetable.trim();
-  const matchesAgent =
-      selectedAgent === "" || selectedAgent === null
-        ? true
-        : String(item.agent_id) === String(selectedAgent);
+  const runFilter = () => {
+    console.log("🔎 Filtering started...");
+    console.log("Start Date:", startDate);
+    console.log("End Date:", endDate);
+    console.log("Type Filter:", changetable);
+    console.log("Selected Agent:", selectedAgent);
+    console.log("selectDistributor", selectedDistributor)
 
-    return isInDateRange && matchesType && matchesAgent;
-  });
+    const filteredData = amountData.filter((item) => {
+      const rawColldate = Array.isArray(item.colldate)
+        ? item.colldate[0]
+        : typeof item.colldate === "string"
+          ? item.colldate.replace(/[\[\]"]+/g, "")
+          : "";
 
-  // ✅ Calculate totals
-  let totalPaid = 0;
-  let totalColl = 0;
-  let totalCollRate = 0;
+      const parts = rawColldate.split("-");
+      const formattedDate =
+        parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : null;
 
-  filteredData.forEach((item) => {
-    const paid = Array.isArray(item.paidamount) ? item.paidamount[0] : item.paidamount;
-    const coll = Array.isArray(item.collamount) ? item.collamount[0] : item.collamount;
-    const rate = parseFloat(item.today_rate);
+      const isInDateRange =
+        !startDate || !endDate || (formattedDate >= startDate && formattedDate <= endDate);
 
-    const paidNum = parseFloat(paid) || 0;
-    const collNum = parseFloat(coll) || 0;
+      const matchesType = item.type.trim() === changetable.trim();
 
-    totalPaid += paidNum;
-    totalColl += collNum;
+      const matchesAgent =
+        selectedAgent === "" || selectedAgent === null
+          ? true
+          : String(item.agent_id) === String(selectedAgent);
 
-    if (rate && rate !== 0) {
-      totalCollRate += collNum * rate;
-    }
-  });
+      const matchesDistributor =
+        selectedDistributor === "" || selectedDistributor === null
+          ? true
+          : String(item.Distributor_id) === String(selectedDistributor);
 
-  // ⬆️ Set all states
-  setFilldata(filteredData);
-  setTotalpaidnewamount(totalPaid.toFixed(3));
-  setTotalcollnewamount(totalColl.toFixed(2));
-  setTotalcolltodayrate(totalCollRate.toFixed(3));
+      return isInDateRange && matchesType && matchesAgent && matchesDistributor;
+    });
 
-  // 🧾 Logs
-  console.log("✅ Final Filtered Result:", filteredData);
-  console.log("💰 Total Paid Amount:", totalPaid);
-  console.log("📦 Total Collection Amount:", totalColl);
-  console.log("📉 Total Collection ÷ Today Rate:", totalCollRate);
-};
+    // ✅ Calculate totals
+    let totalPaid = 0;
+    let totalColl = 0;
+    let totalCollRate = 0;
+
+    filteredData.forEach((item) => {
+      const paid = Array.isArray(item.paidamount) ? item.paidamount[0] : item.paidamount;
+      const coll = Array.isArray(item.collamount) ? item.collamount[0] : item.collamount;
+      const rate = parseFloat(item.today_rate);
+
+      const paidNum = parseFloat(paid) || 0;
+      const collNum = parseFloat(coll) || 0;
+
+      totalPaid += paidNum;
+      totalColl += collNum;
+
+      if (rate && rate !== 0) {
+        totalCollRate += collNum * rate;
+      }
+    });
+
+    // ⬆️ Set all states
+    setFilldata(filteredData);
+    setTotalpaidnewamount(totalPaid.toFixed(3));
+    setTotalcollnewamount(totalColl.toFixed(3));
+    setTotalcolltodayrate(totalCollRate.toFixed(2));
+
+    // 🧾 Logs
+    console.log("✅ Final Filtered Result:", filteredData);
+    console.log("💰 Total Paid Amount:", totalPaid);
+    console.log("📦 Total Collection Amount:", totalColl);
+    console.log("📉 Total Collection ÷ Today Rate:", totalCollRate);
+  };
 
 
   console.log("fdissdfkjb", amountData)
 
   console.log(filldata)
 
-const handleRemovePayment = async () => {
- 
+  const handleRemovePayment = async () => {
 
-  try {
-    const response = await fetch(`${API_URL}/collection/paid/delete/${ parseInt(disid)}`, {
-      method: 'DELETE',
-    });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Delete failed');
+    try {
+      const response = await fetch(`${API_URL}/collection/paid/delete/${parseInt(disid)}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Delete failed');
+      }
+
+      // Check if response has content before parsing JSON
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
+
+      console.log('deleted', data);
+
+    } catch (error) {
+      console.error('Error:', error.message);
     }
+  };
 
-    // Check if response has content before parsing JSON
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
-    
-    console.log('deleted', data);
-
-  } catch (error) {
-    console.error('Error:', error.message);
-  }
-};
-
- const imageExists = (url) => {
+  const imageExists = (url) => {
     const img = new Image();
     img.src = url;
     img.onerror = () => {
@@ -592,7 +600,7 @@ const handleRemovePayment = async () => {
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', columnGap: '5px' }}>
             <span className="fw-bold fs-5 text-primary"  > <span className="text-primary"> Local Amount :</span>{totalpaidnewamount} </span>
-           
+
           </div>
 
         </div>
@@ -621,7 +629,7 @@ const handleRemovePayment = async () => {
 
 
 
-    
+
 
       <div className="record-header d-flex justify-content-between">
         <div className="">
@@ -643,14 +651,45 @@ const handleRemovePayment = async () => {
             </Button>
 
 
-             {/* <button onClick={() => setPaidmodel(true)} className="btn btn-primary w-auto">
+            {/* <button onClick={() => setPaidmodel(true)} className="btn btn-primary w-auto">
                      distributer Amount update
-             </button>  */}
+             </button>   */}
           </div>
         </div>
         <div className="d-flex gap-2 flex-wrap  justify-content-center p-2  ">
-          <div className="d-flex gap-2  md-flex-wrap pt-2">
+          <div className="d-flex gap-2 sm-flex-wrap md-flex-wrap pt-2">
+            {/* <Form.Select
+              value={selectedDistributor}
+              onChange={(e) => setSelectedDistributer(e.target.value)}
+              style={{ minWidth: "180px", }}
+            >
+              <option value="" style={{ paddingBottom: "20px" }}>All Agents</option>
+              {employees
+                .filter(e => e.role === "Distributor")
+                .map(agent => (
+                  <option key={agent.user_id} value={agent.user_id}>
+                    {agent.username}
+                  </option>
+                ))}
+            </Form.Select> */}
             <Form.Select
+              value={selectedDistributor}
+              onChange={(e) => setSelectedDistributer(e.target.value)}
+              style={{ minWidth: "180px" }}
+            >
+              <option value="">All Distributer</option>
+              {employees
+                .filter((e) => e.role === "Distributor")
+                .sort((a, b) => a.username.localeCompare(b.username)) // sort alphabetically
+                .map((agent) => (
+                  <option key={agent.user_id} value={agent.user_id}>
+                    {(agent.username).toUpperCase()}
+                  </option>
+                ))}
+            </Form.Select>
+             {
+               changetable  === "paid" ?(
+                      <Form.Select
               value={selectedAgent}
               onChange={(e) => setSelectedAgent(e.target.value)}
               style={{ minWidth: "180px", }}
@@ -660,10 +699,13 @@ const handleRemovePayment = async () => {
                 .filter(e => e.role === "Collection Agent")
                 .map(agent => (
                   <option key={agent.user_id} value={agent.user_id}>
-                    {agent.username}
+                    {agent.username.toUpperCase()}
                   </option>
                 ))}
             </Form.Select>
+               ):(<span></span>)
+             }
+          
             <InputGroup style={{ width: "180px" }}>
               <FormControl
                 type="date"
@@ -685,125 +727,142 @@ const handleRemovePayment = async () => {
 
       {/* Payments Table */}
       <div className="table-responsive-md table-responsive-sm">
-       {
-  changetable === "collection" ? (
-    <table className="table table-striped">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Distributer Name</th>
-          <th>Date</th>
-          <th>Rate</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filldata.map((item, index) => (
-          <tr key={item.id}>
-            <td>{index + 1}</td>
-            <td>
-              {
-                employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
-                item.Distributor_id
-              }
-            </td>
-            <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
-            <td>{item.today_rate}</td>
-            <td>
-              <div className="client-info">
-                <h4 style={{ color: "blue", fontWeight: "500" }}>
-                  Local:{" "}
-                  <span>
-                    {item.collamount?.[0]
-                      ? parseFloat(item.collamount[0]).toFixed(3)
-                      : "0.00"}
-                  </span>
-                </h4>
-                 <h4 style={{ color: "red", fontWeight: "500" }}>
-                  Inter:{" "}
-                  <span>
-                    {item.collamount?.[0]
-                      ? (parseFloat(item.collamount[0]).toFixed(2)*item.today_rate).toFixed(2)
-                      : "0.00"}
-                  </span>
-                </h4>
-           
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : changetable === "paid" ? (
-    <table className="table table-striped">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Distributer Name</th>
-          <th>Agent</th>
-          <th>Date</th>
-          <th>Rate</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filldata.map((item, index) => (
-          <tr key={item.id}>
-            <td>{index + 1}</td>
-            <td>
-                              <div className="client">
-                                <div
-                                  className="client-img bg-img"
-                                  style={{
-                                    backgroundImage: 
-                                     `url(${imageExists(
-                                      "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
-                                    )})`
-                                   ,
-                                  }}
-                                ></div>
-                                <div className="client-info">
-                                  <h4> {
-                employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
-                item.Distributor_id
-              }</h4>
-                                 
-                                </div>
-                              </div>
-                            </td>
-     
-            <td>{ employees.find(emp => emp.user_id === item.agent_id)?.username ||
-                item.agent_id}</td>
-            <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
-            <td>{item.today_rate}</td>
-            <td>
-              <div className="client-info">
-                <h4 style={{ color: "blue", fontWeight: "500" }}>
-                  Local:{" "}
-                  <span>
-                    {item.paidamount?.[0]
-                      ? parseFloat(item.paidamount[0]).toFixed(3)
-                      : "0.00"}
-                  </span>
-                </h4>
-               
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <div>No Data</div>
-  )
-}
+        {
+          changetable === "collection" ? (
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Distributer Name</th>
+                  <th>Date</th>
+                  <th>Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filldata.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{index + 1}</td>
 
-        <div className="d-flex justify-content-end p-3">
+                      <td>
+                      <div className="client">
+                        <div
+                          className="client-img bg-img"
+                          style={{
+                            backgroundImage:
+                              `url(${imageExists(
+                                "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
+                              )})`
+                            ,
+                          }}
+                        ></div>
+                        <div className="client-info">
+                          <h4>  {
+                        employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
+                        item.Distributor_id
+                      }</h4>
+
+                        </div>
+                      </div>
+                    </td>
+                    
+                    <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
+                    <td>{item.today_rate}</td>
+                    <td>
+                      <div className="client-info">
+                        <h4 style={{ color: "blue", fontWeight: "500" }}>
+                          Local:{" "}
+                          <span>
+                            {item.collamount?.[0]
+                              ? parseFloat(item.collamount[0]).toFixed(3)
+                              : "0.00"}
+                          </span>
+                        </h4>
+                        <h4 style={{ color: "red", fontWeight: "500" }}>
+                          Inter:{" "}
+                          <span>
+                            {item.collamount?.[0]
+                              ? (parseFloat(item.collamount[0]).toFixed(2) * item.today_rate).toFixed(2)
+                              : "0.00"}
+                          </span>
+                        </h4>
+
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : changetable === "paid" ? (
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Distributer Name</th>
+                  <th>Agent</th>
+                  <th>Date</th>
+                  <th>Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filldata.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{index + 1}</td>
+                    <td>
+                      <div className="client">
+                        <div
+                          className="client-img bg-img"
+                          style={{
+                            backgroundImage:
+                              `url(${imageExists(
+                                "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
+                              )})`
+                            ,
+                          }}
+                        ></div>
+                        <div className="client-info">
+                          <h4> {
+                            employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
+                            item.Distributor_id
+                          }</h4>
+
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>{employees.find(emp => emp.user_id === item.agent_id)?.username ||
+                      item.agent_id}</td>
+                    <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
+                    <td>{item.today_rate}</td>
+                    <td>
+                      <div className="client-info">
+                        <h4 style={{ color: "blue", fontWeight: "500" }}>
+                          Local:{" "}
+                          <span>
+                            {item.paidamount?.[0]
+                              ? parseFloat(item.paidamount[0]).toFixed(3)
+                              : "0.00"}
+                          </span>
+                        </h4>
+
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div>No Data</div>
+          )
+        }
+
+        {/* <div className="d-flex justify-content-end p-3">
           <p>
             <strong>Total Paid Amount for the selected range: </strong>
             {totalPaidInRange.toFixed(3)}
           </p>
-        </div>
+        </div> */}
       </div>
 
       <Modal show={paidmodel} onHide={() => setPaidmodel(false)}>
@@ -818,8 +877,8 @@ const handleRemovePayment = async () => {
         <Modal.Footer>
           <button onClick={updatetheamount} > update the amount </button>
           <button onClick={handleUpdateAmount} > remove amount </button>
-            <button onClick={handleRemovePayment} > remove </button>
-         
+          <button onClick={handleRemovePayment} > remove </button>
+
         </Modal.Footer>
 
       </Modal>

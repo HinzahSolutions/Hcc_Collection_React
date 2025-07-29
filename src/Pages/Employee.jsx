@@ -269,40 +269,71 @@ function Employee() {
 
 
 
+  // const filteredData = useMemo(() => {
+  //   if (dashboardnav === "All") {
+  //     return employees;
+  //   }
+
+  //   const query = searchQuery?.toLowerCase().trim() || "";
+
+  //   return employees.filter((row) => {
+  //     const username = row.username?.toLowerCase().trim() || "";
+  //     const phonenumber = row.phone_number || "";
+
+  //     const matchesSearch =
+  //       !query ||
+  //       username.includes(query) ||
+  //       phonenumber.includes(query);
+
+  //     const matchesRole =
+  //       (dashboardnav === "Admin" && row.role === "Admin") ||
+  //       (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
+  //       (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
+  //       (dashboardnav === "Distributor" && row.role === "Distributor") ||
+  //       (dashboardnav === "Dtp" && row.role === "Dtp");
+
+  //     const hasTodayClient =
+  //       row.role !== "Distributor" ||
+  //       users.some(
+  //         (client) =>
+  //           String(client.Distributor_id) === String(row.user_id) &&
+  //           client.date === currentDate
+  //       );
+
+  //     return matchesSearch && matchesRole && hasTodayClient ;
+  //   });
+  // }, [employees,searchQuery,dashboardnav,users,currentDate,]);
   const filteredData = useMemo(() => {
-    if (dashboardnav === "All") {
-      return employees;
-    }
+  const query = searchQuery?.toLowerCase().trim() || "";
 
-    const query = searchQuery?.toLowerCase().trim() || "";
+  return employees.filter((row) => {
+    const username = row.username?.toLowerCase().trim() || "";
+    const phonenumber = row.phone_number || "";
 
-    return employees.filter((row) => {
-      const username = row.username?.toLowerCase().trim() || "";
-      const phonenumber = row.phone_number || "";
+    const matchesSearch =
+      !query ||
+      username.includes(query) ||
+      phonenumber.includes(query);
 
-      const matchesSearch =
-        !query ||
-        username.includes(query) ||
-        phonenumber.includes(query);
+    const matchesRole =
+      dashboardnav === "All" ||
+      (dashboardnav === "Admin" && row.role === "Admin") ||
+      (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
+      (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
+      (dashboardnav === "Distributor" && row.role === "Distributor") ||
+      (dashboardnav === "Dtp" && row.role === "Dtp");
 
-      const matchesRole =
-        (dashboardnav === "Admin" && row.role === "Admin") ||
-        (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
-        (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
-        (dashboardnav === "Distributor" && row.role === "Distributor") ||
-        (dashboardnav === "Dtp" && row.role === "Dtp");
+    const hasTodayClient =
+      row.role !== "Distributor" ||
+      users.some(
+        (client) =>
+          String(client.Distributor_id) === String(row.user_id) &&
+          client.date === currentDate
+      );
 
-      const hasTodayClient =
-        row.role !== "Distributor" ||
-        users.some(
-          (client) =>
-            String(client.Distributor_id) === String(row.user_id) &&
-            client.date === currentDate
-        );
-
-      return matchesSearch && matchesRole && hasTodayClient;
-    });
-  }, [employees, searchQuery, dashboardnav, users, currentDate]);
+    return matchesSearch && matchesRole && hasTodayClient;
+  });
+}, [employees, searchQuery, dashboardnav, users, currentDate]);
 
 
   console.log(filteredData)

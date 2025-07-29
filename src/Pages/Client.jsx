@@ -488,120 +488,223 @@ function Client() {
 
 
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const currentDate = format(new Date(), "dd-MM-yyyy");
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     const currentDate = format(new Date(), "dd-MM-yyyy");
 
-    const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
+//     const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
 
-    const clientData = {
-      client_name: (clientName).toUpperCase(),
-      client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
-      client_city: (city || "UNKNOWN").toUpperCase(),
-      amount: amount || 0,
-      today_rate: todayrate || 0,
-      date: currentDate || new Date().toISOString(),
-      sent: false,
-      message: (message || "").toUpperCase(),
-      paid_and_unpaid: false,
-      success_and_unsuccess: false,
-      bank_name: (bname || "").toUpperCase(),
-      accno: (anumber || "").toUpperCase().trim(),
-      ifsc_code: (ifsc || "").toUpperCase(),
-      accoun_type: (type || "10").toUpperCase(), // ✅ fixed typo here
-      Distributor_id: distributorId || null,
-      name_of_the_beneficiary: (holdername || "").toUpperCase(),
-      address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
-      sender_information: (senderinfo || "STOCK").toUpperCase(),
-      bank_type: (clientType || "STOCK").toUpperCase(),
-      narration: (narration || "STOCK").toUpperCase(),
-      description: (description || "STOCK").toUpperCase(),
-      email_id_beneficiary: (beneficiaryemailid || "").replace(/"/g, ""),
-      ...(dtp_id && { dtp_id }),
-    };
+//     const clientData = {
+//       client_name: (clientName).toUpperCase(),
+//       client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
+//       client_city: (city || "UNKNOWN").toUpperCase(),
+//       amount: amount || 0,
+//       today_rate: todayrate || 0,
+//       date: currentDate || new Date().toISOString(),
+//       sent: false,
+//       message: (message || "").toUpperCase(),
+//       paid_and_unpaid: false,
+//       success_and_unsuccess: false,
+//       bank_name: (bname || "").toUpperCase(),
+//       accno: (anumber || "").toUpperCase().trim(),
+//       ifsc_code: (ifsc || "").toUpperCase(),
+//       accoun_type: (type || "10").toUpperCase(), // ✅ fixed typo here
+//       Distributor_id: distributorId || null,
+//       name_of_the_beneficiary: (holdername || "").toUpperCase(),
+//       address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
+//       sender_information: (senderinfo || "STOCK").toUpperCase(),
+//       bank_type: (clientType || "STOCK").toUpperCase(),
+//       narration: (narration || "STOCK").toUpperCase(),
+//       description: (description || "STOCK").toUpperCase(),
+//       email_id_beneficiary: (beneficiaryemailid || "").replace(/"/g, ""),
+//       ...(dtp_id && { dtp_id }),
+//     };
 
-    console.log(clientData);
+//     console.log(clientData);
 
-    fetch(`${API_URL}/acc_insertarrays`, {
+//     fetch(`${API_URL}/acc_insertarrays`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(clientData),
+//     })
+//       .then((response) => {
+//         if (response.ok) return response.json();
+//         throw new Error("Something went wrong!");
+//       })
+//       .then((data) => {
+//         console.log("Response data:", data);
+//         alert("New Client Created");
+//         resetForm();
+
+//         // Refresh the data
+//         fetch(`${API_URL}/acc_list`, {
+//           method: "GET",
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: localStorage.getItem("authToken"),
+//           },
+
+
+//         })
+
+
+//         const clientData = {
+//           Distributor_id: parseInt(distributorId),      // Convert to number
+//           collamount: todayrate?[(parseInt(amount)/ todayrate).toFixed(3)]:"",              // Wrap in array
+//           colldate: [currentDate],                     // Wrap in array
+//           type: "collection",
+//           today_rate: todayrate,
+//           paidamount: ""
+//         };
+
+//         console.log("Sending:", clientData);
+
+//         // ⛔ Don't proceed if today_rate is empty or zero
+//         if (!todayrate || Number(todayrate) === 0) {
+//           console.log("data today rate is empty")
+//           return;
+//         }
+
+//         fetch(`${API_URL}/collection/addamount`, {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify(clientData),
+//         })
+//           .then((response) => {
+//             if (!response.ok) {
+//               return response.text().then((text) => {
+//                 const errorMessage = `Error ${response.status} - ${response.statusText}: ${text}`;
+//                 throw new Error(errorMessage);
+//               });
+//             }
+//             return response.json();
+//           })
+//           .then((data) => {
+//             console.log("Response data:", data);
+//             alert("✅ Amount added successfully");
+//           })
+//           .catch((error) => {
+//             console.error("Request Failed:", error.message);
+//             alert(`❌ Request failed: ${error.message}`);
+//           })
+
+
+
+//           .then((response) => response.json())
+//       .then((updatedData) => dispatch(setUsers(updatedData)))
+//       .catch((error) => console.error("Error fetching updated data:", error));
+//   })
+//       .catch ((error) => {
+//     console.error("Error:", error);
+//   });
+// };
+  
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
+
+  const clientData = {
+    client_name: (clientName).toUpperCase(),
+    client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
+    client_city: (city || "UNKNOWN").toUpperCase(),
+    amount: amount || 0,
+    today_rate: todayrate || 0,
+    date: currentDate,
+    sent: false,
+    message: (message || "").toUpperCase(),
+    paid_and_unpaid: false,
+    success_and_unsuccess: false,
+    bank_name: (bname || "").toUpperCase(),
+    accno: (anumber || "").toUpperCase().trim(),
+    ifsc_code: (ifsc || "").toUpperCase(),
+    accoun_type: (type || "10").toUpperCase(),
+    Distributor_id: distributorId || null,
+    name_of_the_beneficiary: (holdername || "").toUpperCase(),
+    address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
+    sender_information: (senderinfo || "STOCK").toUpperCase(),
+    bank_type: (clientType || "STOCK").toUpperCase(),
+    narration: (narration || "STOCK").toUpperCase(),
+    description: (description || "STOCK").toUpperCase(),
+    email_id_beneficiary: (beneficiaryemailid || "").replace(/"/g, ""),
+    ...(dtp_id && { dtp_id }),
+  };
+
+  try {
+    // STEP 1: Submit client data
+    const insertRes = await fetch(`${API_URL}/acc_insertarrays`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(clientData),
+    });
+
+    if (!insertRes.ok) throw new Error("❌ Failed to create client");
+
+    const inserted = await insertRes.json();
+    console.log("✅ Client Created:", inserted);
+    alert("✅ New Client Created");
+
+    // STEP 2: Refresh client list
+    const listRes = await fetch(`${API_URL}/acc_list`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: localStorage.getItem("authToken"),
       },
-      body: JSON.stringify(clientData),
-    })
-      .then((response) => {
-        if (response.ok) return response.json();
-        throw new Error("Something went wrong!");
-      })
-      .then((data) => {
-        console.log("Response data:", data);
-        alert("New Client Created");
-        resetForm();
+    });
 
-        // Refresh the data
-        fetch(`${API_URL}/acc_list`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("authToken"),
-          },
+    const updatedData = await listRes.json();
+    dispatch(setUsers(updatedData));
+    console.log("🔄 Client List Updated");
 
+    // STEP 3: Conditionally submit collection data
+    if (!todayrate || Number(todayrate) === 0) {
+      alert("⚠️ Amount not added: today rate is missing or zero.");
+      console.warn("⚠️ todayrate is empty or zero");
+      return   resetForm();
+    }
 
-        })
+    const collectionData = {
+      Distributor_id: parseInt(distributorId),
+      collamount: [(parseInt(amount) / todayrate).toFixed(3)],
+      colldate: [currentDate],
+      type: "collection",
+      today_rate: todayrate,
+      paidamount: "",
+    };
 
+    console.log("Sending Collection Data:", collectionData);
 
-        const clientData = {
-          Distributor_id: parseInt(distributorId),      // Convert to number
-          collamount: todayrate?[(parseInt(amount)/ todayrate).toFixed(3)]:"",              // Wrap in array
-          colldate: [currentDate],                     // Wrap in array
-          type: "collection",
-          today_rate: todayrate,
-          paidamount: ""
-        };
+    const collectionRes = await fetch(`${API_URL}/collection/addamount`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(collectionData),
+    });
 
-        console.log("Sending:", clientData);
+    if (!collectionRes.ok) {
+      const errorText = await collectionRes.text();
+      throw new Error(`❌ Collection Add Failed: ${errorText}`);
+    }
 
-        // ⛔ Don't proceed if today_rate is empty or zero
-        if (!todayrate || Number(todayrate) === 0) {
-          console.log("data today rate is empty")
-          return;
-        }
+    const collectionResult = await collectionRes.json();
+    console.log("✅ Collection Added:", collectionResult);
+    alert("✅ Amount added successfully");
 
-        fetch(`${API_URL}/collection/addamount`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(clientData),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              return response.text().then((text) => {
-                const errorMessage = `Error ${response.status} - ${response.statusText}: ${text}`;
-                throw new Error(errorMessage);
-              });
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log("Response data:", data);
-            alert("✅ Amount added successfully");
-          })
-          .catch((error) => {
-            console.error("Request Failed:", error.message);
-            alert(`❌ Request failed: ${error.message}`);
-          })
-
-
-
-          .then((response) => response.json())
-      .then((updatedData) => dispatch(setUsers(updatedData)))
-      .catch((error) => console.error("Error fetching updated data:", error));
-  })
-      .catch ((error) => {
-    console.error("Error:", error);
-  });
+    // STEP 4: Reset the form only after all succeed
+  
+   resetForm()
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    alert(`❌ Submission Failed: ${error.message}`);
+  }
 };
+
+
 
 
 const resetForm = () => {
@@ -647,32 +750,129 @@ const sortedData = useMemo(() => {
 
 
 
-const handleDelete = (clientId) => {
-  const Authorization = localStorage.getItem("authToken");
+// const handleDelete = (clientId) => {
+//   const Authorization = localStorage.getItem("authToken");
+//     const particularClient = use.find(
+//             (user) => user.client_id === clientId
+//           );
 
-  fetch(`${API_URL}/acc_delete/${clientId}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: Authorization,
+//           if (particularClient) {
+//             const clientData = {
+//               Distributor_id: parseInt(particularClient.Distributor_id),
+//               colldate: particularClient.date,
+//               amount: parseFloat(
+//                 (particularClient.amount / particularClient.today_rate).toFixed(3)
+//               ),
+//               type: "collection",
+//             };
 
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to delete client");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Client deleted successfully:", data);
-      setShowConfirmModal(false);
-      setToastMessage(`Client ${clientNameToDelete} deleted successfully!`);
-      setShowToast(true);
+//             console.log("📝 Prepared clientData for processing:", clientData);
+//           }
+
+//   fetch(`${API_URL}/acc_delete/${clientId}`, {
+//     method: "DELETE",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: Authorization,
+
+//     },
+//   })
+//     .then((response) => {
+//       if (!response.ok) {
+//         throw new Error("Failed to delete client");
+//       }
+//       return response.json();
+//     })
+//     .then((data) => {
+//       console.log("Client deleted successfully:", data);
+//       setShowConfirmModal(false);
+//       setToastMessage(`Client ${clientNameToDelete} deleted successfully!`);
+//       setShowToast(true);
 
 
       
 
+//       fetch(`${API_URL}/acc_list`, {
+//         method: "GET",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: localStorage.getItem("authToken"),
+//         },
+//       })
+//         .then((response) => response.json())
+//         .then((updatedData) => dispatch(setUsers(updatedData)))
+//         .catch((error) => console.error("Error fetching updated data:", error));
+//     })
+//     .catch((error) => {
+//       console.error("Error deleting client:", error);
+//     });
+// };
+
+  const handleDelete = (clientId) => {
+  const Authorization = localStorage.getItem("authToken");
+
+  // ✅ Get the client before deleting
+  const particularClient = users.find(
+    (user) => user.client_id === clientId
+  );
+
+  if (!particularClient) {
+    console.warn("❌ Client not found in 'use'");
+    return;
+  }
+
+  // ✅ Prepare clientData BEFORE deletion
+  const clientData = {
+    Distributor_id: parseInt(particularClient.Distributor_id),
+    colldate: particularClient.date,
+    amount: parseFloat(
+      (particularClient.amount / particularClient.today_rate).toFixed(3)
+    ),
+    type: "collection",
+  };
+
+  console.log("📝 Prepared clientData:", clientData);
+
+  // ✅ DELETE client
+  fetch(`${API_URL}/acc_delete/${clientId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization,
+    },
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error("Failed to delete client");
+      }
+
+      const data = await response.json();
+      console.log("✅ Client deleted:", data);
+      setShowConfirmModal(false);
+      setToastMessage(`Client ${clientNameToDelete} deleted successfully!`);
+      setShowToast(true);
+
+      // ✅ UPDATE amount after successful delete
+      try {
+        const updateRes = await fetch(`${API_URL}/collection/update`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(clientData),
+        });
+
+        const updateData = await updateRes.json();
+        if (updateRes.ok) {
+          console.log("✅ Amount updated:", updateData);
+        } else {
+          console.error("❌ Update failed:", updateData.message || updateData.error);
+        }
+      } catch (error) {
+        console.error("❌ Error during update:", error.message);
+      }
+
+      // ✅ Refresh user list
       fetch(`${API_URL}/acc_list`, {
         method: "GET",
         headers: {
@@ -680,14 +880,16 @@ const handleDelete = (clientId) => {
           Authorization: localStorage.getItem("authToken"),
         },
       })
-        .then((response) => response.json())
+        .then((res) => res.json())
         .then((updatedData) => dispatch(setUsers(updatedData)))
-        .catch((error) => console.error("Error fetching updated data:", error));
+        .catch((err) => console.error("❌ Error fetching updated data:", err));
     })
     .catch((error) => {
-      console.error("Error deleting client:", error);
+      console.error("❌ Error deleting client:", error);
     });
 };
+
+
 
 const showConfirm = (clientId, clientName) => {
   setClientIdToDelete(clientId);
