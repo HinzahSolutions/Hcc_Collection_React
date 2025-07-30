@@ -550,6 +550,32 @@ function Employee() {
           console.error("❌ Fetch failed:", error.message);
         });
     }, []);
+
+    const [amountData, setAmountData] = useState([]);
+    useEffect(() => {
+      const token = localStorage.getItem("authToken");
+  
+      fetch(`${API_URL}/collection/collection`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token
+        }
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Error ${res.status} - ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log("✅ Received amount data:", data);
+          setAmountData(data);
+        })
+        .catch((error) => {
+          console.error("❌ Fetch failed:", error.message);
+        });
+    }, []);
   
 
 
@@ -567,12 +593,25 @@ function Employee() {
     (e) => e.Distributor_id === distributorId 
   );
 
+  //   const totalcolamount = amountData
+  // .filter((coll) => coll.Distributor_id === distributorId)
+  // .reduce((sum, coll) => sum + parseFloat(coll.collamount || 0), 0);
+  const totalcolamount = amountData
+  .filter(coll =>
+    coll.Distributor_id === distributorId &&
+    coll.colldate < currentDate // Only before today
+  )
+  .reduce((sum, coll) => sum + parseFloat(coll.collamount || 0), 0);
+
     
-      const totalCollAmount = distributorCollections.reduce((sum, item) => {
+      const totalpaidAmount = distributorCollections.reduce((sum, item) => {
     const amounts = Array.isArray(item.paidamount) ? item.paidamount : [item.paidamount];
     const itemTotal = amounts.reduce((subSum, val) => subSum + (parseFloat(val) || 0), 0);
     return sum + itemTotal;
   }, 0);
+
+
+      const totaloldKD = (totalcolamount).toFixed(3) - (totalpaidAmount).toFixed(3)
 
     if (!row.phone_number) {
       alert("No phone number available for the distributor.");
@@ -612,7 +651,7 @@ function Employee() {
         client.paid_amount_date.forEach(payment => {
           const paid = parseFloat(payment.amount) || 0;
           collectedInternational += paid;
-          collectedLocal += todayRate > 0 ? paid / todayRate : 0;
+          collectedLocal += todayRate > 0 ? paid / todayRate : 0; 
         });
       }
 
@@ -629,8 +668,8 @@ function Employee() {
     message += "--------------------------\n\n";
     message += `🔹 * INR: ${totalInternationalAmount.toFixed(2)}\n`;
     message += `🔹 * KD: ${totalLocalAmount.toFixed(3)}\n`;
-    message += `🔹 * OLD KD: ${totalCollAmount.toFixed(3)}\n`;
-    message += `🔹 * TOTAL KD: ${(totalLocalAmount.toFixed(3) - totalCollAmount.toFixed(3)).toFixed(3)} \n`;
+    message += `🔹 * OLD KD: ${totaloldKD.toFixed(3) }\n`;
+    message += `🔹 * TOTAL KD: ${(totalLocalAmount + totaloldKD).toFixed(3)} \n`;
 
     const phone = row.phone_number;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
@@ -829,12 +868,12 @@ console.log("Total Amount:", totalAmount);
         body: JSON.stringify(data),
       });
       console.log("Distributor update response status:", response.status);
-      if (response.ok) {
+   
         const errorText = await response.text();
         console.error("Failed to update distributor rates:", errorText);
         alert("Failed to update distributor rates");
         return;
-      }
+      
 
     
       setAmountSet(false);
@@ -1069,35 +1108,11 @@ console.log("Total Amount:", totalAmount);
     }
   };
 
-   const [amountData, setAmountData] = useState([]);
+   
      const [todayOrderInterColl, setTodayOrderInterColl] = useState(0);
   const [todayOrderLocalColl, setTodayOrderLocalColl] = useState(0);
 
-  
-    useEffect(() => {
-      const token = localStorage.getItem("authToken");
-  
-      fetch(`${API_URL}/collection/collection`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token
-        }
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Error ${res.status} - ${res.statusText}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          console.log("✅ Received amount data:", data);
-          setAmountData(data);
-        })
-        .catch((error) => {
-          console.error("❌ Fetch failed:", error.message);
-        });
-    }, []);
+   
 
   useEffect(() => {
   

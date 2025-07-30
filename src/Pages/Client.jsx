@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Modal, InputGroup, FormControl, Toast } from "react-bootstrap";
 import { HiUsers } from "react-icons/hi2";
@@ -69,6 +69,24 @@ function Client() {
   const Dtpuserid = localStorage.getItem('user_id');
   const [searchText, setSearchText] = useState('');
   const [showDistList, setShowDistList] = useState(false);
+
+ 
+
+
+const distributorRef = useRef(null);
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (distributorRef.current && !distributorRef.current.contains(event.target)) {
+      setShowDistList(false);
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
 
   console.log("user DTP id", Dtpuserid)
   useEffect(() => {
@@ -748,66 +766,6 @@ const sortedData = useMemo(() => {
   });
 }, [filteredData, dashboardNav]);
 
-
-
-// const handleDelete = (clientId) => {
-//   const Authorization = localStorage.getItem("authToken");
-//     const particularClient = use.find(
-//             (user) => user.client_id === clientId
-//           );
-
-//           if (particularClient) {
-//             const clientData = {
-//               Distributor_id: parseInt(particularClient.Distributor_id),
-//               colldate: particularClient.date,
-//               amount: parseFloat(
-//                 (particularClient.amount / particularClient.today_rate).toFixed(3)
-//               ),
-//               type: "collection",
-//             };
-
-//             console.log("📝 Prepared clientData for processing:", clientData);
-//           }
-
-//   fetch(`${API_URL}/acc_delete/${clientId}`, {
-//     method: "DELETE",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: Authorization,
-
-//     },
-//   })
-//     .then((response) => {
-//       if (!response.ok) {
-//         throw new Error("Failed to delete client");
-//       }
-//       return response.json();
-//     })
-//     .then((data) => {
-//       console.log("Client deleted successfully:", data);
-//       setShowConfirmModal(false);
-//       setToastMessage(`Client ${clientNameToDelete} deleted successfully!`);
-//       setShowToast(true);
-
-
-      
-
-//       fetch(`${API_URL}/acc_list`, {
-//         method: "GET",
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: localStorage.getItem("authToken"),
-//         },
-//       })
-//         .then((response) => response.json())
-//         .then((updatedData) => dispatch(setUsers(updatedData)))
-//         .catch((error) => console.error("Error fetching updated data:", error));
-//     })
-//     .catch((error) => {
-//       console.error("Error deleting client:", error);
-//     });
-// };
-
   const handleDelete = (clientId) => {
   const Authorization = localStorage.getItem("authToken");
 
@@ -1275,22 +1233,44 @@ const handleDistributorSubmit = async (event) => {
 
 
 
+// const handleDistributorChange = (e) => {
+//   const selectedId = e.target.value;
+//   setDistributorId(selectedId);
+
+//   const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
+
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+//   if (selectedDistributor) {
+//     if (selectedDistributor.today_rate_date === currentDate) {
+//       setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
+//     } else {
+//       setTodayRate(0);
+//     }
+//   } else {
+//     setTodayRate(0);
+//   }
+// };
+const [showRateInput, setShowRateInput] = useState(false);
+
 const handleDistributorChange = (e) => {
   const selectedId = e.target.value;
   setDistributorId(selectedId);
 
   const selectedDistributor = employees.find(emp => emp.user_id === parseInt(selectedId));
-
   const currentDate = format(new Date(), "dd-MM-yyyy");
 
   if (selectedDistributor) {
     if (selectedDistributor.today_rate_date === currentDate) {
       setTodayRate(parseFloat(selectedDistributor.Distributor_today_rate) || 0);
+      setShowRateInput(true); // ✅ Show rate input
     } else {
-      setTodayRate(0);
+      setTodayRate(""); // or 0 if you prefer
+      setShowRateInput(false); // ❌ Hide rate input
     }
   } else {
-    setTodayRate(0);
+    setTodayRate("");
+    setShowRateInput(false);
   }
 };
 
@@ -1844,13 +1824,7 @@ return (
                     <p>
                       <strong style={{ color: ' #1246ac' }}>{emp.username.toUpperCase()}</strong>
                     </p>
-                    {/* <input  
-            type="number"
-            placeholder={ ` Date ${emp.today_rate_date}, Rate: ${emp.Distributor_today_rate || 'N/A'}`}
-            value={amounts[emp.user_id] || ''}
-            onChange={(e) => handleAmountChange(emp.user_id, e.target.value)}
-            className="form-control"
-          /> */}
+             
                     <input
                       type="number"
                       min="1"
@@ -1891,25 +1865,10 @@ return (
 
             <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12  " style={{ backgroundColor: "rgb(251, 243, 243)", borderRadius: '10px' }}>
 
-              {/* <div className="txt_field col-lg-5 col-md-10 col-sm-10 ">
-                  <select
-                    value={distributorId}
-                    onChange={handleDistributorChange}
-                    style={{ border: 'none', background: 'none', color: 'black', fontWeight: 'bold', outline: 'none', boxShadow: 'none', margin: '0px', padding: '0px', paddingTop: '20px' }}
-                  >
-                    <option value="">SELECT DISTRIBUTOR</option>
-                    {employees
-                      .filter((emp) => emp.role === "Distributor")
-                      .map((emp) => (
-                        <option key={emp.user_id} value={emp.user_id}>
-                          {emp.username.toUpperCase()}
-                        </option>
-                      ))}
-                  </select>
-                </div> */}
+      
 
 
-              <div className="txt_field col-lg-5 col-md-10 col-sm-10" style={{ position: 'relative' }}>
+              <div className="txt_field col-lg-5 col-md-10 col-sm-10"  ref={distributorRef} style={{ position: 'relative' }}>
                 <input
                   type="text"
                   placeholder="SELECT DISTRIBUTOR"
@@ -1985,8 +1944,21 @@ return (
                   </ul>
                 )}
               </div>
+              {showRateInput && (
+  <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+    <input
+      type="number"
+      value={todayrate}
+      step="0.01"
+      onChange={(e) => setTodayRate(parseFloat(e.target.value) || "")}
+      required
+    />
+    <label>TODAY RATE</label>
+  </div>
+)}
 
-              <div className="txt_field col-lg-5 col-md-10 col-sm-10">
+              
+              {/* <div className="txt_field col-lg-5 col-md-10 col-sm-10">
                 <input
                   type="number"
                   value={todayrate}
@@ -1995,7 +1967,7 @@ return (
                   required
                 />
                 <label>TODAY RATE</label>
-              </div>
+              </div> */}
             </div>
             <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-12">
               <div className="txt_field col-lg-5 col-md-10 col-sm-10">
@@ -2046,9 +2018,9 @@ return (
               </Button>
 
 
-              <Button className={!showupdateamountModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={handlemodelShow}>
+              {/* <Button className={!showupdateamountModal ? "btn-primary w-auto" : "btn-danger w-auto"} onClick={handlemodelShow}>
                 {showupdateamountModal ? "Clear " : "Distributor Today Rate"}
-              </Button>
+              </Button> */}
 
 
             </div>
@@ -2252,24 +2224,7 @@ return (
           <p className="text-success text-center">All clients have complete details.</p>
         )}
 
-        {/* Bank selection buttons */}
-        {/* <div className="d-flex justify-content-center mt-3">
-      {["bank1","bank2","bank3"].map(bank => (
-        <Button
-          key={bank}
-          variant={selectedBank === bank ? "primary" : "secondary"}
-          onClick={() => handleBankSelection(bank)}
-          className="mx-2"
-        >
-          {bank.charAt(0).toUpperCase() + bank.slice(1)}
-        </Button>
-      ))}
-    </div> */}
-        {/* const bankNames = {
-  bank1: "IOB ONLY",
-  bank2: "IOB OTHERS",
-  bank3: "IDBANK OTHERS",
-}; */}
+ 
 
         <div className="d-flex justify-content-center mt-3">
           {Object.entries(bankNames).map(([bankKey, bankLabel]) => (

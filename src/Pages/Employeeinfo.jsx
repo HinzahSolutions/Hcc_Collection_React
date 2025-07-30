@@ -337,65 +337,123 @@ const EmployeeInfo = () => {
 
 
 
+//   const sendCSVToWhatsApp = () => {
+//     if (!selectedEmployee?.phone_number) {
+//       alert("No phone number available for the employee.");
+//       return;
+//     }
+//     const formattedDate = selectedDate.split('-').reverse().join('-');
+//     let message = "🔹 *Agent Report*\n";
+//     message += `Agent Name : ${selectedEmployee?.username.toUpperCase() || 'Unknown'} \n`;
+//     message += `Collection Date : ${selectedDate || 'Unknown'} \n\n`;
+
+//     let TotalCollectionAmount = 0;
+//     let TotalCollectionLocalAmount = 0;
+    
+//     filteredData.forEach((client, index) => {
+//       const totalAmount = parseFloat(client.paidAmount || 0);
+
+//    const distributor = employees.find(
+//   (value) => value.user_id === client.Distributor_id
+// );
+
+// const Distributorname = distributor ? distributor.username : "Unknown";
+        
+      
+//       // Calculate Collection International Amount
+//       // const collectionAmount = (client.paid_amount_date || []).reduce(
+//       //   (sum, payment) => sum + parseFloat(payment.amount || 0),
+//       //   0
+//       // );
+
+//       // Calculate Collection Local Amount
+//       // let collectionLocalamount = 0;
+//       // const todayRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
+//       // if (Array.isArray(client.paid_amount_date)) {
+//       //   client.paid_amount_date.forEach(payment => {
+//       //     if (todayRate > 0) {
+//       //       collectionLocalamount += (parseFloat(payment.amount) / todayRate) || 0;
+//       //     }
+//       //   });
+//       // }
+
+//       // // Calculate balance
+//       // const balance = totalAmount - collectionAmount;
+
+//       // // Accumulate totals
+//       // TotalCollectionAmount += collectionAmount;
+//       // TotalCollectionLocalAmount += collectionLocalamount;
+//        TotalCollectionLocalAmount += totalAmount
+
+//       // Append client details
+//       message += `${index + 1}  | Distributor Name : ${Distributorname.toUpperCase() || 'Unknown'}, \n`;
+//       message += `      Collection Date :  ${selectedDate}, \n`;
+//       message += `      Total Local  Amount :   ${(totalAmount.toFixed(3))}, \n`;
+//       // message += `      Collection Local Amount : ${collectionLocalamount.toFixed(3)}\n`;
+//       message += "------------------------------------------------------------\n\n";
+//     });
+
+
+//     message += `🔹 *TOTAL COLLECTION LOCAL  AMOUNT:* ${TotalCollectionLocalAmount.toFixed(3)} \n`;
+
+//     console.log(message);
+
+//     const phone = selectedEmployee.phone_number;
+//     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+//     window.open(whatsappLink, "_blank");
+//   };
+
   const sendCSVToWhatsApp = () => {
-    if (!selectedEmployee?.phone_number) {
-      alert("No phone number available for the employee.");
-      return;
-    }
-    const formattedDate = selectedDate.split('-').reverse().join('-');
-    let message = "🔹 *Agent Report*\n";
-    message += `Agent Name : ${selectedEmployee?.username.toUpperCase() || 'Unknown'} \n`;
-    message += `Collection Date : ${formattedDate || 'Unknown'} \n\n`;
+  if (!selectedEmployee?.phone_number) {
+    alert("No phone number available for the employee.");
+    return;
+  }
 
-    let TotalCollectionAmount = 0;
-    let TotalCollectionLocalAmount = 0;
+  const formattedDate = selectedDate.split('-').reverse().join('-');
+  let message = "🔹 *Agent Report*\n";
+  message += `👤 Agent Name : ${selectedEmployee?.username?.toUpperCase() || 'Unknown'}\n`;
+  message += `📅 Collection Date : ${selectedDate || 'Unknown'}\n\n`;
 
-    filteredClients.forEach((client, index) => {
-      const totalAmount = parseFloat(client.amount || 0);
+  let TotalCollectionLocalAmount = 0;
 
-      // Calculate Collection International Amount
-      const collectionAmount = (client.paid_amount_date || []).reduce(
-        (sum, payment) => sum + parseFloat(payment.amount || 0),
-        0
-      );
+  if (!filteredData.length) {
+    message += "⚠️ No collection data available for this date.\n";
+  }
 
-      // Calculate Collection Local Amount
-      let collectionLocalamount = 0;
-      const todayRate = parseFloat(client.today_rate) || 1; // Avoid division by zero
-      if (Array.isArray(client.paid_amount_date)) {
-        client.paid_amount_date.forEach(payment => {
-          if (todayRate > 0) {
-            collectionLocalamount += (parseFloat(payment.amount) / todayRate) || 0;
-          }
-        });
-      }
+  filteredData.forEach((client, index) => {
+    const paidArray = Array.isArray(client.paidamount) ? client.paidamount : [0];
+    const totalAmount = parseFloat(paidArray[0] || 0);
 
-      // Calculate balance
-      const balance = totalAmount - collectionAmount;
+    // Find distributor by user_id
+    const distributor = employees.find(
+      (emp) => emp.user_id === client.Distributor_id
+    );
+    const Distributorname = distributor ? distributor.username : "Unknown";
 
-      // Accumulate totals
-      TotalCollectionAmount += collectionAmount;
-      TotalCollectionLocalAmount += collectionLocalamount;
+    // Accumulate total
+    TotalCollectionLocalAmount += totalAmount;
 
-      // Append client details
-      message += `${index + 1}  | Client Name : ${client.client_name.toUpperCase() || 'Unknown'}, \n`;
-      message += `      Collection Date :  ${formattedDate}, \n`;
-      message += `      Total Local  Amount :   ${(totalAmount / client.today_rate).toFixed(3)}, \n`;
-      message += `      Collection Local Amount : ${collectionLocalamount.toFixed(3)}\n`;
-      message += "------------------------------------------------------------\n\n";
-    });
+    // Append to message
+    message += `🔸 *Entry ${index + 1}*\n`;
+    message += `• Distributor Name : ${(Distributorname || 'Unknown').toUpperCase()}\n`;
+    message += `• Collection Date  : ${selectedDate}\n`;
+    message += `• Local Amount     : ₹${totalAmount.toFixed(3)}\n`;
+    message += `------------------------------------------------------------\n\n`;
+  });
 
+  message += `🔹 *TOTAL COLLECTION LOCAL AMOUNT:* ₹${TotalCollectionLocalAmount.toFixed(3)}\n`;
 
-    message += `🔹 *TOTAL COLLECTION LOCAL  AMOUNT:* ${TotalCollectionLocalAmount.toFixed(3)} \n`;
+  console.log(message); // For debugging
 
-    console.log(message);
-
-    const phone = selectedEmployee.phone_number;
+  const phone = selectedEmployee.phone_number;
+  if (phone) {
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-
     window.open(whatsappLink, "_blank");
-  };
-
+  } else {
+    alert("Phone number is invalid.");
+  }
+};
 
 
 
@@ -789,10 +847,10 @@ const EmployeeInfo = () => {
            <td>
                     <div className="client-info">
                       <h4 style={{ color: "blue", fontWeight: "500" }}>
-                        INTER: <span>{totalCollAmount? parseFloat(totalCollAmount) : "0.00"}</span>
+                        LOCAL: <span>{totalCollAmount? (parseFloat(totalCollAmount)).toFixed(3) : "0.00"}</span>
                       </h4>
                       <h4 style={{ color: "red", fontWeight: "500" }}>
-                        LOCAL:{" "}
+                       INTER:{" "}
                         <span>
                           {totalCollAmount && value.today_rate
                             ? (parseFloat(totalCollAmount)*parseFloat(value.today_rate)).toFixed(2)
@@ -816,7 +874,7 @@ const EmployeeInfo = () => {
               <h4 style={{ color: "red", fontWeight: "500" }}>
                           LOCAL:{" "}
                           <span>
-                           {balance}
+                           {(balance).toFixed(3)}
                           </span>
                         </h4>
                         </div>

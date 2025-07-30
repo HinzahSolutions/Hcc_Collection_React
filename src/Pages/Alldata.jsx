@@ -758,7 +758,7 @@ function Alldata() {
                         ></div>
                         <div className="client-info">
                           <h4>  {
-                        employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
+                        employees.find(emp => emp.user_id == item.Distributor_id)?.username.toUpperCase() ||
                         item.Distributor_id
                       }</h4>
 
@@ -781,7 +781,7 @@ function Alldata() {
                         <h4 style={{ color: "red", fontWeight: "500" }}>
                           Inter:{" "}
                           <span>
-                            {item.collamount?.[0]
+                            {item.today_rate >0
                               ? (parseFloat(item.collamount[0]).toFixed(2) * item.today_rate).toFixed(2)
                               : "0.00"}
                           </span>
@@ -823,7 +823,7 @@ function Alldata() {
                         ></div>
                         <div className="client-info">
                           <h4> {
-                            employees.find(emp => emp.user_id == item.Distributor_id)?.username ||
+                            employees.find(emp => emp.user_id == item.Distributor_id)?.username.toUpperCase() ||
                             item.Distributor_id
                           }</h4>
 
@@ -831,7 +831,7 @@ function Alldata() {
                       </div>
                     </td>
 
-                    <td>{employees.find(emp => emp.user_id === item.agent_id)?.username ||
+                    <td>{employees.find(emp => emp.user_id === item.agent_id)?.username.toUpperCase() ||
                       item.agent_id}</td>
                     <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
                     <td>{item.today_rate}</td>
