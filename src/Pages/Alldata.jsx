@@ -651,9 +651,9 @@ function Alldata() {
             </Button>
 
 
-            <button onClick={() => setPaidmodel(true)} className="btn btn-primary w-auto">
+            {/* <button onClick={() => setPaidmodel(true)} className="btn btn-primary w-auto">
                      distributer Amount update
-             </button>  
+             </button>   */}
           </div>
         </div>
         <div className="d-flex gap-2 flex-wrap  justify-content-center p-2  ">
