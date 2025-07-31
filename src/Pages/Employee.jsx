@@ -106,6 +106,7 @@ function Employee() {
 
   useEffect(() => {
     fetchEmployees();
+    
   }, []);
 
 
@@ -335,8 +336,54 @@ function Employee() {
 //   });
 // }, [employees, searchQuery, dashboardnav, users, currentDate]);
 
- const filteredData = useMemo(() => {
+//  const filteredData = useMemo(() => {
+//   const query = searchQuery?.toLowerCase().trim() || "";
+
+//   if (dashboardnav === "All") {
+//     return employees.filter((row) => {
+//       const username = row.username?.toLowerCase().trim() || "";
+//       const phonenumber = row.phone_number || "";
+
+//       const matchesSearch =
+//         !query || username.includes(query) || phonenumber.includes(query);
+
+//       return matchesSearch; // In "All", only apply search filter
+//     });
+//   }
+
+  
+
+//   return employees.filter((row) => {
+//     const username = row.username?.toLowerCase().trim() || "";
+//     const phonenumber = row.phone_number || "";
+
+//     const matchesSearch =
+//       !query || username.includes(query) || phonenumber.includes(query);
+
+//     const matchesRole =
+//       (dashboardnav === "Admin" && row.role === "Admin") ||
+//       (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
+//       (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
+//       (dashboardnav === "Distributor" && row.role === "Distributor") ||
+//       (dashboardnav === "Dtp" && row.role === "Dtp");
+
+//     const hasTodayClient =
+//       row.role !== "Distributor" ||
+//       users.some(
+//         (client) =>
+//           String(client.Distributor_id) === String(row.user_id) &&
+//           client.date === currentDate
+//       );
+
+//     return matchesSearch && matchesRole && hasTodayClient;
+//   });
+// }, [employees, searchQuery, dashboardnav, users, currentDate]);
+
+
+const filteredData = useMemo(() => {
   const query = searchQuery?.toLowerCase().trim() || "";
+
+  if (!employees || employees.length === 0) return [];
 
   if (dashboardnav === "All") {
     return employees.filter((row) => {
@@ -346,7 +393,7 @@ function Employee() {
       const matchesSearch =
         !query || username.includes(query) || phonenumber.includes(query);
 
-      return matchesSearch; // In "All", only apply search filter
+      return matchesSearch;
     });
   }
 
@@ -358,11 +405,7 @@ function Employee() {
       !query || username.includes(query) || phonenumber.includes(query);
 
     const matchesRole =
-      (dashboardnav === "Admin" && row.role === "Admin") ||
-      (dashboardnav === "Collection Manager" && row.role === "Collection Manager") ||
-      (dashboardnav === "Collection Agent" && row.role === "Collection Agent") ||
-      (dashboardnav === "Distributor" && row.role === "Distributor") ||
-      (dashboardnav === "Dtp" && row.role === "Dtp");
+      dashboardnav === row.role;
 
     const hasTodayClient =
       row.role !== "Distributor" ||
@@ -374,7 +417,7 @@ function Employee() {
 
     return matchesSearch && matchesRole && hasTodayClient;
   });
-}, [employees, searchQuery, dashboardnav, users, currentDate]);
+}, [employees, searchQuery, dashboardnav, users, currentDate,]);
 
   console.log(filteredData)
 
@@ -483,6 +526,7 @@ function Employee() {
 
 
  const sortedData = useMemo(() => {
+  console.log("filterdata",filteredData)
   const rolePriority = {
     "Distributor": 1,
     "Collection Agent": 2,
@@ -844,112 +888,412 @@ console.log("Total Amount:", totalAmount);
 
 
 
-  const handleSubmitUpdate2 = async () => {
-    const currentDate = format(new Date(), "dd-MM-yyyy");
 
-    // Step 1: Prepare distributor update data
-    const data = employees
-      .filter((emp) => emp.role === "Distributor" && emp.user_id)
-      .map((emp) => ({
-        user_id: emp.user_id,
-        today_rate_date: amounts[emp.user_id] ? currentDate : emp.today_rate_date,
-        Distributor_today_rate: parseFloat(amounts[emp.user_id]) || emp.Distributor_today_rate,
-      }));
+// const handleSubmitUpdate2 = async () => {
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
 
-    console.log("Sending data to update distributors:", data);
+//   // Step 1: Prepare valid distributor update data
+//   const data = employees
+//     .filter((emp) => {
+//       const rawAmount = amounts[emp.user_id];
+//       const parsedAmount = parseFloat(rawAmount);
+//       return emp.role === "Distributor" && emp.user_id && !isNaN(parsedAmount);
+//     })
+//     .map((emp) => ({
+//       user_id: emp.user_id,
+//       today_rate_date: currentDate,
+//       Distributor_today_rate: parseFloat(amounts[emp.user_id]),
+//     }));
 
-    try {
-      // Step 2: Update distributor rates
-      const response = await fetch(`${API_URL}/update-distributor-amounts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      console.log("Distributor update response status:", response.status);
-   
-        const errorText = await response.text();
-        console.error("Failed to update distributor rates:", errorText);
-        alert("Failed to update distributor rates");
-        return;
-      
+//   console.log("Filtered data to update distributors:", data);
 
-    
-      setAmountSet(false);
-      fetchEmployees();
-      setSearchQuery("");
+//   if (data.length === 0) {
+//     alert("No valid distributor rates to update.");
+//     return;
+//   }
 
-      // Step 3: Fetch all clients
-      const authToken = localStorage.getItem("authToken");
-      const clientRes = await fetch(`${API_URL}/acc_list`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authToken,
-        },
-      });
+//   try {
+//     // Step 2: Update distributor rates
+//     const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(data),
+//     });
 
-      if (!clientRes.ok) {
-        console.error("Failed to fetch clients");
-        alert("Client fetch failed");
-        return;
-      }
+//     console.log("Distributor update response status:", response.status);
 
-      const clients = await clientRes.json();
-      console.log("Fetched clients:", clients);
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       console.error("Failed to update distributor rates:", errorText);
+//       alert("Failed to update distributor rates");
+//       return;
+//     }
 
-      // Step 4: Filter and prepare client update requests
-      const updatePromises = [];
+//     // Step 3: Reset UI state
+//     setAmountSet(false);
+//     fetchEmployees();
+//     setSearchQuery("");
 
-      data.forEach((dist) => {
-        const distributorClients = clients.filter((client) => {
-          const clientDateFormatted = client.date
-            ? format(new Date(client.date), "dd-MM-yyyy")
-            : null;
+//     // Step 4: Fetch all clients
+//     const authToken = localStorage.getItem("authToken");
+//     const clientRes = await fetch(`${API_URL}/acc_list`, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: authToken,
+//       },
+//     });
 
-          return (
-            String(client.Distributor_id) === String(dist.user_id) &&
-            clientDateFormatted === currentDate &&
-            (client.today_rate === null ||
-              client.today_rate === "" ||
-              client.today_rate === 0)
-          );
-        });
+//     if (!clientRes.ok) {
+//       console.error("Failed to fetch clients");
+//       alert("Client fetch failed");
+//       return;
+//     }
 
-        console.log(
-          `Clients to update for distributor ${dist.user_id}:`,
-          distributorClients
-        );
+//     const clients = await clientRes.json();
+//     console.log("Fetched clients:", clients);
 
-        distributorClients.forEach((client) => {
-          updatePromises.push(
-            fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: authToken,
-              },
-              body: JSON.stringify({
-                ...client,
-                today_rate: dist.Distributor_today_rate,
-              }),
-            })
-          );
-        });
-      });
+//     // Step 5: Filter and prepare client update requests
+//     const updatePromises = [];
+
+//     data.forEach((dist) => {
+//       const distributorClients = users.filter((client) => {
+//         let clientDateFormatted = null;
 
       
 
-      // Step 5: Execute all client update requests
-      await Promise.all(updatePromises);
-      console.log("All relevant clients updated with new today_rate");
+//         return (
+//           String(client.Distributor_id) === String(dist.user_id) &&
+//           client.date === currentDate 
+        
+//         );
+//       });
 
-    } catch (error) {
-      console.error("Error during multi-rate update:", error);
-      // alert("An error occurred while updating rates or clients.");
+//       console.log(
+//         `Clients to update for distributor ${dist.user_id}:`,
+//         distributorClients
+//       );
+
+//       distributorClients.forEach((client) => {
+//         updatePromises.push(
+//           fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
+//             method: "PUT",
+//             headers: {
+//               "Content-Type": "application/json",
+//               Authorization: authToken,
+//             },
+//             body: JSON.stringify({
+//               ...client,
+//               today_rate: dist.Distributor_today_rate,
+//             }),
+//           })
+//         );
+//       });
+
+       
+//  const clientData = {
+//           Distributor_id: parseInt(clients.Distributor_id),      // Convert to number
+//           collamount: [(parseInt(clients.amount)/ dist.Distributor_today_rate).toFixed(3)],              // Wrap in array
+//           colldate: [currentDate],                     // Wrap in array
+//           type: "collection",
+//           today_rate:amount,
+//           paidamount: ""
+//         };
+
+
+      
+//         fetch(`${API_URL}/collection/addamount`, {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify(clientData),
+//         })
+
+       
+
+//     });
+
+//     // Step 6: Execute all client update requests
+//     await Promise.all(updatePromises);
+//     console.log("All relevant clients updated with new today_rate");
+
+//     alert("Distributor and client rates updated successfully!");
+//   } catch (error) {
+//     console.error("Error during multi-rate update:", error);
+//     alert("An error occurred while updating rates or clients.");
+//   }
+// };
+
+// const handleSubmitUpdate2 = async () => {
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+//   const data = employees
+//     .filter((emp) => {
+//       const rawAmount = amounts[emp.user_id];
+//       const parsedAmount = parseFloat(rawAmount);
+//       return emp.role === "Distributor" && emp.user_id && !isNaN(parsedAmount);
+//     })
+//     .map((emp) => ({
+//       user_id: emp.user_id,
+//       today_rate_date: currentDate,
+//       Distributor_today_rate: parseFloat(amounts[emp.user_id]),
+//     }));
+
+//   console.log("Filtered data to update distributors:", data);
+
+//   if (data.length === 0) {
+//     alert("No valid distributor rates to update.");
+//     return;
+//   }
+
+//   try {
+//     const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(data),
+//     });
+
+//     console.log("Distributor update response status:", response.status);
+
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       console.error("Failed to update distributor rates:", errorText);
+//       alert("Failed to update distributor rates");
+//       return;
+//     }
+
+//     setAmountSet(false);
+//     fetchEmployees();
+//     setSearchQuery("");
+
+//     // Step 4: Fetch clients
+//     const authToken = localStorage.getItem("authToken");
+//     const clientRes = await fetch(`${API_URL}/acc_list`, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: authToken,
+//       },
+//     });
+
+//     if (!clientRes.ok) {
+//       console.error("Failed to fetch clients");
+//       alert("Client fetch failed");
+//       return;
+//     }
+
+//     const clients = await clientRes.json();
+//     console.log("Fetched clients:", clients);
+
+//     const updatePromises = [];
+
+//     // Step 5: Update relevant clients and post collection data
+//     data.forEach((dist) => {
+//       const distributorClients = clients.filter((client) => {
+//         return (
+//           String(client.Distributor_id) === String(dist.user_id) &&
+//           client.date === currentDate
+//         );
+//       });
+
+//       console.log(
+//         `Clients to update for distributor ${dist.user_id}:`,
+//         distributorClients
+//       );
+
+//       distributorClients.forEach((client) => {
+//         updatePromises.push(
+//           fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
+//             method: "PUT",
+//             headers: {
+//               "Content-Type": "application/json",
+//               Authorization: authToken,
+//             },
+//             body: JSON.stringify({
+//               ...client,
+//               today_rate: dist.Distributor_today_rate,
+//             }),
+//           })
+//         );
+
+//         // Optional: post collection data per client
+//         const clientData = {
+//           Distributor_id: parseInt(client.Distributor_id),
+//           collamount: [
+//             (
+//               parseInt(client.amount || 0) / dist.Distributor_today_rate
+//             ).toFixed(3),
+//           ],
+//           colldate: [currentDate],
+//           type: "collection",
+//           today_rate: dist.Distributor_today_rate,
+//           paidamount: "",
+//         };
+
+//         updatePromises.push(
+//           fetch(`${API_URL}/collection/addamount`, {
+//             method: "POST",
+//             headers: {
+//               "Content-Type": "application/json",
+//             },
+//             body: JSON.stringify(clientData),
+//           })
+//         );
+//       });
+//     });
+
+//     await Promise.all(updatePromises);
+//     console.log("All relevant clients updated with new today_rate");
+
+//     alert("Distributor and client rates updated successfully!");
+//   } catch (error) {
+//     console.error("Error during multi-rate update:", error);
+//     alert("An error occurred while updating rates or clients.");
+//   }
+// };
+
+const handleSubmitUpdate2 = async () => {
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  // Step 1: Prepare valid distributor update data
+  const data = employees
+    .filter((emp) => {
+      const rawAmount = amounts[emp.user_id];
+      const parsedAmount = parseFloat(rawAmount);
+      return emp.role === "Distributor" && emp.user_id && !isNaN(parsedAmount);
+    })
+    .map((emp) => ({
+      user_id: emp.user_id,
+      today_rate_date: currentDate,
+      Distributor_today_rate: parseFloat(amounts[emp.user_id]),
+    }));
+
+  console.log("Filtered data to update distributors:", data);
+
+  if (data.length === 0) {
+    alert("No valid distributor rates to update.");
+    return;
+  }
+
+  try {
+    // Step 2: Update distributor rates
+    const response = await fetch(`${API_URL}/update-distributor-amounts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    console.log("Distributor update response status:", response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to update distributor rates:", errorText);
+      alert("Failed to update distributor rates");
+      return;
     }
-  };
+
+    // Step 3: Reset UI state
+    setAmountSet(false);
+    fetchEmployees();
+    setSearchQuery("");
+
+    // Step 4: Fetch all clients
+    const authToken = localStorage.getItem("authToken");
+    const clientRes = await fetch(`${API_URL}/acc_list`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authToken,
+      },
+    });
+
+    if (!clientRes.ok) {
+      console.error("Failed to fetch clients");
+      alert("Client fetch failed");
+      return;
+    }
+
+    const clients = await clientRes.json();
+    console.log("Fetched clients:", clients);
+
+    // Step 5: Filter and prepare client update requests
+    const updatePromises = [];
+
+    data.forEach((dist) => {
+      const distributorClients = clients.filter(
+        (client) =>
+          String(client.Distributor_id) === String(dist.user_id) &&
+          client.date === currentDate &&
+          (!client.today_rate || client.today_rate === "0" || client.today_rate === 0)
+      );
+
+      console.log(
+        `Clients to update for distributor ${dist.user_id}:`,
+        distributorClients
+      );
+
+      // Send update for each matching client
+      distributorClients.forEach((client) => {
+        updatePromises.push(
+          fetch(`${API_URL}/acc_clientupdated/${client.client_id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: authToken,
+            },
+            body: JSON.stringify({
+              ...client,
+              today_rate: dist.Distributor_today_rate,
+            }),
+          })
+        );
+      });
+
+      // Sum total (amount / today_rate) for collection entry
+      const totalAmount = distributorClients.reduce((sum, client) => {
+        const amt = parseFloat(client.amount || 0);
+        return sum + amt / dist.Distributor_today_rate;
+      }, 0);
+
+      if (distributorClients.length > 0 && totalAmount > 0) {
+        const clientData = {
+          Distributor_id: parseInt(dist.user_id),
+          collamount: [totalAmount.toFixed(3)],
+          colldate: [currentDate],
+          type: "collection",
+          today_rate: dist.Distributor_today_rate,
+          paidamount: "",
+        };
+
+        updatePromises.push(
+          fetch(`${API_URL}/collection/addamount`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(clientData),
+          })
+        );
+      }
+    });
+
+    // Step 6: Execute all client update requests
+    await Promise.all(updatePromises);
+    console.log("All relevant clients updated with new today_rate");
+
+    alert("Distributor and client rates updated successfully!");
+  } catch (error) {
+    console.error("Error during multi-rate update:", error);
+    alert("An error occurred while updating rates or clients.");
+  }
+};
 
 
 
@@ -1292,10 +1636,10 @@ console.log("Total Amount:", totalAmount);
                 </Button>
 
 
-{/* 
+
                 <Button className="w-auto text-white" onClick={() => setAmountSet(true)} >
                   Set Amount
-                </Button> */}
+                </Button>
 
                 <Button
                   className={`w-auto text-white ${selectAll ? 'bg-danger' : 'bg-primary'}`}
