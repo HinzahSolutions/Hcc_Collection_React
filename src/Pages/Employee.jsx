@@ -1292,10 +1292,10 @@ console.log("Total Amount:", totalAmount);
                 </Button>
 
 
-
+{/* 
                 <Button className="w-auto text-white" onClick={() => setAmountSet(true)} >
                   Set Amount
-                </Button>
+                </Button> */}
 
                 <Button
                   className={`w-auto text-white ${selectAll ? 'bg-danger' : 'bg-primary'}`}
