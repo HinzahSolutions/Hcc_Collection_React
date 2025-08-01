@@ -636,7 +636,7 @@ function Alldata() {
           <div className="d-flex gap-2">
             <Button
               variant={changetable === "collection" ? "primary" : "outline-primary"}
-              className="p-2"
+                style={{ width:'auto' }}
               onClick={() => setChangetable("collection")}
             >
               Collection
@@ -644,7 +644,7 @@ function Alldata() {
 
             <Button
               variant={changetable === "paid" ? "primary" : "outline-primary"}
-
+                style={{ width:'auto' }}
               onClick={() => setChangetable("paid")}
             >
               Paid

@@ -1,7 +1,7 @@
 
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Button, InputGroup, FormControl, Modal, Form } from "react-bootstrap";
@@ -47,12 +47,22 @@ const EmployeeInfo = () => {
 
   const [selectedaDate, setSelectedaDate] = useState(null)
 
-  const handleDateChange = (e) => {
-    setSelectedaDate(e.target.value)
-    const formattedDate = formatDateToDDMMYYYY(selectedaDate);
-    setSelectedClientDate(formattedDate);
-    console.log(formattedDate);
-  };
+  // const handleDateChange = (e) => {
+  //   setSelectedaDate(e.target.value)
+  //   const formattedDate = formatDateToDDMMYYYY(selectedaDate);
+  //   setSelectedClientDate(formattedDate);
+  //   console.log("dshjagfgsdcvuyjg",formattedDate);
+  // };
+const handleDateChange = (e) => {
+  const rawDate = e.target.value;
+  const formattedDate = formatDateToDDMMYYYY(rawDate);
+
+  // ✅ Update both values immediately
+  setSelectedaDate(rawDate);
+  setSelectedClientDate(formattedDate);
+
+  console.log("Selected:", rawDate, "→ formatted:", formattedDate);
+};
 
 
   const formatDateToDDMMYYYY = (dateString) => {
@@ -65,8 +75,41 @@ const EmployeeInfo = () => {
 
 
 
+// const filteredUsers = useMemo(() => {
+//    console.log("hsfgjgdvc",selectedClientDate )
+//   return users
+//     .filter(
+//       (eid) =>
+//         selectedEmployee?.user_id &&
+//         (eid.Distributor_id === selectedEmployee.user_id || eid.dtp_id === selectedEmployee.user_id) &&
+//         (!selectedaDate || eid.date === selectedaDate)
+//     )
+//     .sort((a, b) => {
+//       const dateA = parse(a.date, "dd-MM-yyyy", new Date());
+//       const dateB = parse(b.date, "dd-MM-yyyy", new Date());
+//       return dateB - dateA; // Descending: newest first
+//     });
+// }, [users, selectedEmployee, selectedClientDate,selectedaDate,]);
 
-  const filteredUsers = users
+
+  // const filteredUsers = users
+  //   .filter(
+  //     (eid) =>
+  //       selectedEmployee?.user_id &&
+  //       (eid.Distributor_id === selectedEmployee.user_id || eid.dtp_id === selectedEmployee.user_id) &&
+  //       (!selectedClientDate || eid.date === selectedClientDate)
+  //   )
+  //   .sort((a, b) => {
+  //     const dateA = parse(a.date, "dd-MM-yyyy", new Date());
+  //     const dateB = parse(b.date, "dd-MM-yyyy", new Date());
+  //     return dateB - dateA; // Descending: newest first
+  //   });
+
+
+const filteredUsers = useMemo(() => {
+  console.log("Filtering for:", selectedClientDate);
+
+  return users
     .filter(
       (eid) =>
         selectedEmployee?.user_id &&
@@ -76,10 +119,9 @@ const EmployeeInfo = () => {
     .sort((a, b) => {
       const dateA = parse(a.date, "dd-MM-yyyy", new Date());
       const dateB = parse(b.date, "dd-MM-yyyy", new Date());
-      return dateB - dateA; // Descending: newest first
+      return dateB - dateA;
     });
-
-
+}, [users, selectedEmployee, selectedClientDate]); // ❌ Don't use selectedaDate here
 
 
 
