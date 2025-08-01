@@ -801,7 +801,7 @@ function Alldata() {
                   <th>Distributer Name</th>
                   <th>Agent</th>
                   <th>Date</th>
-                  <th>Rate</th>
+                 
                   <th>Amount</th>
                 </tr>
               </thead>
@@ -834,7 +834,7 @@ function Alldata() {
                     <td>{employees.find(emp => emp.user_id === item.agent_id)?.username.toUpperCase() ||
                       item.agent_id}</td>
                     <td>{Array.isArray(item.colldate) ? item.colldate[0] : item.colldate}</td>
-                    <td>{item.today_rate}</td>
+                   
                     <td>
                       <div className="client-info">
                         <h4 style={{ color: "blue", fontWeight: "500" }}>
