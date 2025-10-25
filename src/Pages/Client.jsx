@@ -503,131 +503,126 @@ useEffect(() => {
 
 
 
+ // Assuming you use this too
+const [error, setError] = useState(null);
 
 
 
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     const currentDate = format(new Date(), "dd-MM-yyyy");
+  
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   const currentDate = format(new Date(), "dd-MM-yyyy");
 
-//     const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
+//   const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
 
-//     const clientData = {
-//       client_name: (clientName).toUpperCase(),
-//       client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
-//       client_city: (city || "UNKNOWN").toUpperCase(),
-//       amount: amount || 0,
-//       today_rate: todayrate || 0,
-//       date: currentDate || new Date().toISOString(),
-//       sent: false,
-//       message: (message || "").toUpperCase(),
-//       paid_and_unpaid: false,
-//       success_and_unsuccess: false,
-//       bank_name: (bname || "").toUpperCase(),
-//       accno: (anumber || "").toUpperCase().trim(),
-//       ifsc_code: (ifsc || "").toUpperCase(),
-//       accoun_type: (type || "10").toUpperCase(), // ✅ fixed typo here
-//       Distributor_id: distributorId || null,
-//       name_of_the_beneficiary: (holdername || "").toUpperCase(),
-//       address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
-//       sender_information: (senderinfo || "STOCK").toUpperCase(),
-//       bank_type: (clientType || "STOCK").toUpperCase(),
-//       narration: (narration || "STOCK").toUpperCase(),
-//       description: (description || "STOCK").toUpperCase(),
-//       email_id_beneficiary: (beneficiaryemailid || "").replace(/"/g, ""),
-//       ...(dtp_id && { dtp_id }),
-//     };
+//   const clientData = {
+//     client_name: (clientName).toUpperCase(),
+//     client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
+//     client_city: (city || "UNKNOWN").toUpperCase(),
+//     amount: amount || 0,
+//     today_rate: todayrate || 0,
+//     date: currentDate,
+//     sent: false,
+//     message: (message || "").toUpperCase(),
+//     paid_and_unpaid: false,
+//     success_and_unsuccess: false,
+//     bank_name: (bname || "").toUpperCase(),
+//     accno: (anumber || "").toUpperCase().trim(),
+//     ifsc_code: (ifsc || "").toUpperCase(),
+//     accoun_type: (type || "10").toUpperCase(),
+//     Distributor_id: distributorId || null,
+//     name_of_the_beneficiary: (holdername || "").toUpperCase(),
+//     address_of_the_beneficiary: (holderaddress || "CHENNAI").toUpperCase(),
+//     sender_information: (senderinfo || "STOCK").toUpperCase(),
+//     bank_type: (clientType || "STOCK").toUpperCase(),
+//     narration: (narration || "STOCK").toUpperCase(),
+//     description: (description || "STOCK").toUpperCase(),
+//     email_id_beneficiary: (beneficiaryemailid || "").replace(/"/g, ""),
+//     ...(dtp_id && { dtp_id }),
+//   };
 
-//     console.log(clientData);
-
-//     fetch(`${API_URL}/acc_insertarrays`, {
+//   try {
+//     // STEP 1: Submit client data
+//     const insertRes = await fetch(`${API_URL}/acc_insertarrays`, {
 //       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(clientData),
+//     });
+
+//     if (!insertRes.ok) throw new Error("❌ Failed to create client");
+
+//     const inserted = await insertRes.json();
+//     console.log("✅ Client Created:", inserted);
+//     alert("✅ New Client Created");
+
+//     // STEP 2: Refresh client list
+//     const listRes = await fetch(`${API_URL}/acc_list`, {
+//       method: "GET",
 //       headers: {
 //         "Content-Type": "application/json",
+//         Authorization: localStorage.getItem("authToken"),
 //       },
-//       body: JSON.stringify(clientData),
-//     })
-//       .then((response) => {
-//         if (response.ok) return response.json();
-//         throw new Error("Something went wrong!");
-//       })
-//       .then((data) => {
-//         console.log("Response data:", data);
-//         alert("New Client Created");
-//         resetForm();
+//     });
 
-//         // Refresh the data
-//         fetch(`${API_URL}/acc_list`, {
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: localStorage.getItem("authToken"),
-//           },
+//     const updatedData = await listRes.json();
+//     dispatch(setUsers(updatedData));
+//     console.log("🔄 Client List Updated");
 
+//     // STEP 3: Conditionally submit collection data
+//     if (!todayrate || Number(todayrate) === 0) {
+//       alert("⚠️ Amount not added: today rate is missing or zero.");
+//       console.warn("⚠️ todayrate is empty or zero");
+//       return   resetForm();
+//     }
 
-//         })
+//     const collectionData = {
+//       Distributor_id: parseInt(distributorId),
+//       collamount: [(parseInt(amount) / todayrate).toFixed(3)],
+//       colldate: [currentDate],
+//       type: "collection",
+//       today_rate: todayrate,
+//       paidamount: "",
+//     };
 
+//     console.log("Sending Collection Data:", collectionData);
 
-//         const clientData = {
-//           Distributor_id: parseInt(distributorId),      // Convert to number
-//           collamount: todayrate?[(parseInt(amount)/ todayrate).toFixed(3)]:"",              // Wrap in array
-//           colldate: [currentDate],                     // Wrap in array
-//           type: "collection",
-//           today_rate: todayrate,
-//           paidamount: ""
-//         };
+//     const collectionRes = await fetch(`${API_URL}/collection/addamount`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(collectionData),
+//     });
 
-//         console.log("Sending:", clientData);
+//     if (!collectionRes.ok) {
+//       const errorText = await collectionRes.text();
+//       throw new Error(`❌ Collection Add Failed: ${errorText}`);
+//     }
 
-//         // ⛔ Don't proceed if today_rate is empty or zero
-//         if (!todayrate || Number(todayrate) === 0) {
-//           console.log("data today rate is empty")
-//           return;
-//         }
+//     const collectionResult = await collectionRes.json();
+//     console.log("✅ Collection Added:", collectionResult);
+//     alert("✅ Amount added successfully");
 
-//         fetch(`${API_URL}/collection/addamount`, {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify(clientData),
-//         })
-//           .then((response) => {
-//             if (!response.ok) {
-//               return response.text().then((text) => {
-//                 const errorMessage = `Error ${response.status} - ${response.statusText}: ${text}`;
-//                 throw new Error(errorMessage);
-//               });
-//             }
-//             return response.json();
-//           })
-//           .then((data) => {
-//             console.log("Response data:", data);
-//             alert("✅ Amount added successfully");
-//           })
-//           .catch((error) => {
-//             console.error("Request Failed:", error.message);
-//             alert(`❌ Request failed: ${error.message}`);
-//           })
-
-
-
-//           .then((response) => response.json())
-//       .then((updatedData) => dispatch(setUsers(updatedData)))
-//       .catch((error) => console.error("Error fetching updated data:", error));
-//   })
-//       .catch ((error) => {
-//     console.error("Error:", error);
-//   });
-// };
+//     // STEP 4: Reset the form only after all succeed
   
+//    resetForm()
+//   } catch (error) {
+//     console.error("❌ Error:", error.message);
+//     alert(`❌ Submission Failed: ${error.message}`);
+//   }
+// };
+
+
 const handleSubmit = async (e) => {
-  e.preventDefault();
-  const currentDate = format(new Date(), "dd-MM-yyyy");
-
-  const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
-
-  const clientData = {
+    e.preventDefault();
+    // Assuming setLoading and setError are defined via useState
+    setError(null);
+    setLoading(true); // START LOADING 🛠️
+    
+    // --- Data Preparation (Omitted for brevity, remains the same) ---
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+    const dtp_id = conformrole === "Dtp" && Dtpuserid ? Dtpuserid : null;
+    const rate = Number(todayrate); // Use Number() for cleaner check
+    
+      const clientData = {
     client_name: (clientName).toUpperCase(),
     client_contact: (contactNumber || "UNKNOWN").toUpperCase(),
     client_city: (city || "UNKNOWN").toUpperCase(),
@@ -653,76 +648,100 @@ const handleSubmit = async (e) => {
     ...(dtp_id && { dtp_id }),
   };
 
-  try {
-    // STEP 1: Submit client data
-    const insertRes = await fetch(`${API_URL}/acc_insertarrays`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(clientData),
-    });
+    try {
+        // STEP 1: Submit client data (Critical Step)
+        const insertRes = await fetch(`${API_URL}/acc_insertarrays`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(clientData),
+        });
 
-    if (!insertRes.ok) throw new Error("❌ Failed to create client");
+        if (!insertRes.ok) {
+            const errorText = await insertRes.text();
+            throw new Error(`❌ Failed to create client: ${errorText}`);
+        }
 
-    const inserted = await insertRes.json();
-    console.log("✅ Client Created:", inserted);
-    alert("✅ New Client Created");
+        const inserted = await insertRes.json();
+        console.log("✅ Client Created:", inserted);
+        alert("✅ New Client Created");
+        
+        // --- UI Feedback & Cleanup (Move earlier) ---
+        // If client creation succeeds, we can reset the form IMMEDIATELY.
+        resetForm(); 
+        // We can close the modal/form view immediately if the remaining steps are background tasks.
+       
 
-    // STEP 2: Refresh client list
-    const listRes = await fetch(`${API_URL}/acc_list`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("authToken"),
-      },
-    });
 
-    const updatedData = await listRes.json();
-    dispatch(setUsers(updatedData));
-    console.log("🔄 Client List Updated");
+        // STEP 2: Refresh client list (Can be a background task, but needed for UI)
+        try {
+            const listRes = await fetch(`${API_URL}/acc_list`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: localStorage.getItem("authToken"),
+                },
+            });
 
-    // STEP 3: Conditionally submit collection data
-    if (!todayrate || Number(todayrate) === 0) {
-      alert("⚠️ Amount not added: today rate is missing or zero.");
-      console.warn("⚠️ todayrate is empty or zero");
-      return   resetForm();
+            if (!listRes.ok) throw new Error("Failed to fetch client list for refresh.");
+            
+            const updatedData = await listRes.json();
+            dispatch(setUsers(updatedData));
+            console.log("🔄 Client List Updated");
+
+        } catch (listError) {
+            // Log this error but don't halt the flow, the client was already created.
+            console.error("⚠️ Failed to refresh client list:", listError.message);
+        }
+
+        // STEP 3: Conditionally submit collection data (Run independently after essential steps)
+        if (!rate || rate === 0) {
+            // IMMEDIATE ALERT: The alert here will fire immediately, not wait for Step 4.
+            // alert("⚠️ Amount not added: today rate is missing or zero."); 
+            console.warn("⚠️ todayrate is empty or zero");
+            // The form is already reset and closed (after Step 1 success).
+            // No need for a return or redundant resetForm here.
+            
+        } else {
+            const collectionData = {
+                Distributor_id: parseInt(distributorId),
+                collamount: [(parseInt(amount) / rate).toFixed(3)],
+                colldate: [currentDate],
+                type: "collection",
+                today_rate: rate,
+                paidamount: "",
+            };
+
+            try {
+                const collectionRes = await fetch(`${API_URL}/collection/addamount`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(collectionData),
+                });
+
+                if (!collectionRes.ok) {
+                    const errorText = await collectionRes.text();
+                    // Log but alert a warning, as client creation was a success
+                    console.error(`❌ Collection Add Failed: ${errorText}`);
+                    alert(`⚠️ Collection Add Failed, but Client was created: ${errorText}`);
+                } else {
+                    // const collectionResult = await collectionRes.json();
+                    alert("✅ Amount added successfully");
+                }
+            } catch (collectionError) {
+                console.error("❌ Collection API Error:", collectionError.message);
+                alert(`⚠️ Collection process failed: ${collectionError.message}`);
+            }
+        }
+        
+    } catch (error) {
+        // This catches errors from STEP 1 (client creation) or critical list update failure
+        console.error("❌ Critical Error:", error.message);
+        setError(error.message); // Set error state for UI if applicable
+        alert(`❌ Submission Failed: ${error.message}`);
+    } finally {
+        setLoading(false); // ALWAYS STOP LOADING 🛑
     }
-
-    const collectionData = {
-      Distributor_id: parseInt(distributorId),
-      collamount: [(parseInt(amount) / todayrate).toFixed(3)],
-      colldate: [currentDate],
-      type: "collection",
-      today_rate: todayrate,
-      paidamount: "",
-    };
-
-    console.log("Sending Collection Data:", collectionData);
-
-    const collectionRes = await fetch(`${API_URL}/collection/addamount`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(collectionData),
-    });
-
-    if (!collectionRes.ok) {
-      const errorText = await collectionRes.text();
-      throw new Error(`❌ Collection Add Failed: ${errorText}`);
-    }
-
-    const collectionResult = await collectionRes.json();
-    console.log("✅ Collection Added:", collectionResult);
-    alert("✅ Amount added successfully");
-
-    // STEP 4: Reset the form only after all succeed
-  
-   resetForm()
-  } catch (error) {
-    console.error("❌ Error:", error.message);
-    alert(`❌ Submission Failed: ${error.message}`);
-  }
 };
-
-
 
 
 const resetForm = () => {
