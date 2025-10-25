@@ -184,6 +184,70 @@ function Allemployee() {
     return url;
   };
 
+
+   const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const Authorization = localStorage.getItem("authToken");
+
+    if (!Authorization) {
+      console.error("Authorization token is missing");
+      return;
+    }
+
+    try {
+
+      const response = await fetch(`${API_URL}/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: Authorization,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch employee list");
+      }
+
+
+      const employeeData = new FormData();
+      employeeData.append("username", username);
+      employeeData.append("email", email);
+      employeeData.append("password", password);
+      employeeData.append("phone_number", phone_number);
+      employeeData.append("city", city);
+      employeeData.append("role", role);
+
+
+      const signupResponse = await fetch(`${API_URL}/signup`, {
+        method: "POST",
+        body: employeeData,
+      });
+
+      if (!signupResponse.ok) {
+        throw new Error("Something went wrong!");
+      }
+
+      const data = await signupResponse.json();
+      alert("New Employee successfully created");
+      setUsername("");
+      setPhone_number("");
+      setCity("");
+      setPassword("");
+      setEmail("");
+      setConfirmpassword("")
+      setShow(false);
+      fetchEmployees();
+
+
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+
+
+
     return (
         <div style={{ marginTop: "50px", width: '100%' }}>
             <div className="page-header">
@@ -346,7 +410,7 @@ function Allemployee() {
                         <Modal.Title>Add New Employee</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <form >
+                        <form onSubmit={handleSubmit} >
                             <div className="row d-flex gap-5 xl-gap-1 justify-content-center align-items-center col-xxl-12 col-xl-12 col-md-12 col-12">
                                 <div className="txt_field col-xxl-5 col-xl-5 col-lg-5 col-md-10 col-sm-10">
                                     <input
