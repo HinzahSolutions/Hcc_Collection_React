@@ -1498,8 +1498,8 @@ const handleSubmitUpdate2 = async () => {
           msOverflowStyle: "none",
         }}>
           <div className="page-header">
-            <h1>Employee</h1>
-            <small>Employee / Dash</small>
+            <h1>Distributor</h1>
+            <small>Distributor / Dash</small>
           </div>
 
           <div className="analytics">
@@ -2129,6 +2129,7 @@ const handleSubmitUpdate2 = async () => {
                     placeholder="Enter amount"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
+                  
                   />
                 </Form.Group>
               </Form>
