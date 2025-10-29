@@ -11,7 +11,10 @@ import { format, parse } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaRegCalendarAlt } from "react-icons/fa";
-
+import AddClientForm from "./AddClientForm";
+import { authFetch } from "./authFetch";
+import AssignModal from "./AssignModal";
+import ExportModal from "./ExportModal";
 
 
 function Client() {
@@ -69,10 +72,10 @@ function Client() {
   const Dtpuserid = localStorage.getItem('user_id');
   const [searchText, setSearchText] = useState('');
   const [showDistList, setShowDistList] = useState(false);
-
-
-
-
+  const [showAssign, setShowAssign] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  
   const distributorRef = useRef(null);
 
   useEffect(() => {
@@ -1023,10 +1026,101 @@ function Client() {
   // };
 
 
-  const handleDelete = (clientId) => {
+//   const handleDelete = (clientId) => {
+//   const Authorization = localStorage.getItem("authToken");
+
+//   // Find the specific client
+//   const particularClient = users.find(
+//     (user) => user.client_id === clientId
+//   );
+
+//   if (!particularClient) {
+//     console.warn("❌ Client not found in 'users'");
+//     return;
+//   }
+
+//   // Prepare the data *before* deleting
+//   const clientData = {
+//     Distributor_id: parseInt(particularClient.Distributor_id),
+//     colldate: particularClient.date,
+//     amount: parseFloat(
+//       (particularClient.amount / particularClient.today_rate).toFixed(3)
+//     ),
+//     type: "collection",
+//   };
+
+//   console.log("📝 Prepared clientData:", clientData);
+
+//   // --- STEP 1: Delete client ---
+//   fetch(`${API_URL}/acc_delete/${clientId}`, {
+//     method: "DELETE",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization,
+//     },
+//   })
+//     .then(async (response) => {
+//       if (!response.ok) {
+//         throw new Error("Failed to delete client");
+//       }
+
+//       const data = await response.json();
+//       console.log("✅ Client deleted:", data);
+
+//       // --- STEP 2: Close modal + show toast immediately ---
+//       setShowConfirmModal(false);
+//       setToastMessage(`Client ${particularClient.client_name} deleted successfully!`);
+//       setShowToast(true);
+
+//       // --- STEP 3: Delay update + refresh for smooth UX ---
+//       setTimeout(async () => {
+//         try {
+//           // ✅ Update collection
+//           const updateRes = await fetch(`${API_URL}/collection/update`, {
+//             method: "PUT",
+//             headers: {
+//               "Content-Type": "application/json",
+//             },
+//             body: JSON.stringify(clientData),
+//           });
+
+//           const updateData = await updateRes.json();
+//           if (updateRes.ok) {
+//             console.log("✅ Amount updated:", updateData);
+//           } else {
+//             console.error(
+//               "❌ Update failed:",
+//               updateData.message || updateData.error
+//             );
+//           }
+
+//           // ✅ Refresh list after update
+//           const listRes = await fetch(`${API_URL}/acc_list`, {
+//             method: "GET",
+//             headers: {
+//               "Content-Type": "application/json",
+//               Authorization: localStorage.getItem("authToken"),
+//             },
+//           });
+
+//           const updatedData = await listRes.json();
+//           dispatch(setUsers(updatedData));
+//           console.log("🔄 Client List Updated (after delay)");
+
+//         } catch (error) {
+//           console.error("❌ Error during update or refresh:", error.message);
+//         }
+//       }, 4000); // ⏳ Wait 4 seconds before updating view
+//     })
+//     .catch((error) => {
+//       console.error("❌ Error deleting client:", error);
+//     });
+// };
+
+
+const handleDelete = async (clientId) => {
   const Authorization = localStorage.getItem("authToken");
 
-  // Find the specific client
   const particularClient = users.find(
     (user) => user.client_id === clientId
   );
@@ -1036,7 +1130,6 @@ function Client() {
     return;
   }
 
-  // Prepare the data *before* deleting
   const clientData = {
     Distributor_id: parseInt(particularClient.Distributor_id),
     colldate: particularClient.date,
@@ -1048,71 +1141,59 @@ function Client() {
 
   console.log("📝 Prepared clientData:", clientData);
 
-  // --- STEP 1: Delete client ---
-  fetch(`${API_URL}/acc_delete/${clientId}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization,
-    },
-  })
-    .then(async (response) => {
-      if (!response.ok) {
-        throw new Error("Failed to delete client");
-      }
-
-      const data = await response.json();
-      console.log("✅ Client deleted:", data);
-
-      // --- STEP 2: Close modal + show toast immediately ---
-      setShowConfirmModal(false);
-      setToastMessage(`Client ${particularClient.client_name} deleted successfully!`);
-      setShowToast(true);
-
-      // --- STEP 3: Delay update + refresh for smooth UX ---
-      setTimeout(async () => {
-        try {
-          // ✅ Update collection
-          const updateRes = await fetch(`${API_URL}/collection/update`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(clientData),
-          });
-
-          const updateData = await updateRes.json();
-          if (updateRes.ok) {
-            console.log("✅ Amount updated:", updateData);
-          } else {
-            console.error(
-              "❌ Update failed:",
-              updateData.message || updateData.error
-            );
-          }
-
-          // ✅ Refresh list after update
-          const listRes = await fetch(`${API_URL}/acc_list`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: localStorage.getItem("authToken"),
-            },
-          });
-
-          const updatedData = await listRes.json();
-          dispatch(setUsers(updatedData));
-          console.log("🔄 Client List Updated (after delay)");
-
-        } catch (error) {
-          console.error("❌ Error during update or refresh:", error.message);
-        }
-      }, 4000); // ⏳ Wait 4 seconds before updating view
-    })
-    .catch((error) => {
-      console.error("❌ Error deleting client:", error);
+  try {
+    // --- STEP 1: Delete client ---
+    const deleteRes = await fetch(`${API_URL}/acc_delete/${clientId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization,
+      },
     });
+
+    if (!deleteRes.ok) throw new Error("Failed to delete client");
+
+    const data = await deleteRes.json();
+    console.log("✅ Client deleted:", data);
+
+    // --- STEP 2: UI feedback immediately ---
+    setShowConfirmModal(false);
+    setToastMessage(`Client ${particularClient.client_name} deleted successfully!`);
+    setShowToast(true);
+
+    // --- STEP 3: Do both update + refresh in parallel for speed ---
+    const [updateRes, listRes] = await Promise.all([
+      fetch(`${API_URL}/collection/update`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(clientData),
+      }),
+      fetch(`${API_URL}/acc_list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization,
+        },
+      }),
+    ]);
+
+    // --- Handle update ---
+    const updateData = await updateRes.json();
+    if (updateRes.ok) {
+      console.log("✅ Amount updated:", updateData);
+    } else {
+      console.error("❌ Update failed:", updateData.message || updateData.error);
+    }
+
+    // --- Handle refresh ---
+    const updatedData = await listRes.json();
+    dispatch(setUsers(updatedData));
+    console.log("🔄 Client List Updated (fast refresh)");
+  } catch (error) {
+    console.error("❌ Error deleting client:", error);
+  }
 };
+
 
 
   const showConfirm = (clientId, clientName) => {
@@ -1422,80 +1503,170 @@ function Client() {
   };
 
 
-
   const handleDistributorSubmit = async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (!distributorname.trim() || !distributorcontact.trim()) {
-      alert("Please fill in all required fields (Name and Contact).");
+  // ✅ 1. Validate input before sending
+  if (!distributorname.trim() || !distributorcontact.trim() || !todayRate.trim()) {
+    alert("Please fill all required fields (Name, Contact, and Today Rate).");
+    return;
+  }
+
+  const Authorization = localStorage.getItem("authToken");
+  const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  if (!Authorization) {
+    alert("Authorization token is missing. Please log in again.");
+    return;
+  }
+
+  try {
+    // ✅ 2. Prepare clean JSON payload
+    const distributorData = {
+      username: distributorname.trim(),
+      phone_number: distributorcontact.trim(),
+      role: "Distributor",
+      today_rate_date: currentDate,
+      Distributor_today_rate: todayRate.trim(),
+    };
+
+    console.log("Sending distributor data:", distributorData);
+
+    // ✅ 3. Send safe JSON request
+    const signupResponse = await fetch(`${API_URL}/distrbutorCreated`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Authorization,
+      },
+      body: JSON.stringify(distributorData),
+    });
+
+    // ✅ 4. Handle non-OK responses gracefully
+    if (!signupResponse.ok) {
+      const errText = await signupResponse.text();
+      console.error("Server returned error:", errText);
+      alert("⚠️ Unable to add distributor. The server is temporarily unavailable.");
       return;
     }
 
-    const Authorization = localStorage.getItem("authToken");
-    const currentDate = format(new Date(), "dd-MM-yyyy");
+    const data = await signupResponse.json();
 
-    if (!Authorization) {
-      console.error("Authorization token is missing");
-      return;
-    }
+    // ✅ 5. Success handling
+    alert("✅ New Distributor successfully created!");
+    setDistributorname("");
+    setDistributorcontact("");
+    setTodayrate("");
+    setShow(true);
+    setShowNewDistributorModal(!showNewDistributorModal);
 
-    try {
-      const distributorData = new FormData();
-      distributorData.append("username", distributorname);
-      distributorData.append("phone_number", distributorcontact);
-      distributorData.append("role", "Distributor");
-      distributorData.append("today_rate_date", currentDate);
-      distributorData.append("Distributor_today_rate", todayRate);
-
-      const signupResponse = await fetch(`${API_URL}/distrbutorCreated`, {
-        method: "POST",
-        body: distributorData,
+    // Refresh employee list if needed
+    if (Authorization) {
+      await fetch(`${API_URL}/list`, {
+        method: "GET",
         headers: {
+          "Content-Type": "application/json",
           Authorization: Authorization,
         },
-      });
-
-      if (!signupResponse.ok) {
-        throw new Error("Something went wrong while adding the distributor!");
-      }
-
-      const data = await signupResponse.json();
-      alert("New Distributor successfully created!");
-      setDistributorname("");
-      setDistributorcontact("");
-      setTodayrate("");
-      setShow(true);
-      setShowNewDistributorModal(!showNewDistributorModal);
-
-      if (Authorization) {
-        await fetch(`${API_URL}/list`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: Authorization,
-          },
+      })
+        .then((response) => {
+          if (response.status === 401) {
+            console.error("Unauthorized access - redirecting to login");
+            handleUnauthorizedAccess();
+            return;
+          }
+          return response.json();
         })
-          .then((response) => {
-            if (response.status === 401) {
-              console.error("Unauthorized access - redirecting to login");
-              handleUnauthorizedAccess();
-              return;
-            }
-            return response.json();
-          })
-          .then((data) => dispatch(setEmployees(data)))
-          .catch((error) => console.error("Fetch error:", error));
-      } else {
-        console.error("No authorization token found in localStorage");
-      }
-
-      // ✅ Refresh page after all done
-      window.location.reload();
-
-    } catch (error) {
-      console.error("Error:", error);
+        .then((data) => dispatch(setEmployees(data)))
+        .catch((error) => console.error("Fetch error:", error));
     }
-  };
+
+    // ✅ Optional: refresh page after success
+    window.location.reload();
+
+  } catch (error) {
+    // ✅ 6. Catch network or unexpected issues
+    console.error("Unexpected error:", error);
+    alert("🚨 Something went wrong while adding the distributor. Please try again later.");
+  }
+};
+
+
+
+
+  // const handleDistributorSubmit = async (event) => {
+  //   event.preventDefault();
+
+  //   if (!distributorname.trim() || !distributorcontact.trim()) {
+  //     alert("Please fill in all required fields (Name and Contact).");
+  //     return;
+  //   }
+
+  //   const Authorization = localStorage.getItem("authToken");
+  //   const currentDate = format(new Date(), "dd-MM-yyyy");
+
+  //   if (!Authorization) {
+  //     console.error("Authorization token is missing");
+  //     return;
+  //   }
+
+  //   try {
+  //     const distributorData = new FormData();
+  //     distributorData.append("username", distributorname);
+  //     distributorData.append("phone_number", distributorcontact);
+  //     distributorData.append("role", "Distributor");
+  //     distributorData.append("today_rate_date", currentDate);
+  //     distributorData.append("Distributor_today_rate", todayRate);
+
+  //     const signupResponse = await fetch(`${API_URL}/distrbutorCreated`, {
+  //       method: "POST",
+  //       body: distributorData,
+  //       headers: {
+  //         Authorization: Authorization,
+  //       },
+  //     });
+
+  //     if (!signupResponse.ok) {
+  //       throw new Error("Something went wrong while adding the distributor!");
+  //     }
+
+  //     const data = await signupResponse.json();
+  //     alert("New Distributor successfully created!");
+  //     setDistributorname("");
+  //     setDistributorcontact("");
+  //     setTodayrate("");
+  //     setShow(true);
+  //     setShowNewDistributorModal(!showNewDistributorModal);
+
+  //     if (Authorization) {
+  //       await fetch(`${API_URL}/list`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: Authorization,
+  //         },
+  //       })
+  //         .then((response) => {
+  //           if (response.status === 401) {
+  //             console.error("Unauthorized access - redirecting to login");
+  //             handleUnauthorizedAccess();
+  //             return;
+  //           }
+  //           return response.json();
+  //         })
+  //         .then((data) => dispatch(setEmployees(data)))
+  //         .catch((error) => console.error("Fetch error:", error));
+  //     } else {
+  //       console.error("No authorization token found in localStorage");
+  //     }
+
+  //     // ✅ Refresh page after all done
+  //     window.location.reload();
+
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
 
 
 
@@ -1517,6 +1688,8 @@ function Client() {
   //     setTodayRate(0);
   //   }
   // };
+ 
+ 
   const [showRateInput, setShowRateInput] = useState(false);
 
   const handleDistributorChange = (e) => {
@@ -1726,7 +1899,12 @@ function Client() {
               Add New
             </Button>
 
-            {
+
+            {/* <Button variant="primary" size="sm" onClick={() => setShowAdd(true)}>
+            Add New
+          </Button> */}
+
+            {/* {
               conformrole === "Admin" ? (
                 <Button className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }} onClick={() => setAllClient(true)} >
                   Assign{selectedRows.length > 0 && (
@@ -1736,7 +1914,21 @@ function Client() {
                   )}
                 </Button>
               ) : (<span></span>)
-            }
+            } */}
+
+            {conformrole === "Admin" && (
+            <Button  className="btn btn-primary position-relative text-nowrap" style={{ minWidth: "80px" }}
+             
+           
+              onClick={() => setShowAssign(true)}
+              disabled={!selectedRows.length}
+            >
+            Assign{selectedRows.length > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {selectedRows.length}
+                    </span> )}
+            </Button>
+          )}
 
 
 
@@ -1745,7 +1937,7 @@ function Client() {
 
 
           <div className="d-flex align-items-center gap-2 ">
-            {
+            {/* {
               conformrole === "Admin" ? (
                 <Button
                   onClick={exportToCSV}
@@ -1759,7 +1951,22 @@ function Client() {
                   )}
                 </Button>
               ) : (<span></span>)
-            }
+            } */}
+
+            {conformrole === "Admin" && (
+                <Button
+                   onClick={() => setShowExport(true)}
+                  className="btn btn-primary position-relative text-nowrap"
+                  style={{ minWidth: "120px" }} >
+                  Export to CSV
+                  {selectedRows.length > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {selectedRows.length}
+                    </span>
+                  )}
+                </Button>
+          
+          )}
 
 
 
@@ -2475,7 +2682,7 @@ function Client() {
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      {/* <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Select Bank</Modal.Title>
         </Modal.Header>
@@ -2516,7 +2723,33 @@ function Client() {
             Confirm & Export
           </Button>
         </Modal.Footer>
-      </Modal>
+      </Modal> */}
+
+
+      {showAdd && (
+        <AddClientForm
+          onClose={() => setShowAdd(false)}
+          employees={employees}
+          authFetch={authFetch}
+          dispatch={dispatch}
+        />
+      )}
+
+      {showAssign && (
+        <AssignModal
+          selectedRows={selectedRows}
+          employees={employees}
+          employeeId={employeeId}
+          setEmployeeId={setEmployeeId}
+          onClose={() => setShowAssign(false)}
+          authFetch={authFetch}
+          dispatch={dispatch}
+        />
+      )}
+
+      {showExport && (
+        <ExportModal selectedRows={selectedRows} onClose={() => setShowExport(false)} />
+      )}
 
     </div>
   );
