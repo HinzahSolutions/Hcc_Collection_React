@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { parse, subDays, format, parseISO } from "date-fns";
 import { GiReceiveMoney } from "react-icons/gi";
+import PayModal from "./PayModal";
 
 
 function Employee() {
@@ -50,6 +51,7 @@ function Employee() {
   const [allClient, setAllClient] = useState(false)
   const [employeeId, setEmployeeId] = React.useState("");
   const [clientIdArray, setClientIdArray] = useState([]);
+  const [showpay,setShowpay] = useState(false)
 
 
 
@@ -1480,6 +1482,17 @@ const handleSubmitUpdate2 = async () => {
   console.log("intercoll amount",interCollSum)
 }, [amountData]);
 
+const [sendname,setSendname] = useState("")
+const [sendid,setSendid] = useState()
+
+ 
+  const payidsend =(id,name) =>{
+        setSendname(name)
+        setSendid(id)
+        setShowpay(true)
+        console.log("hbcdhh",id)
+  }
+
 
 
   return (
@@ -2030,6 +2043,20 @@ const handleSubmitUpdate2 = async () => {
                                 >
                                   DELETE
                                 </span>
+                                  <span
+                                  className=""
+                                  style={{
+                                    cursor: "pointer",
+                                    fontSize: "11px",
+                                    backgroundColor: "#064126ff",
+                                    padding: "5px 10px",
+                                    color: "white",
+                                    borderRadius: "10px",
+                                  }}
+                                  onClick={() => payidsend(row.user_id,row.username)}
+                                >
+                                  PAY
+                                </span>
                                 {
                                   row.role === "Distributor" ? (
                                     <span
@@ -2353,6 +2380,16 @@ const handleSubmitUpdate2 = async () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+       {showpay && (
+              <PayModal
+             
+                employeeid={sendid}
+                employeename={sendname}
+                onClose={() => setShowpay(false)}
+                
+              />
+            )}
     </div>
   );
 }

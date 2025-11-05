@@ -2,7 +2,7 @@
 
 
 import React, { useState, useMemo, useEffect } from "react";
-import { InputGroup, FormControl, Form, Table, Button, Modal } from "react-bootstrap";
+import { InputGroup, FormControl, Form, Table, Button, Modal,Toast } from "react-bootstrap";
 
 
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +19,7 @@ function Alldata() {
   const [selectedAgent, setSelectedAgent] = useState("");
   const [selectedDistributor, setSelectedDistributer] = useState("")
   const [paidmodel, setPaidmodel] = useState(false)
-  const [disid, setDisid] = useState()
+  const [ disid, setDisid] = useState()
   const [disamount, setDisamount] = useState()
   const [type, setType] = useState("collection")
   const AddNewClientDate = format(new Date(), "dd-MM-yyyy");
@@ -34,6 +34,13 @@ function Alldata() {
   const navigate = useNavigate();
 
   const [changetable, setChangetable] = useState("paid")
+
+
+   const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [clientIdToDelete, setClientIdToDelete] = useState(null);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [clientNameToDelete, setClientNameToDelete] = useState();
 
   // Fetch data
   useEffect(() => {
@@ -112,7 +119,7 @@ function Alldata() {
     });
   };
 
-  const filteredData = useMemo(getFilteredData, [users, startDate, endDate, selectedAgent]);
+  const filteredData = useMemo(getFilteredData, [users, startDate, endDate, selectedAgent,]);
 
 
 
@@ -259,17 +266,18 @@ function Alldata() {
 
   const updatetheamount = () => {
     const clientData = {
-      Distributor_id: parseInt(disid),            // Convert to number
-      collamount: "",         // Wrap in array
-      colldate: [AddNewClientDate],              // Wrap in array
+      Distributor_id: parseInt(disid),       
+      collamount: "",      
+      colldate: [AddNewClientDate],            
       type: type,
       today_rate: "270",
       paidamount: [parseInt(disamount)],
       distname: disfullname,
       agent_id: null,
       collection_id: null
-
     };
+
+
     console.log("Sending:", clientData);
 
     fetch(`${API_URL}/collection/addamount`, {
@@ -300,9 +308,9 @@ function Alldata() {
       });
   };
 
+  
 
-
-  useEffect(() => {
+  const fetchAmountData = async () =>{
     const token = localStorage.getItem("authToken");
 
     fetch(`${API_URL}/collection/getamount`, {
@@ -325,7 +333,12 @@ function Alldata() {
       .catch((error) => {
         console.error("❌ Fetch failed:", error.message);
       });
-  }, []);
+  };
+
+    // Fetch on mount
+useEffect(() => {
+  fetchAmountData();
+}, []);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -452,7 +465,7 @@ function Alldata() {
 
   useEffect(() => {
     runFilter();
-  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor]);
+  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor,clientIdToDelete]);
 
 
 
@@ -461,7 +474,7 @@ function Alldata() {
 
   useEffect(() => {
     runFilter();
-  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor]);
+  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor,clientIdToDelete]);
 
   const runFilter = () => {
     console.log("🔎 Filtering started...");
@@ -539,11 +552,11 @@ function Alldata() {
 
   console.log(filldata)
 
-  const handleRemovePayment = async () => {
+  const handleRemovePayment = async (clientIdToDelete) => {
 
 
     try {
-      const response = await fetch(`${API_URL}/collection/paid/delete/${parseInt(disid)}`, {
+      const response = await fetch(`${API_URL}/collection/paid/delete/${parseInt(clientIdToDelete)}`, {
         method: 'DELETE',
       });
 
@@ -557,6 +570,13 @@ function Alldata() {
       const data = text ? JSON.parse(text) : {};
 
       console.log('deleted', data);
+       setToastMessage("Amount deleted successfully!");
+      setShowConfirmModal(false)
+    setShowToast(true);
+     
+      setClientIdToDelete()
+     await fetchAmountData();
+   
 
     } catch (error) {
       console.error('Error:', error.message);
@@ -570,6 +590,13 @@ function Alldata() {
       return "/images/fallback.jpg";
     };
     return url;
+  };
+
+
+  const showConfirm = (clientId, clientName) => {
+    setClientIdToDelete(clientId);
+    setClientNameToDelete(clientName);
+    setShowConfirmModal(true);
   };
 
 
@@ -803,6 +830,7 @@ function Alldata() {
                   <th>Date</th>
                  
                   <th>Amount</th>
+                  <th>status</th>
                 </tr>
               </thead>
               <tbody>
@@ -848,6 +876,22 @@ function Alldata() {
 
                       </div>
                     </td>
+                    <td>
+                         <span
+                                  className=""
+                                  style={{
+                                    cursor: "pointer",
+                                    fontSize: "11px",
+                                    backgroundColor: "#fa2e2eff",
+                                    padding: "5px 10px",
+                                    color: "white",
+                                    borderRadius: "10px",
+                                  }}
+                                  onClick={() => showConfirm(item.id,item.paidamount)}
+                                >
+                                  Delete
+                                </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -882,6 +926,43 @@ function Alldata() {
         </Modal.Footer>
 
       </Modal>
+
+           <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Confirm Deletion</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Are you sure you want to delete the  "<span className="fw-bold">{clientNameToDelete && parseFloat(clientNameToDelete[0]).toFixed(3)}</span>"?
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => { if (clientIdToDelete) {handleRemovePayment(clientIdToDelete); } }}>
+                  Delete
+                </Button>
+              </Modal.Footer>
+            </Modal>
+             <Toast
+                    style={{
+                      position: 'fixed',
+                      top: 20,
+                      right: 20,
+                      zIndex: 9999,
+                      backgroundColor: "green",
+                      color: "white",
+                    }}
+                    show={showToast}
+                    onClose={() => setShowToast(false)}
+                    delay={3000}
+                    autohide
+                  >
+                    <Toast.Body>{toastMessage}</Toast.Body>
+                  </Toast>
+
+
     </div>
 
 

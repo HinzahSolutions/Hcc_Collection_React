@@ -396,6 +396,8 @@ function Allemployee() {
                                         >
                                             DELETE
                                         </span>
+                                        
+                                      
                                     </div>
                                 </td>
                             </tr>
