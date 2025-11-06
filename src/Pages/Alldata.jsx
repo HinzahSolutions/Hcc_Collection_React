@@ -463,18 +463,17 @@ useEffect(() => {
   const [totalcolltodayrate, setTotalcolltodayrate] = useState()
 
 
-  useEffect(() => {
-    runFilter();
-  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor,clientIdToDelete]);
+  // useEffect(() => {
+  //   runFilter();
+  // }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor,clientIdToDelete]);
+
+
+ useEffect(() => {
+  if (changetable !== "balance") runFilter();
+}, [changetable, amountData, startDate, endDate, selectedAgent, selectedDistributor]);
 
 
 
-
-
-
-  useEffect(() => {
-    runFilter();
-  }, [amountData, startDate, endDate, changetable, selectedAgent, selectedDistributor,clientIdToDelete]);
 
   const runFilter = () => {
     console.log("🔎 Filtering started...");
@@ -599,7 +598,51 @@ useEffect(() => {
     setShowConfirmModal(true);
   };
 
+    
+  const [searchTerm, setSearchTerm] = useState("");
 
+ const balanceData = useMemo(() => {
+  // 1. Group every record by Distributor_id
+  const map = new Map();
+
+  amountData.forEach((item) => {
+    const id = item.Distributor_id;
+    if (!map.has(id)) {
+      map.set(id, { coll: 0, paid: 0 });
+    }
+    const bucket = map.get(id);
+
+    // collection amount
+    const coll = Array.isArray(item.collamount)
+      ? parseFloat(item.collamount[0]) || 0
+      : parseFloat(item.collamount) || 0;
+    bucket.coll += coll;
+
+    // paid amount
+    const paid = Array.isArray(item.paidamount)
+      ? parseFloat(item.paidamount[0]) || 0
+      : parseFloat(item.paidamount) || 0;
+    bucket.paid += paid;
+  });
+
+  // 2. Convert map → array + attach name
+  return Array.from(map.entries())
+    .map(([distId, totals]) => ({
+      Distributor_id: distId,
+      totalColl: totals.coll.toFixed(3),
+      totalPaid: totals.paid.toFixed(3),
+      balance: (totals.coll - totals.paid).toFixed(3),
+    }))
+    .filter((row) => {
+      if (!searchTerm) return true;
+      const name =
+        employees
+          .find((e) => e.user_id == row.Distributor_id)
+          ?.username.toLowerCase() || "";
+      return name.includes(searchTerm.toLowerCase());
+    })
+    .sort((a, b) => a.Distributor_id - b.Distributor_id);
+}, [amountData, employees, searchTerm]);
 
   return (
     <div className="mt-5 ">
@@ -660,7 +703,7 @@ useEffect(() => {
 
       <div className="record-header d-flex justify-content-between">
         <div className="">
-          <div className="d-flex gap-2">
+          <div className="d-flex ">
             <Button
               variant={changetable === "collection" ? "primary" : "outline-primary"}
                 style={{ width:'auto' }}
@@ -677,32 +720,33 @@ useEffect(() => {
               Paid
             </Button>
 
+            <Button
+    variant={changetable === "balance" ? "primary" : "outline-primary"}
+    style={{ width: "auto" }}
+    onClick={() => {
+      setChangetable("balance");
+      setSelectedAgent("");
+      setSelectedDistributer("");
+      setStartDate("");
+      setEndDate("");
+    }}
+  >
+    Balance
+  </Button>
+
 {/* 
             <button onClick={() => setPaidmodel(true)} className="btn btn-primary w-auto">
                      distributer Amount update
              </button>   */}
           </div>
         </div>
+        {changetable !== "balance" && (
         <div className="d-flex gap-2 flex-wrap  justify-content-center p-2  ">
           <div className="d-flex gap-2 sm-flex-wrap md-flex-wrap pt-2">
-            {/* <Form.Select
-              value={selectedDistributor}
-              onChange={(e) => setSelectedDistributer(e.target.value)}
-              style={{ minWidth: "180px", }}
-            >
-              <option value="" style={{ paddingBottom: "20px" }}>All Agents</option>
-              {employees
-                .filter(e => e.role === "Distributor")
-                .map(agent => (
-                  <option key={agent.user_id} value={agent.user_id}>
-                    {agent.username}
-                  </option>
-                ))}
-            </Form.Select> */}
             <Form.Select
               value={selectedDistributor}
               onChange={(e) => setSelectedDistributer(e.target.value)}
-              style={{ minWidth: "180px" }}
+              style={{ maxWidth: "160px", minWidth: "180px", }}
             >
               <option value="">All Distributer</option>
               {employees
@@ -719,7 +763,7 @@ useEffect(() => {
                       <Form.Select
               value={selectedAgent}
               onChange={(e) => setSelectedAgent(e.target.value)}
-              style={{ minWidth: "180px", }}
+              style={{ minWidth: "180px", maxWidth: "160px", }}
             >
               <option value="" style={{ paddingBottom: "20px" }}>All Agents</option>
               {employees
@@ -750,6 +794,18 @@ useEffect(() => {
             </InputGroup>
           </div>
         </div>
+        )}
+        {changetable === "balance" && (
+  <div className="d-flex gap-2  justify-content-center p-2 ">
+    <Form.Control
+      type="text"
+      placeholder="Search distributor..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      style={{ maxWidth: "300px" }}
+    />
+  </div>
+)}
       </div>
 
       {/* Payments Table */}
@@ -896,7 +952,59 @@ useEffect(() => {
                 ))}
               </tbody>
             </table>
-          ) : (
+          ) : changetable === "balance" ? (
+  <table className="table table-striped" responsive>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Distributor Name</th>
+        <th>Total Collection (Local)</th>
+        <th>Total Paid (Local)</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      {balanceData.map((row, idx) => {
+        const name =
+          employees.find((e) => e.user_id == row.Distributor_id)?.username ||
+          `ID ${row.Distributor_id}`;
+        const bal = parseFloat(row.balance);
+        return (
+          <tr key={row.Distributor_id}>
+            <td>{idx + 1}</td>
+                   <td>
+                      <div className="client">
+                        <div
+                          className="client-img bg-img"
+                          style={{
+                            backgroundImage:
+                              `url(${imageExists(
+                                "https://i.pinimg.com/564x/8d/ff/49/8dff49985d0d8afa53751d9ba8907aed.jpg"
+                              )})`
+                            ,
+                          }}
+                        ></div>
+                        <div className="client-info">
+                          <h4>  
+                        {name.toUpperCase()}
+                      </h4>
+
+                        </div>
+                      </div>
+                    </td>
+                    
+            
+            <td>{row.totalColl}</td>
+            <td>{row.totalPaid}</td>
+            <td style={{ color: bal < 0 ? "red" : "green", fontWeight: "600" }}>
+              {row.balance}
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+):(
             <div>No Data</div>
           )
         }

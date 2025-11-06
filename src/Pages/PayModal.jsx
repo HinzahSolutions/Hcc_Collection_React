@@ -112,12 +112,12 @@ export default function PayModal({ employeeid, employeename, onClose, type = "pa
           Enter the Amount
         </p>
         <div className="position-relative">
-          <span
-            className="position-absolute top-50 start-0 translate-middle-y ps-3"
-            style={{ color: "#64748b", fontWeight: "600", fontSize: "1.1rem" }}
+          {/* <span
+            className="position-absolute top-50 start-0 translate-middle-y ps-3 px-2"
+            style={{ color: "#64748b", fontWeight: "600", fontSize: "1.1rem",paddingRight:'4px' }}
           >
-            KWD
-          </span>
+            KWD   
+          </span> */}
           <input
             type="number"
             value={amount}
@@ -131,10 +131,11 @@ export default function PayModal({ employeeid, employeename, onClose, type = "pa
               outline: "none",
               appearance: "textfield",
               MozAppearance: "textfield",
+              paddingLeft:"4  px"
             }}
             min="0"
             step="0.01"
-            placeholder="0.00"
+            placeholder="0.000"
             disabled={isLoading}
             onWheel={(e) => e.target.blur()}
           />
